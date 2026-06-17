@@ -1,0 +1,2519 @@
+<style>
+ /* ── Calendar-matched theme (flat, brutalist, Arial/MS Gothic) ─────
+    Overrides the Claude design tokens so this sheet matches the RP Calendar. */
+ :root {
+   --font-sans: Arial, 'MS Gothic', sans-serif;
+   --color-text-primary: #000;
+   --color-text-secondary: #222;
+   --color-text-tertiary: #666;
+   --color-text-success: #008000;
+   --color-text-warning: #b35900;
+   --color-text-danger: #cc0000;
+   --color-text-info: #000;
+   --color-background-primary: #f0f0f0;
+   --color-background-secondary: #f0f0f0;
+   --color-background-tertiary: #e2e2e2;
+   --color-background-success: #dff0df;
+   --color-background-danger: #f4dede;
+   --color-background-info: #e4e4e4;
+   --color-border-primary: #444;
+   --color-border-secondary: #888;
+   --color-border-tertiary: #888;
+   --color-border-info: #444;
+   --color-border-success: #008000;
+   --color-border-danger: #cc0000;
+   --border-radius-sm: 0px;
+   --border-radius-md: 0px;
+   --border-radius-lg: 0px;
+ }
+ * { box-sizing: border-box; margin: 0; padding: 0; }
+ body { font-family: var(--font-sans); color: var(--color-text-primary); }
+ .panel { padding: 12px; background: #d4d4d4; border: 2px solid #444; }
+ .tv-title { font-size: 10px; letter-spacing: 0.18em; font-weight: bold; text-transform: uppercase; color: #555; margin-bottom: 14px; }
+ .sr-only { display: none; }
+ .section { background: #d4d4d4; border: none; border-top: 1.5px solid #444; border-radius: 0; padding: 14px 2px; margin-bottom: 0; }
+ .section:first-of-type { border-top: none; }
+ /* Navigation accent colors (left border per functional group) */
+ .section.acc-cosmic { border-left: 4px solid #6a4fb0; padding-left: 12px; }
+ .section.acc-character { border-left: 4px solid #008000; padding-left: 12px; }
+ .section.acc-warn { border-left: 4px solid #b35900; padding-left: 12px; }
+ .section.acc-combat { border-left: 4px solid #444; padding-left: 12px; }
+ .section.acc-danger { border-left: 4px solid #cc0000; padding-left: 12px; }
+ .section.acc-gm { border-left: 4px solid #888; padding-left: 12px; }
+ .section.acc-reference { border-left: 4px solid #2a7d70; padding-left: 12px; }
+ .section.acc-cosmic > .section-title { color: #6a4fb0; }
+ .section.acc-character > .section-title { color: #008000; }
+ .section.acc-warn > .section-title { color: #b35900; }
+ .section.acc-combat > .section-title { color: #000; }
+ .section.acc-danger > .section-title { color: #cc0000; }
+ .section.acc-reference > .section-title { color: #2a7d70; }
+ .section-title { font-size: 11px; font-weight: bold; color: #222; text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 12px; }
+ .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+ .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+ label.field-label { font-size: 10px; color: #222; font-weight: bold; text-transform: uppercase; letter-spacing: 0.08em; display: block; margin-bottom: 4px; }
+ select, input[type="number"], input[type="text"], textarea { width: 100%; font-family: var(--font-sans); border: 1px solid #888; background: #f0f0f0; color: #000; border-radius: 0; padding: 5px 7px; font-size: 12px; }
+ button { font-family: var(--font-sans); border: 1px solid #555; background: #ddd; color: #000; border-radius: 0; padding: 4px 10px; font-size: 11px; letter-spacing: 0.04em; cursor: pointer; }
+ button:hover { background: #ccc; }
+ .condition-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+ .condition-item { display: flex; align-items: center; gap: 8px; font-size: 11px; cursor: pointer; padding: 5px 8px; border: 1px solid #888; border-radius: 0; background: #f0f0f0; line-height: 1.3; }
+ .condition-item:hover { background: #e2e2e2; }
+ .condition-item input[type="checkbox"] { width: 14px; height: 14px; flex-shrink: 0; cursor: pointer; }
+ .condition-item.active { border-color: #444; background: #e0e0e0; color: #000; }
+ .condition-item.active-neg { border-color: #cc0000; background: #f4dede; color: #cc0000; }
+ .condition-item.active-pos { border-color: #008000; background: #dff0df; color: #008000; }
+ .mod-badge { font-size: 11px; font-weight: bold; margin-left: auto; white-space: nowrap; padding-left: 4px; }
+ .result-card { background: #f0f0f0; border: 1.5px solid #444; border-radius: 0; padding: 12px; text-align: center; }
+ .result-label { font-size: 10px; color: #222; font-weight: bold; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 4px; }
+ .result-number { font-size: 30px; font-weight: bold; }
+ .result-number.high { color: #008000; }
+ .result-number.mid { color: #b35900; }
+ .result-number.low { color: #cc0000; }
+ .roll-row { display: flex; align-items: center; gap: 12px; margin-top: 14px; }
+ .roll-input-wrap { flex: 1; }
+ .roll-input-wrap input { font-size: 20px; text-align: center; }
+ .roll-result { flex: 1; background: #f0f0f0; border: 1.5px solid #444; border-radius: 0; padding: 10px; text-align: center; font-size: 14px; font-weight: bold; min-height: 44px; display: flex; align-items: center; justify-content: center; }
+ .roll-result.hit { color: #008000; }
+ .roll-result.miss { color: #cc0000; }
+ .breakdown { font-size: 11px; color: #222; margin-top: 8px; line-height: 1.6; }
+ .breakdown span { display: inline-block; margin-right: 6px; }
+ .pos { color: #008000; }
+ .neg { color: #cc0000; }
+ .divider { border: none; border-top: 1px solid #888; margin: 14px 0; }
+ .random-btn { font-size: 11px; padding: 6px 14px; }
+ /* Collapsible sub-groups */
+ details { margin-bottom: 6px; }
+ details summary { font-size: 9px; font-weight: bold; color: #666; text-transform: uppercase; letter-spacing: 0.08em; cursor: pointer; padding: 5px 8px; background: #e2e2e2; border: 1px solid #aaa; border-radius: 0; user-select: none; list-style: none; display: flex; align-items: center; justify-content: space-between; }
+ details summary::-webkit-details-marker { display: none; }
+ details summary::after { content: '▾ expand'; font-size: 9px; font-weight: 400; }
+ details[open] summary::after { content: '▴ collapse'; }
+ details .detail-body { padding: 8px 0 2px; }
+ /* Search filter */
+ .search-wrap { position: relative; margin-bottom: 14px; }
+ .search-wrap input { width: 100%; font-size: 13px; padding: 7px 32px 7px 10px; }
+ .search-wrap .clear-x { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer; color: var(--color-text-tertiary); font-size: 16px; display: none; }
+ .search-wrap .clear-x.show { display: block; }
+ .no-match { font-size: 12px; color: var(--color-text-tertiary); font-style: italic; padding: 8px; }
+ /* Mode toggle */
+ .mode-toggle { display: flex; gap: 0; margin-bottom: 1rem; }
+ .mode-btn { flex: 1; padding: 8px; font-size: 13px; cursor: pointer; border: 0.5px solid var(--color-border-tertiary); background: var(--color-background-secondary); }
+ .mode-btn:first-child { border-radius: var(--border-radius-md) 0 0 var(--border-radius-md); }
+ .mode-btn:last-child { border-radius: 0 var(--border-radius-md) var(--border-radius-md) 0; }
+ .mode-btn.active { background: #444; color: #fff; border-color: #222; font-weight: bold; }
+ .spell-cast-note { font-size: 12px; color: var(--color-text-secondary); margin-top: 10px; line-height: 1.5; }
+ .combat-sub { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--color-text-tertiary); margin: 18px 0 8px; padding-top: 12px; border-top: 0.5px solid var(--color-border-tertiary); }
+ #spell-cast-select { width: 100%; margin-bottom: 4px; }
+ /* Miscast tracker */
+ .miscast-row { display: grid; grid-template-columns: auto 1fr auto; gap: 16px; align-items: center; }
+ .char-bar { display: flex; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; align-items: center; }
+ /* Active character sticky banner */
+ .active-banner { position: sticky; top: 0; z-index: 50; display: flex; align-items: center; gap: 10px; background: #c8c8c8; border: 1.5px solid #444; border-radius: 0; padding: 8px 14px; margin-bottom: 14px; }
+ .active-banner .ab-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.12em; color: #555; font-weight: bold; }
+ .active-banner .ab-name { font-size: 15px; font-weight: bold; color: #000; }
+ .active-banner .ab-name.none { color: #666; font-weight: 400; font-style: italic; }
+ .active-banner .ab-hp { margin-left: auto; font-size: 13px; font-weight: bold; color: #008000; }
+ .active-banner .ab-hp.hurt { color: #b35900; }
+ .active-banner .ab-hp.down { color: #cc0000; }
+ /* Character list (searchable selection) */
+ .char-list { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 10px; }
+ .char-chip { font-size: 11px; padding: 4px 10px; border-radius: 0; background: #f0f0f0; border: 1px solid #888; cursor: pointer; }
+ .char-chip:hover { background: #e2e2e2; }
+ .char-chip.active { background: #444; border-color: #222; color: #fff; font-weight: bold; }
+ .char-chip.fainted { opacity: 0.55; text-decoration: line-through; }
+ .char-chip-empty { font-size: 11px; color: #666; font-style: italic; padding: 4px; }
+ /* Faint overlay on combat */
+ .acc-combat { position: relative; }
+ .faint-overlay { position: absolute; inset: 0; z-index: 10; display: flex; align-items: center; justify-content: center; background: rgba(110,110,110,0.6); border-radius: 0; font-size: 26px; font-weight: bold; letter-spacing: 0.2em; color: #fff; text-transform: uppercase; text-shadow: 0 1px 3px rgba(0,0,0,0.5); }
+ .char-bar select { flex: 1; min-width: 160px; }
+ .char-bar input { flex: 1; min-width: 140px; }
+ .char-bar button { padding: 6px 14px; font-size: 13px; cursor: pointer; white-space: nowrap; }
+ .char-bar .char-del { color: var(--color-text-danger); }
+ .sync-status { font-size: 11px; color: var(--color-text-tertiary); margin-bottom: 12px; min-height: 14px; }
+ .sync-status.saving { color: var(--color-text-warning); }
+ .sync-status.saved { color: var(--color-text-success); }
+ .sync-status.error { color: var(--color-text-danger); }
+ .counter-box { display: flex; align-items: center; gap: 8px; }
+ .counter-box button { width: 32px; height: 32px; font-size: 16px; font-weight: 600; cursor: pointer; }
+ .counter-val { font-size: 28px; font-weight: 600; min-width: 36px; text-align: center; }
+ .miscast-chance { text-align: center; }
+ .miscast-chance .mc-num { font-size: 32px; font-weight: 600; }
+ .mc-num.safe { color: var(--color-text-success); }
+ .mc-num.warn { color: var(--color-text-warning); }
+ .mc-num.danger { color: var(--color-text-danger); }
+ .miscast-result { margin-top: 1rem; padding: 12px; border-radius: var(--border-radius-md); text-align: center; font-size: 16px; font-weight: 600; min-height: 46px; display: flex; align-items: center; justify-content: center; background: var(--color-background-secondary); }
+ .miscast-result.clean { color: var(--color-text-success); }
+ .miscast-result.failed { color: var(--color-text-danger); }
+ .miscast-effect { font-size: 13px; font-weight: 400; margin-top: 8px; padding-top: 8px; border-top: 0.5px solid var(--color-border-tertiary); line-height: 1.5; }
+ .miscast-applied { font-size: 12px; font-weight: bold; margin-top: 6px; color: #0a5fb4; }
+ .mc-actions { display: flex; gap: 10px; margin-top: 1rem; }
+ .mc-actions button { flex: 1; padding: 10px; font-size: 14px; cursor: pointer; }
+ .mc-cast-btn { font-weight: 600; }
+ .mc-progression { font-size: 11px; color: var(--color-text-tertiary); margin-top: 10px; line-height: 1.5; }
+ /* Planetary influence */
+ .planet-note { font-size: 12px; color: var(--color-text-secondary); margin-bottom: 12px; line-height: 1.5; }
+ .cal-link { color: #0a5fb4; font-weight: bold; text-decoration: underline; }
+ .planet-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+ .planet-row { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border: 1.5px solid #444; border-radius: 0; background: #f0f0f0; }
+ .planet-row .pr-school { font-size: 13px; font-weight: 600; }
+ .planet-row .pr-planet { font-size: 10px; color: var(--color-text-tertiary); }
+ .planet-states { margin-left: auto; display: flex; gap: 3px; }
+ .pstate-btn { font-size: 10px; padding: 3px 7px; cursor: pointer; border: 0.5px solid var(--color-border-secondary); background: var(--color-background-primary); border-radius: var(--border-radius-sm); }
+ .pstate-btn.on-emp { background: var(--color-background-success); color: var(--color-text-success); border-color: var(--color-border-success); font-weight: 600; }
+ .pstate-btn.on-weak { background: var(--color-background-danger); color: var(--color-text-danger); border-color: var(--color-border-danger); font-weight: 600; }
+ /* Character status */
+ .status-empty { font-size: 13px; color: var(--color-text-tertiary); font-style: italic; }
+ .hp-block { margin-bottom: 1.25rem; }
+ .hp-controls { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+ .hp-label { font-size: 13px; font-weight: 600; color: var(--color-text-secondary); }
+ .hp-controls button { width: 30px; height: 30px; font-size: 16px; font-weight: 600; cursor: pointer; }
+ .hp-value { font-size: 22px; font-weight: 700; min-width: 70px; text-align: center; }
+ .hp-maxedit { display: flex; align-items: center; gap: 5px; font-size: 12px; color: var(--color-text-secondary); }
+ .hp-maxedit input { width: 56px; }
+ .hp-full { width: auto !important; padding: 0 12px; font-size: 12px !important; font-weight: 400 !important; }
+ .hp-bar { display: flex; gap: 3px; margin-top: 10px; }
+ .hp-pip { flex: 1; height: 14px; border-radius: var(--border-radius-sm); border: 0.5px solid var(--color-border-secondary); background: var(--color-background-tertiary); }
+ .hp-pip.filled { background: var(--color-text-success); border-color: var(--color-text-success); }
+ .hp-pip.bleeding { background: var(--color-text-danger); border-color: var(--color-text-danger); }
+ .hp-pip.partial { background: linear-gradient(to right, var(--color-text-success) 50%, var(--color-background-tertiary) 50%); }
+ .bleed-note { margin-top: 8px; font-size: 12px; font-weight: 600; color: var(--color-text-danger); }
+ .cond-block { margin-top: 0.5rem; }
+ .cond-add-row { display: flex; gap: 8px; flex-wrap: wrap; }
+ .cond-add-row input { flex: 1; min-width: 180px; }
+ .cond-add-row button { padding: 6px 12px; font-size: 13px; cursor: pointer; white-space: nowrap; }
+ .cond-bleed-btn { color: var(--color-text-danger); }
+ .cond-picker { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 8px; max-height: 140px; overflow-y: auto; }
+ .cond-pick-item { font-size: 11px; padding: 2px 7px; border-radius: var(--border-radius-sm); background: var(--color-background-secondary); border: 0.5px solid var(--color-border-tertiary); cursor: pointer; }
+ .cond-pick-item:hover { background: var(--color-background-info); border-color: var(--color-border-info); color: var(--color-text-info); }
+ .cond-pick-item.applied { opacity: 0.4; cursor: default; text-decoration: line-through; }
+ .cond-pick-empty { font-size: 12px; color: var(--color-text-tertiary); font-style: italic; padding: 6px; }
+ .cond-list { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 10px; }
+ .cond-list-header { font-size: 12px; font-weight: 600; color: var(--color-text-secondary); cursor: pointer; user-select: none; margin-top: 12px; padding-top: 10px; border-top: 0.5px solid var(--color-border-tertiary); }
+ .cond-list-header .cond-count { color: var(--color-text-tertiary); font-weight: 400; }
+ /* Event record side panel (fixed to right edge on wide screens) */
+ .event-side { position: fixed; top: 80px; right: 16px; width: 270px; max-height: 70vh; z-index: 60; background: var(--color-background-primary); border: 0.5px solid var(--color-border-secondary); border-left: 3px solid var(--color-text-tertiary); border-radius: var(--border-radius-lg); box-shadow: 0 4px 18px rgba(0,0,0,0.12); display: flex; flex-direction: column; overflow: hidden; }
+ .event-side-head { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--color-text-secondary); border-bottom: 0.5px solid var(--color-border-tertiary); background: var(--color-background-secondary); }
+ .event-side-toggle { font-size: 11px; padding: 2px 9px; cursor: pointer; border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-sm); background: var(--color-background-primary); }
+ .event-side-body { padding: 12px 14px; overflow-y: auto; }
+ .event-side.collapsed .event-side-body { display: none; }
+ /* On narrower viewports, drop the side panel back into the normal flow */
+ @media (max-width: 1180px) {
+   .event-side { position: static; width: auto; max-height: none; margin: 0 0 1rem 0; box-shadow: none; }
+ }
+ .cond-chip { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; padding: 2px 6px; border-radius: var(--border-radius-sm); background: var(--color-background-secondary); border: 0.5px solid var(--color-border-tertiary); }
+ .cond-chip.bleed { background: var(--color-background-danger); border-color: var(--color-border-danger); color: var(--color-text-danger); font-weight: 600; }
+ .cond-chip .chip-x { cursor: pointer; font-weight: 700; opacity: 0.6; }
+ .cond-chip .cond-tag { font-size: 10px; color: var(--color-text-tertiary); }
+ .cond-chip .chip-x:hover { opacity: 1; }
+ .cond-empty { font-size: 12px; color: var(--color-text-tertiary); font-style: italic; }
+ .hp-pip.bonus { background: #2a6ec0; border-color: #2a6ec0; }
+ .hp-bonus-note { margin-top: 6px; font-size: 12px; font-weight: bold; color: #2a6ec0; }
+ /* GM notes */
+ .gm-notes { width: 100%; min-height: 90px; font-family: var(--font-sans); font-size: 13px; padding: 10px; border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); background: var(--color-background-secondary); resize: vertical; line-height: 1.5; }
+ /* Event log */
+ .log-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+ .log-actions input { flex: 1; min-width: 180px; }
+ .log-actions button { padding: 6px 12px; font-size: 13px; cursor: pointer; white-space: nowrap; }
+ .log-actions .log-clear { color: var(--color-text-danger); }
+ .log-list { max-height: 320px; overflow-y: auto; }
+ .log-entry { font-size: 12px; padding: 6px 8px; border-bottom: 0.5px solid var(--color-border-tertiary); line-height: 1.4; display: flex; gap: 10px; }
+ .log-entry .log-time { color: var(--color-text-tertiary); white-space: nowrap; flex-shrink: 0; font-variant-numeric: tabular-nums; }
+ .log-entry .log-text { color: var(--color-text-primary); }
+ .log-entry.miscast .log-text { color: var(--color-text-danger); font-weight: 600; }
+ .log-entry.heal .log-text { color: var(--color-text-success); }
+ .log-empty-list { font-size: 12px; color: var(--color-text-tertiary); font-style: italic; padding: 8px; }
+ /* Weapons */
+ .weapon-block { margin-top: 1.25rem; padding-top: 1rem; border-top: 0.5px solid var(--color-border-tertiary); }
+ .weapon-label { font-size: 13px; font-weight: 600; color: var(--color-text-secondary); margin-bottom: 6px; }
+ .weapon-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+ .weapon-row select { flex: 1; min-width: 160px; }
+ .weapon-stats { font-size: 12px; color: var(--color-text-secondary); }
+ .weapon-stats .wel-fire { color: var(--color-text-danger); font-weight: 600; }
+ .dmg-apply-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+ .dmg-label { font-size: 12px; color: var(--color-text-secondary); }
+ .dmg-apply-row select { flex: 1; min-width: 140px; }
+ .dmg-apply-row button { padding: 5px 12px; font-size: 13px; cursor: pointer; }
+ .dmg-result { font-size: 12px; margin-top: 8px; min-height: 16px; }
+ .dmg-result.hit { color: var(--color-text-danger); font-weight: 600; }
+ .dmg-result.negated { color: #0a5fb4; font-weight: bold; }
+ .weapon-add-grid { display: grid; grid-template-columns: 1.5fr 1fr 1fr 0.7fr auto; gap: 8px; margin-bottom: 14px; align-items: center; }
+ .weapon-cat-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--color-text-tertiary); margin: 12px 0 6px; }
+ .weapon-edit-list { display: flex; flex-direction: column; gap: 5px; }
+ .weapon-edit-row { display: flex; align-items: center; gap: 8px; font-size: 13px; padding: 6px 10px; border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); background: var(--color-background-secondary); }
+ .weapon-edit-row .we-name { font-weight: 600; }
+ .weapon-edit-row .we-dmg { color: var(--color-text-secondary); font-size: 12px; }
+ .weapon-edit-row .we-fire { color: var(--color-text-danger); font-size: 11px; font-weight: 600; }
+ .weapon-edit-row .we-del { margin-left: auto; cursor: pointer; color: var(--color-text-danger); font-weight: 700; opacity: 0.6; }
+ .weapon-edit-row .we-del:hover { opacity: 1; }
+ /* Spell reference */
+ .spell-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+ .spell-table th { text-align: left; font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--color-text-tertiary); padding: 6px 8px; border-bottom: 0.5px solid var(--color-border-tertiary); position: sticky; top: 0; background: var(--color-background-primary); }
+ .spell-row { border-bottom: 0.5px solid var(--color-border-tertiary); cursor: pointer; }
+ .spell-row:hover { background: var(--color-background-secondary); }
+ .spell-row td { padding: 7px 8px; vertical-align: top; }
+ .spell-name { font-weight: 600; }
+ .spell-school { font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-text-tertiary); }
+ .spell-tier { font-weight: 600; color: var(--color-text-secondary); white-space: nowrap; }
+ .spell-detail { display: none; }
+ .spell-detail.show { display: table-row; }
+ .spell-detail td { padding: 0 8px 10px; }
+ .spell-detail-inner { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 12px; font-size: 12px; line-height: 1.5; }
+ .spell-detail-inner .sd-row { margin-bottom: 6px; }
+ .spell-detail-inner .sd-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-text-tertiary); display: block; }
+ .spell-scroll { max-height: 480px; overflow-y: auto; }
+ /* Collapsible top-level sections */
+ .section.collapsible > .section-title { cursor: pointer; display: flex; align-items: center; justify-content: space-between; user-select: none; }
+ .section.collapsible > .section-title::after { content: '▾'; font-size: 12px; color: var(--color-text-tertiary); transition: transform 0.15s; }
+ .section.collapsed > .section-title::after { content: '▸'; }
+ .section.collapsed > *:not(.section-title) { display: none !important; }
+ /* Navigation color accents (subtle left border + tinted title) */
+ .section.acc-character { border-left: 3px solid var(--color-text-success); }
+ .section.acc-character > .section-title { color: var(--color-text-success); }
+ .section.acc-warn { border-left: 3px solid var(--color-text-warning); }
+ .section.acc-warn > .section-title { color: var(--color-text-warning); }
+ .section.acc-danger { border-left: 3px solid var(--color-text-danger); }
+ .section.acc-danger > .section-title { color: var(--color-text-danger); }
+ .section.acc-cosmic { border-left: 3px solid #6a4fb0; }
+ .section.acc-cosmic > .section-title { color: #6a4fb0; }
+ .section.acc-gm { border-left: 3px solid var(--color-text-tertiary); }
+ .section.acc-reference { border-left: 3px solid #2a8a8a; }
+ .section.acc-reference > .section-title { color: #2a8a8a; }
+</style>
+
+<div class="panel">
+ <h2 class="sr-only">ASA combat hit-chance calculator</h2>
+ <div class="tv-title">ASA Combat Calculator</div>
+ <div class="active-banner" id="active-banner">
+   <span class="ab-label">Active character</span>
+   <span class="ab-name" id="ab-name">None selected</span>
+   <span class="ab-hp" id="ab-hp"></span>
+ </div>
+
+ <!-- PLANETARY INFLUENCE -->
+ <div class="section acc-cosmic collapsible">
+ <div class="section-title" onclick="toggleSection(this)">Planetary influence</div>
+ <div class="planet-note">Set the current sky. Empowered schools get +1 free cast before miscast risk; weakened schools get -1. Check the <a href="https://asa-project.pages.dev/" target="_blank" rel="noopener" class="cal-link">RP Calendar</a> for current planetary positions.</div>
+ <div class="planet-grid" id="planet-grid"></div>
+ </div>
+
+<!-- CHARACTER STATUS -->
+ <div class="section acc-character collapsible">
+ <div class="section-title" onclick="toggleSection(this)">Character status</div>
+
+ <div class="char-bar">
+ <input type="text" id="char-search" placeholder="Search characters..." oninput="renderCharList()" autocomplete="off" />
+ <input type="text" id="char-new" placeholder="New character name" onkeydown="if(event.key==='Enter')addCharacter()" />
+ <button onclick="addCharacter()">Add</button>
+ <button class="char-del" id="char-del-btn" onclick="deleteCharacter()" style="display:none;">Delete</button>
+ </div>
+ <div class="char-list" id="char-list"></div>
+ <div class="sync-status" id="sync-status"></div>
+
+ <div id="status-empty" class="status-empty">Select or add a character to manage health and conditions.</div>
+ <div id="status-body" style="display:none;">
+   <div class="hp-block">
+     <div class="hp-controls">
+       <span class="hp-label">Health</span>
+       <button onclick="adjustHp(-1)" aria-label="Lose 1 HP">−</button>
+       <span class="hp-value"><span id="hp-current">5</span> / <span id="hp-max">5</span></span>
+       <button onclick="adjustHp(1)" aria-label="Gain 1 HP">+</button>
+       <span class="hp-maxedit">
+         <label for="hp-max-input">Max</label>
+         <input type="number" id="hp-max-input" min="1" max="99" value="5" onchange="setMaxHp(this.value)" />
+       </span>
+       <button class="hp-full" onclick="fullHeal()">Full heal</button>
+     </div>
+     <div class="hp-bar" id="hp-bar"></div>
+     <div class="bleed-note" id="bleed-note" style="display:none;"></div>
+     <div class="hp-bonus-note" id="hp-bonus-note" style="display:none;"></div>
+   </div>
+
+   <div class="cond-block">
+     <div class="cond-add-row">
+       <input type="text" id="cond-input" placeholder="Search all conditions, or type a custom one..." oninput="filterCondPicker()" onkeydown="if(event.key==='Enter')addCondition()" autocomplete="off" />
+       <button onclick="addCondition()">Add typed</button>
+       <button class="cond-bleed-btn" onclick="addCondition('Bleeding')">+ Bleeding</button>
+     </div>
+     <div class="cond-picker" id="cond-picker"></div>
+     <div class="cond-list-header" onclick="toggleCondList()">
+       <span id="cond-list-arrow">▾</span> Applied conditions <span class="cond-count" id="cond-count"></span>
+     </div>
+     <div class="cond-list" id="cond-list"></div>
+   </div>
+ </div>
+ </div>
+
+<!-- COMBAT (merged: miscast, attack type, result, strike) -->
+ <div class="section acc-combat collapsible" id="combat-section">
+ <div class="section-title" onclick="toggleSection(this)">Combat</div>
+ <div class="faint-overlay" id="faint-overlay" style="display:none;">FAINTED</div>
+ <div id="combat-inner">
+
+ <!-- Attack mode -->
+ <div class="combat-sub">Attack type</div>
+ <div class="mode-toggle">
+   <button class="mode-btn active" id="mode-physical" onclick="setAttackMode('physical')">Physical attack</button>
+   <button class="mode-btn" id="mode-spell" onclick="setAttackMode('spell')">Spell</button>
+ </div>
+
+ <div id="physical-block">
+   <div class="grid-2">
+   <div>
+   <label class="field-label" for="attack-type">Action</label>
+   <select id="attack-type" onchange="recalc()">
+   <option value="80">Punch (80%)</option>
+   <option value="80">Kick (80%)</option>
+   <option value="80">Shove (80%)</option>
+   <option value="80" selected>Slash (80%)</option>
+   <option value="80">Thrust (80%)</option>
+   <option value="80">Ranged attack (80%)</option>
+   <option value="custom">Custom...</option>
+   </select>
+   </div>
+   <div id="custom-wrap" style="display:none;">
+   <label class="field-label" for="custom-base">Base chance (%)</label>
+   <input type="number" id="custom-base" min="1" max="100" value="80" oninput="recalc()" />
+   </div>
+   </div>
+ </div>
+
+ <div id="spell-block" style="display:none;">
+   <label class="field-label" for="spell-cast-select">Spell being cast</label>
+   <select id="spell-cast-select" onchange="updateMiscastDisplay()"></select>
+   <div class="spell-cast-note">Spells always hit. The only roll is for a miscast, based on the selected character's casts today. Use "Cast at target" to apply the spell's damage and inflicted condition to another character (fire spells negated by fire immunity).</div>
+   <div class="dmg-apply-row">
+     <span class="dmg-label">Cast at character:</span>
+     <select id="spell-target"></select>
+     <button onclick="castSpell(document.getElementById('spell-target').value)">Cast at target</button>
+   </div>
+ </div>
+
+ <!-- Physical result -->
+ <div id="result-block">
+   <div class="combat-sub">Hit chance</div>
+   <div class="grid-3">
+   <div class="result-card">
+   <div class="result-label">Base chance</div>
+   <div class="result-number" id="res-base">80%</div>
+   </div>
+   <div class="result-card">
+   <div class="result-label">Total modifiers</div>
+   <div class="result-number" id="res-mods">+0%</div>
+   </div>
+   <div class="result-card">
+   <div class="result-label">Final hit chance</div>
+   <div class="result-number" id="res-final">80%</div>
+   </div>
+   </div>
+   <div class="breakdown" id="breakdown"></div>
+   <div class="roll-row">
+   <div class="roll-input-wrap">
+   <label class="field-label" for="roll-val">Enter roll (1–100)</label>
+   <input type="number" id="roll-val" min="1" max="100" placeholder="00" oninput="checkRoll()" />
+   </div>
+   <button class="random-btn" onclick="randomRoll()">Roll for me</button>
+   <div class="roll-result" id="roll-result">Awaiting roll</div>
+   </div>
+ </div>
+
+ <!-- Miscast tracking (spell mode) -->
+ <div id="miscast-block" style="display:none;">
+ <div class="combat-sub">Spellcasting &amp; miscast</div>
+ <div class="miscast-row">
+ <div class="counter-box">
+ <button onclick="adjustSpells(-1)" aria-label="Decrease">−</button>
+ <div class="counter-val" id="spell-count">0</div>
+ <button onclick="adjustSpells(1)" aria-label="Increase">+</button>
+ </div>
+ <div>
+ <div class="result-label">Spells cast today</div>
+ <div class="result-label" id="spell-status" style="margin-top:4px;">Select a character</div>
+ </div>
+ <div class="miscast-chance">
+ <div class="result-label">Next cast miscast chance</div>
+ <div class="mc-num safe" id="miscast-pct">0%</div>
+ </div>
+ </div>
+ <div class="miscast-result" id="miscast-result">Select or add a character to begin.</div>
+ <div class="mc-actions">
+ <button class="mc-cast-btn" onclick="castSpell()">Cast spell &amp; roll miscast</button>
+ <button onclick="resetDay()">Reset day</button>
+ </div>
+ <div class="mc-progression">
+ First 3 casts are free. After that, miscast chance doubles each cast: 10% → 20% → 40% → 80% → capped at 90%. Counts reset automatically each real-world day.
+ </div>
+ </div>
+
+ <!-- Equipped weapon and strike -->
+ <div id="weapon-block">
+ <div class="combat-sub">Weapon &amp; strike</div>
+ <div class="weapon-row">
+   <select id="equip-weapon" onchange="setEquippedWeapon(this.value)"></select>
+   <span class="weapon-stats" id="weapon-stats"></span>
+ </div>
+ <div class="dmg-apply-row">
+   <span class="dmg-label">Strike another character:</span>
+   <select id="dmg-target"></select>
+   <button onclick="applyWeaponDamage()">Strike</button>
+ </div>
+ <div class="dmg-result" id="dmg-result"></div>
+ </div>
+ </div><!-- /combat-inner -->
+ </div>
+
+<!-- MODIFIERS & CONDITIONS (merged) -->
+<div class="section acc-combat collapsible collapsed" id="attacker-conditions">
+<div class="section-title" onclick="toggleSection(this)">Modifiers &amp; conditions</div>
+ <div class="search-wrap">
+ <input type="text" id="cond-search" placeholder="Search injuries and conditions…" oninput="filterConditions()" />
+ <span class="clear-x" id="cond-clear" onclick="clearCondSearch()">×</span>
+ </div>
+ <div class="no-match" id="cond-nomatch" style="display:none;">No matching conditions.</div>
+
+ <details>
+ <summary>Mutilation: arms &amp; hands</summary>
+ <div class="detail-body">
+ <div class="condition-grid">
+ <label class="condition-item" id="ci-oblL">
+ <input type="checkbox" onchange="toggle(this,'ci-oblL'); recalc()" data-val="-30" />
+ Obliterated hand (Left)
+ <span class="mod-badge neg">−30%</span>
+ </label>
+ <label class="condition-item" id="ci-oblR">
+ <input type="checkbox" onchange="toggle(this,'ci-oblR'); recalc()" data-val="-30" />
+ Obliterated hand (Right)
+ <span class="mod-badge neg">−30%</span>
+ </label>
+ <label class="condition-item" id="ci-ampHL">
+ <input type="checkbox" onchange="toggle(this,'ci-ampHL'); recalc()" data-val="-20" />
+ Amputated hand (Left)
+ <span class="mod-badge neg">−20%</span>
+ </label>
+ <label class="condition-item" id="ci-ampHR">
+ <input type="checkbox" onchange="toggle(this,'ci-ampHR'); recalc()" data-val="-20" />
+ Amputated hand (Right)
+ <span class="mod-badge neg">−20%</span>
+ </label>
+ <label class="condition-item" id="ci-fingL">
+ <input type="checkbox" onchange="toggle(this,'ci-fingL'); recalc()" data-val="-10" />
+ Missing fingers (Left)
+ <span class="mod-badge neg">−10%</span>
+ </label>
+ <label class="condition-item" id="ci-fingR">
+ <input type="checkbox" onchange="toggle(this,'ci-fingR'); recalc()" data-val="-10" />
+ Missing fingers (Right)
+ <span class="mod-badge neg">−10%</span>
+ </label>
+ <label class="condition-item" id="ci-armBEL">
+ <input type="checkbox" onchange="toggle(this,'ci-armBEL'); recalc()" data-val="-25" />
+ Amputated arm below elbow (Left)
+ <span class="mod-badge neg">−25%</span>
+ </label>
+ <label class="condition-item" id="ci-armBER">
+ <input type="checkbox" onchange="toggle(this,'ci-armBER'); recalc()" data-val="-25" />
+ Amputated arm below elbow (Right)
+ <span class="mod-badge neg">−25%</span>
+ </label>
+ <label class="condition-item" id="ci-armAEL">
+ <input type="checkbox" onchange="toggle(this,'ci-armAEL'); recalc()" data-val="-30" />
+ Amputated arm above elbow (Left)
+ <span class="mod-badge neg">−30%</span>
+ </label>
+ <label class="condition-item" id="ci-armAER">
+ <input type="checkbox" onchange="toggle(this,'ci-armAER'); recalc()" data-val="-30" />
+ Amputated arm above elbow (Right)
+ <span class="mod-badge neg">−30%</span>
+ </label>
+ <label class="condition-item" id="ci-nerveL">
+ <input type="checkbox" onchange="toggle(this,'ci-nerveL'); recalc()" data-val="-20" />
+ Nerve-dead arm (Left)
+ <span class="mod-badge neg">−20%</span>
+ </label>
+ <label class="condition-item" id="ci-nerveR">
+ <input type="checkbox" onchange="toggle(this,'ci-nerveR'); recalc()" data-val="-20" />
+ Nerve-dead arm (Right)
+ <span class="mod-badge neg">−20%</span>
+ </label>
+ </div>
+ </div>
+ </details>
+
+ <details>
+ <summary>Mutilation: legs &amp; feet</summary>
+ <div class="detail-body">
+ <div class="condition-grid">
+ <label class="condition-item" id="ci-legL">
+ <input type="checkbox" onchange="toggle(this,'ci-legL'); recalc()" data-val="-15" />
+ Amputated leg (Left)
+ <span class="mod-badge neg">−15%</span>
+ </label>
+ <label class="condition-item" id="ci-legR">
+ <input type="checkbox" onchange="toggle(this,'ci-legR'); recalc()" data-val="-15" />
+ Amputated leg (Right)
+ <span class="mod-badge neg">−15%</span>
+ </label>
+ <label class="condition-item" id="ci-footL">
+ <input type="checkbox" onchange="toggle(this,'ci-footL'); recalc()" data-val="-5" />
+ Amputated foot (Left)
+ <span class="mod-badge neg">−5%</span>
+ </label>
+ <label class="condition-item" id="ci-footR">
+ <input type="checkbox" onchange="toggle(this,'ci-footR'); recalc()" data-val="-5" />
+ Amputated foot (Right)
+ <span class="mod-badge neg">−5%</span>
+ </label>
+ <label class="condition-item" id="ci-toesL">
+ <input type="checkbox" onchange="toggle(this,'ci-toesL'); recalc()" data-val="-3" />
+ Missing toes (Left)
+ <span class="mod-badge neg">−3%</span>
+ </label>
+ <label class="condition-item" id="ci-toesR">
+ <input type="checkbox" onchange="toggle(this,'ci-toesR'); recalc()" data-val="-3" />
+ Missing toes (Right)
+ <span class="mod-badge neg">−3%</span>
+ </label>
+ </div>
+ </div>
+ </details>
+
+ <details>
+ <summary>Mutilation: face &amp; head</summary>
+ <div class="detail-body">
+ <div class="condition-grid">
+ <label class="condition-item" id="ci-notongue">
+ <input type="checkbox" onchange="toggle(this,'ci-notongue'); recalc()" data-val="-15" />
+ No tongue
+ <span class="mod-badge neg">−15%</span>
+ </label>
+ <label class="condition-item" id="ci-eyeL">
+ <input type="checkbox" onchange="toggle(this,'ci-eyeL'); recalc()" data-val="-10" />
+ Lost eye (Left)
+ <span class="mod-badge neg">−10%</span>
+ </label>
+ <label class="condition-item" id="ci-eyeR">
+ <input type="checkbox" onchange="toggle(this,'ci-eyeR'); recalc()" data-val="-10" />
+ Lost eye (Right)
+ <span class="mod-badge neg">−10%</span>
+ </label>
+ <label class="condition-item" id="ci-eyeBoth">
+ <input type="checkbox" onchange="toggle(this,'ci-eyeBoth'); recalc()" data-val="-40" />
+ Lost both eyes
+ <span class="mod-badge neg">−40%</span>
+ </label>
+ <label class="condition-item" id="ci-earL">
+ <input type="checkbox" onchange="toggle(this,'ci-earL'); recalc()" data-val="-5" />
+ Collapsed ear (Left)
+ <span class="mod-badge neg">−5%</span>
+ </label>
+ <label class="condition-item" id="ci-earR">
+ <input type="checkbox" onchange="toggle(this,'ci-earR'); recalc()" data-val="-5" />
+ Collapsed ear (Right)
+ <span class="mod-badge neg">−5%</span>
+ </label>
+ <label class="condition-item" id="ci-deaf">
+ <input type="checkbox" onchange="toggle(this,'ci-deaf'); recalc()" data-val="-10" />
+ Deaf (both ears)
+ <span class="mod-badge neg">−10%</span>
+ </label>
+ <label class="condition-item" id="ci-jaw">
+ <input type="checkbox" onchange="toggle(this,'ci-jaw'); recalc()" data-val="-10" />
+ Shattered jaw
+ <span class="mod-badge neg">−10%</span>
+ </label>
+ </div>
+ </div>
+ </details>
+
+ <details>
+ <summary>Mutilation: torso</summary>
+ <div class="detail-body">
+ <div class="condition-grid">
+ <label class="condition-item" id="ci-ribs">
+ <input type="checkbox" onchange="toggle(this,'ci-ribs'); recalc()" data-val="-10" />
+ Broken ribs
+ <span class="mod-badge neg">−10%</span>
+ </label>
+ <label class="condition-item" id="ci-organ">
+ <input type="checkbox" onchange="toggle(this,'ci-organ'); recalc()" data-val="-15" />
+ Organ damage
+ <span class="mod-badge neg">−15%</span>
+ </label>
+ <label class="condition-item" id="ci-lungL">
+ <input type="checkbox" onchange="toggle(this,'ci-lungL'); recalc()" data-val="-15" />
+ Collapsed lung (Left)
+ <span class="mod-badge neg">−15%</span>
+ </label>
+ <label class="condition-item" id="ci-lungR">
+ <input type="checkbox" onchange="toggle(this,'ci-lungR'); recalc()" data-val="-15" />
+ Collapsed lung (Right)
+ <span class="mod-badge neg">−15%</span>
+ </label>
+ </div>
+ </div>
+ </details>
+
+ <details>
+ <summary>Burns</summary>
+ <div class="detail-body">
+ <div class="condition-grid">
+ <label class="condition-item" id="ci-burnMF">
+ <input type="checkbox" onchange="toggle(this,'ci-burnMF'); recalc()" data-val="-3" />
+ Minor burn scars (face)
+ <span class="mod-badge neg">−3%</span>
+ </label>
+ <label class="condition-item" id="ci-burnMH">
+ <input type="checkbox" onchange="toggle(this,'ci-burnMH'); recalc()" data-val="-5" />
+ Minor burn scars (hands)
+ <span class="mod-badge neg">−5%</span>
+ </label>
+ <label class="condition-item" id="ci-burnMB">
+ <input type="checkbox" onchange="toggle(this,'ci-burnMB'); recalc()" data-val="-3" />
+ Minor burn scars (body)
+ <span class="mod-badge neg">−3%</span>
+ </label>
+ <label class="condition-item" id="ci-burnGF">
+ <input type="checkbox" onchange="toggle(this,'ci-burnGF'); recalc()" data-val="-8" />
+ Major burn scars (face)
+ <span class="mod-badge neg">−8%</span>
+ </label>
+ <label class="condition-item" id="ci-burnGH">
+ <input type="checkbox" onchange="toggle(this,'ci-burnGH'); recalc()" data-val="-15" />
+ Major burn scars (hands)
+ <span class="mod-badge neg">−15%</span>
+ </label>
+ <label class="condition-item" id="ci-burnGB">
+ <input type="checkbox" onchange="toggle(this,'ci-burnGB'); recalc()" data-val="-8" />
+ Major burn scars (body)
+ <span class="mod-badge neg">−8%</span>
+ </label>
+ <label class="condition-item" id="ci-burnFull">
+ <input type="checkbox" onchange="toggle(this,'ci-burnFull'); recalc()" data-val="-20" />
+ Full-body burn scarring
+ <span class="mod-badge neg">−20%</span>
+ </label>
+ <label class="condition-item" id="ci-burnThroat">
+ <input type="checkbox" onchange="toggle(this,'ci-burnThroat'); recalc()" data-val="-10" />
+ Internal burns (throat)
+ <span class="mod-badge neg">−10%</span>
+ </label>
+ <label class="condition-item" id="ci-burnLungs">
+ <input type="checkbox" onchange="toggle(this,'ci-burnLungs'); recalc()" data-val="-15" />
+ Internal burns (lungs)
+ <span class="mod-badge neg">−15%</span>
+ </label>
+ </div>
+ </div>
+ </details>
+
+ <details>
+ <summary>Physical conditions</summary>
+ <div class="detail-body">
+ <div class="condition-grid">
+ <label class="condition-item" id="ci-limpL">
+ <input type="checkbox" onchange="toggle(this,'ci-limpL'); recalc()" data-val="-5" />
+ Limp (Left)
+ <span class="mod-badge neg">−5%</span>
+ </label>
+ <label class="condition-item" id="ci-limpR">
+ <input type="checkbox" onchange="toggle(this,'ci-limpR'); recalc()" data-val="-5" />
+ Limp (Right)
+ <span class="mod-badge neg">−5%</span>
+ </label>
+ <label class="condition-item" id="ci-tremL">
+ <input type="checkbox" onchange="toggle(this,'ci-tremL'); recalc()" data-val="-15" />
+ Tremor (Left hand)
+ <span class="mod-badge neg">−15%</span>
+ </label>
+ <label class="condition-item" id="ci-tremR">
+ <input type="checkbox" onchange="toggle(this,'ci-tremR'); recalc()" data-val="-15" />
+ Tremor (Right hand)
+ <span class="mod-badge neg">−15%</span>
+ </label>
+ <label class="condition-item" id="ci-tremBoth">
+ <input type="checkbox" onchange="toggle(this,'ci-tremBoth'); recalc()" data-val="-25" />
+ Tremor (both hands)
+ <span class="mod-badge neg">−25%</span>
+ </label>
+ <label class="condition-item" id="ci-spine">
+ <input type="checkbox" onchange="toggle(this,'ci-spine'); recalc()" data-val="-15" />
+ Spinal injury
+ <span class="mod-badge neg">−15%</span>
+ </label>
+ <label class="condition-item" id="ci-trance">
+ <input type="checkbox" onchange="toggle(this,'ci-trance'); recalc()" data-val="-20" />
+ Neurological trance
+ <span class="mod-badge neg">−20%</span>
+ </label>
+ <label class="condition-item" id="ci-paraL">
+ <input type="checkbox" onchange="toggle(this,'ci-paraL'); recalc()" data-val="-25" />
+ Partial paralysis (Left side)
+ <span class="mod-badge neg">−25%</span>
+ </label>
+ <label class="condition-item" id="ci-paraR">
+ <input type="checkbox" onchange="toggle(this,'ci-paraR'); recalc()" data-val="-25" />
+ Partial paralysis (Right side)
+ <span class="mod-badge neg">−25%</span>
+ </label>
+ <label class="condition-item" id="ci-seizure">
+ <input type="checkbox" onchange="toggle(this,'ci-seizure'); recalc()" data-val="-15" />
+ Seizure disorder
+ <span class="mod-badge neg">−15%</span>
+ </label>
+ <label class="condition-item" id="ci-migraine">
+ <input type="checkbox" onchange="toggle(this,'ci-migraine'); recalc()" data-val="-10" />
+ Chronic migraines
+ <span class="mod-badge neg">−10%</span>
+ </label>
+ <label class="condition-item" id="ci-memgap">
+ <input type="checkbox" onchange="toggle(this,'ci-memgap'); recalc()" data-val="-5" />
+ Memory gaps
+ <span class="mod-badge neg">−5%</span>
+ </label>
+ <label class="condition-item" id="ci-pbleed">
+ <input type="checkbox" onchange="toggle(this,'ci-pbleed'); recalc()" data-val="-10" />
+ Personality bleed
+ <span class="mod-badge neg">−10%</span>
+ </label>
+ </div>
+ </div>
+ </details>
+
+ <details>
+ <summary>Sensory conditions</summary>
+ <div class="detail-body">
+ <div class="condition-grid">
+ <label class="condition-item" id="ci-anosmia">
+ <input type="checkbox" onchange="toggle(this,'ci-anosmia'); recalc()" data-val="-3" />
+ Anosmia
+ <span class="mod-badge neg">−3%</span>
+ </label>
+ <label class="condition-item" id="ci-ageusia">
+ <input type="checkbox" onchange="toggle(this,'ci-ageusia'); recalc()" data-val="-3" />
+ Ageusia
+ <span class="mod-badge neg">−3%</span>
+ </label>
+ <label class="condition-item" id="ci-tinnitus">
+ <input type="checkbox" onchange="toggle(this,'ci-tinnitus'); recalc()" data-val="-10" />
+ Tinnitus
+ <span class="mod-badge neg">−10%</span>
+ </label>
+ <label class="condition-item" id="ci-lightsens">
+ <input type="checkbox" onchange="toggle(this,'ci-lightsens'); recalc()" data-val="-10" />
+ Light sensitivity
+ <span class="mod-badge neg">−10%</span>
+ </label>
+ <label class="condition-item" id="ci-touchsens">
+ <input type="checkbox" onchange="toggle(this,'ci-touchsens'); recalc()" data-val="-5" />
+ Touch sensitivity
+ <span class="mod-badge neg">−5%</span>
+ </label>
+ </div>
+ </div>
+ </details>
+<div class="combat-sub">Positive: target &amp; situation</div>
+ <div class="condition-grid">
+ <label class="condition-item" id="ci-unaware">
+ <input type="checkbox" onchange="toggle(this,'ci-unaware'); recalc()" data-val="15" />
+ Target unaware / flanked
+ <span class="mod-badge pos">+15%</span>
+ </label>
+ <label class="condition-item" id="ci-prone">
+ <input type="checkbox" onchange="toggle(this,'ci-prone'); recalc()" data-val="20" />
+ Target restrained / prone
+ <span class="mod-badge pos">+20%</span>
+ </label>
+ <label class="condition-item" id="ci-closemelee">
+ <input type="checkbox" onchange="toggle(this,'ci-closemelee'); recalc()" data-val="10" />
+ Close range melee
+ <span class="mod-badge pos">+10%</span>
+ </label>
+ </div>
+<div class="combat-sub">Negative: situation</div>
+ <div class="condition-grid">
+ <label class="condition-item" id="ci-guard">
+ <input type="checkbox" onchange="toggle(this,'ci-guard'); recalc()" data-val="-15" />
+ Target guarding
+ <span class="mod-badge neg">−15%</span>
+ </label>
+ <label class="condition-item" id="ci-dark">
+ <input type="checkbox" onchange="toggle(this,'ci-dark'); recalc()" data-val="-10" />
+ Poor visibility (light)
+ <span class="mod-badge neg">−10%</span>
+ </label>
+ <label class="condition-item" id="ci-dark2">
+ <input type="checkbox" onchange="toggle(this,'ci-dark2'); recalc()" data-val="-25" />
+ Poor visibility (heavy)
+ <span class="mod-badge neg">−25%</span>
+ </label>
+ <label class="condition-item" id="ci-strain">
+ <input type="checkbox" onchange="toggle(this,'ci-strain'); recalc()" data-val="-10" />
+ Caster injured / strained
+ <span class="mod-badge neg">−10%</span>
+ </label>
+ <label class="condition-item" id="ci-strain2">
+ <input type="checkbox" onchange="toggle(this,'ci-strain2'); recalc()" data-val="-20" />
+ Caster heavily strained
+ <span class="mod-badge neg">−20%</span>
+ </label>
+ <label class="condition-item" id="ci-longrange">
+ <input type="checkbox" onchange="toggle(this,'ci-longrange'); recalc()" data-val="-20" />
+ Long range melee
+ <span class="mod-badge neg">−20%</span>
+ </label>
+ </div>
+</div>
+
+<!-- MAGICAL EFFECTS (merged) -->
+<div class="section acc-combat collapsible collapsed" id="attacker-magical">
+<div class="section-title" onclick="toggleSection(this)">Active magical effects</div>
+<div class="combat-sub">Attacker</div>
+ <div class="search-wrap">
+ <input type="text" id="amag-search" placeholder="Search attacker magical effects..." oninput="filterAttackerMagical()" />
+ <span class="clear-x" id="amag-clear" onclick="clearAmagSearch()">×</span>
+ </div>
+ <div class="no-match" id="amag-nomatch" style="display:none;">No matching effects.</div>
+
+ <details>
+ <summary>Debilitating effects</summary>
+ <div class="detail-body">
+ <div class="condition-grid">
+ <label class="condition-item" id="ci-tmpblind">
+ <input type="checkbox" onchange="toggle(this,'ci-tmpblind'); recalc()" data-val="-40" />
+ Temporary Blindness
+ <span class="mod-badge neg">−40%</span>
+ </label>
+ <label class="condition-item" id="ci-selenicR">
+ <input type="checkbox" onchange="toggle(this,'ci-selenicR'); recalc()" data-val="-45" />
+ Selenic Rest
+ <span class="mod-badge neg">−45%</span>
+ </label>
+ <label class="condition-item" id="ci-tmpara">
+ <input type="checkbox" onchange="toggle(this,'ci-tmpara'); recalc()" data-val="-45" />
+ Temporary Paralysis
+ <span class="mod-badge neg">−45%</span>
+ </label>
+ <label class="condition-item" id="ci-nausea">
+ <input type="checkbox" onchange="toggle(this,'ci-nausea'); recalc()" data-val="-15" />
+ Nausea
+ <span class="mod-badge neg">−15%</span>
+ </label>
+ <label class="condition-item" id="ci-salivation">
+ <input type="checkbox" onchange="toggle(this,'ci-salivation'); recalc()" data-val="-5" />
+ Excessive Salivation
+ <span class="mod-badge neg">−5%</span>
+ </label>
+ <label class="condition-item" id="ci-stings">
+ <input type="checkbox" onchange="toggle(this,'ci-stings'); recalc()" data-val="-10" />
+ Insect Stings
+ <span class="mod-badge neg">−10%</span>
+ </label>
+ <label class="condition-item" id="ci-visions">
+ <input type="checkbox" onchange="toggle(this,'ci-visions'); recalc()" data-val="-25" />
+ Assailed by Visions
+ <span class="mod-badge neg">−25%</span>
+ </label>
+ <label class="condition-item" id="ci-mentrauma">
+ <input type="checkbox" onchange="toggle(this,'ci-mentrauma'); recalc()" data-val="-15" />
+ Mental Trauma
+ <span class="mod-badge neg">−15%</span>
+ </label>
+ <label class="condition-item" id="ci-proneSelf">
+ <input type="checkbox" onchange="toggle(this,'ci-proneSelf'); recalc()" data-val="-20" />
+ Prone (self)
+ <span class="mod-badge neg">−20%</span>
+ </label>
+ <label class="condition-item" id="ci-outofbody">
+ <input type="checkbox" onchange="toggle(this,'ci-outofbody'); recalc()" data-val="-100" />
+ Out-of-Body
+ <span class="mod-badge neg">−100%</span>
+ </label>
+ </div>
+ </div>
+ </details>
+
+ <details>
+ <summary>Empowering effects</summary>
+ <div class="detail-body">
+ <div class="condition-grid">
+ <label class="condition-item" id="ci-chitin">
+ <input type="checkbox" onchange="toggle(this,'ci-chitin'); recalc()" data-val="5" />
+ Chitin Skin
+ <span class="mod-badge pos">+5%</span>
+ </label>
+ <label class="condition-item" id="ci-compvision">
+ <input type="checkbox" onchange="toggle(this,'ci-compvision'); recalc()" data-val="10" />
+ Compound Vision
+ <span class="mod-badge pos">+10%</span>
+ </label>
+ <label class="condition-item" id="ci-flight">
+ <input type="checkbox" onchange="toggle(this,'ci-flight'); recalc()" data-val="15" />
+ Flight
+ <span class="mod-badge pos">+15%</span>
+ </label>
+ <label class="condition-item" id="ci-adhesion">
+ <input type="checkbox" onchange="toggle(this,'ci-adhesion'); recalc()" data-val="10" />
+ Adhesion
+ <span class="mod-badge pos">+10%</span>
+ </label>
+ <label class="condition-item" id="ci-enhperc">
+ <input type="checkbox" onchange="toggle(this,'ci-enhperc'); recalc()" data-val="15" />
+ Enhanced Perception
+ <span class="mod-badge pos">+15%</span>
+ </label>
+ <label class="condition-item" id="ci-penvision">
+ <input type="checkbox" onchange="toggle(this,'ci-penvision'); recalc()" data-val="10" />
+ Penetrative Vision
+ <span class="mod-badge pos">+10%</span>
+ </label>
+ <label class="condition-item" id="ci-astralw">
+ <input type="checkbox" onchange="toggle(this,'ci-astralw'); recalc()" data-val="10" />
+ Astral Wisdom
+ <span class="mod-badge pos">+10%</span>
+ </label>
+ <label class="condition-item" id="ci-precog">
+ <input type="checkbox" onchange="toggle(this,'ci-precog'); recalc()" data-val="30" />
+ Precognition
+ <span class="mod-badge pos">+30%</span>
+ </label>
+ <label class="condition-item" id="ci-omni">
+ <input type="checkbox" onchange="toggle(this,'ci-omni'); recalc()" data-val="20" />
+ Omniscience
+ <span class="mod-badge pos">+20%</span>
+ </label>
+ <label class="condition-item" id="ci-colossal">
+ <input type="checkbox" onchange="toggle(this,'ci-colossal'); recalc()" data-val="30" />
+ Imbued with Colossal Power
+ <span class="mod-badge pos">+30%</span>
+ </label>
+ <label class="condition-item" id="ci-esseknow">
+ <input type="checkbox" onchange="toggle(this,'ci-esseknow'); recalc()" data-val="10" />
+ Essesymbiosisal Knowledge
+ <span class="mod-badge pos">+10%</span>
+ </label>
+ <label class="condition-item" id="ci-fausse">
+ <input type="checkbox" onchange="toggle(this,'ci-fausse'); recalc()" data-val="10" />
+ Faussemortis
+ <span class="mod-badge pos">+10%</span>
+ </label>
+ <label class="condition-item" id="ci-elemacclim">
+ <input type="checkbox" onchange="toggle(this,'ci-elemacclim'); recalc()" data-val="5" />
+ Elemental Acclimatation
+ <span class="mod-badge pos">+5%</span>
+ </label>
+ <label class="condition-item" id="ci-mimicry">
+ <input type="checkbox" onchange="toggle(this,'ci-mimicry'); recalc()" data-val="15" />
+ Mimicry
+ <span class="mod-badge pos">+15%</span>
+ </label>
+ </div>
+ </div>
+ </details>
+<div class="combat-sub">Defender</div>
+ <div class="search-wrap">
+ <input type="text" id="def-search" placeholder="Search defender effects..." oninput="filterDefender()" />
+ <span class="clear-x" id="def-clear" onclick="clearDefSearch()">×</span>
+ </div>
+ <div class="no-match" id="def-nomatch" style="display:none;">No matching effects.</div>
+
+ <details>
+ <summary>Defender debilitated (easier to hit)</summary>
+ <div class="detail-body">
+ <div class="condition-grid">
+ <label class="condition-item" id="ci-d-tmpblind">
+ <input type="checkbox" onchange="toggle(this,'ci-d-tmpblind'); recalc()" data-val="40" />
+ Temporary Blindness
+ <span class="mod-badge pos">+40%</span>
+ </label>
+ <label class="condition-item" id="ci-d-selenic">
+ <input type="checkbox" onchange="toggle(this,'ci-d-selenic'); recalc()" data-val="45" />
+ Selenic Rest (comatose)
+ <span class="mod-badge pos">+45%</span>
+ </label>
+ <label class="condition-item" id="ci-d-tmpara">
+ <input type="checkbox" onchange="toggle(this,'ci-d-tmpara'); recalc()" data-val="45" />
+ Temporary Paralysis
+ <span class="mod-badge pos">+45%</span>
+ </label>
+ <label class="condition-item" id="ci-d-nausea">
+ <input type="checkbox" onchange="toggle(this,'ci-d-nausea'); recalc()" data-val="15" />
+ Nausea
+ <span class="mod-badge pos">+15%</span>
+ </label>
+ <label class="condition-item" id="ci-d-stings">
+ <input type="checkbox" onchange="toggle(this,'ci-d-stings'); recalc()" data-val="10" />
+ Insect Stings
+ <span class="mod-badge pos">+10%</span>
+ </label>
+ <label class="condition-item" id="ci-d-visions">
+ <input type="checkbox" onchange="toggle(this,'ci-d-visions'); recalc()" data-val="25" />
+ Assailed by Visions
+ <span class="mod-badge pos">+25%</span>
+ </label>
+ <label class="condition-item" id="ci-d-mentrauma">
+ <input type="checkbox" onchange="toggle(this,'ci-d-mentrauma'); recalc()" data-val="15" />
+ Mental Trauma
+ <span class="mod-badge pos">+15%</span>
+ </label>
+ <label class="condition-item" id="ci-d-prone">
+ <input type="checkbox" onchange="toggle(this,'ci-d-prone'); recalc()" data-val="20" />
+ Prone
+ <span class="mod-badge pos">+20%</span>
+ </label>
+ <label class="condition-item" id="ci-d-outofbody">
+ <input type="checkbox" onchange="toggle(this,'ci-d-outofbody'); recalc()" data-val="35" />
+ Out-of-Body (body undefended)
+ <span class="mod-badge pos">+35%</span>
+ </label>
+ <label class="condition-item" id="ci-d-salivation">
+ <input type="checkbox" onchange="toggle(this,'ci-d-salivation'); recalc()" data-val="5" />
+ Excessive Salivation
+ <span class="mod-badge pos">+5%</span>
+ </label>
+ </div>
+ </div>
+ </details>
+
+ <details>
+ <summary>Defender empowered (harder to hit)</summary>
+ <div class="detail-body">
+ <div class="condition-grid">
+ <label class="condition-item" id="ci-d-flight">
+ <input type="checkbox" onchange="toggle(this,'ci-d-flight'); recalc()" data-val="-15" />
+ Flight (evasive)
+ <span class="mod-badge neg">-15%</span>
+ </label>
+ <label class="condition-item" id="ci-d-enhperc">
+ <input type="checkbox" onchange="toggle(this,'ci-d-enhperc'); recalc()" data-val="-15" />
+ Enhanced Perception
+ <span class="mod-badge neg">-15%</span>
+ </label>
+ <label class="condition-item" id="ci-d-precog">
+ <input type="checkbox" onchange="toggle(this,'ci-d-precog'); recalc()" data-val="-90" />
+ Precognition (dodges next attack)
+ <span class="mod-badge neg">-90%</span>
+ </label>
+ <label class="condition-item" id="ci-d-omni">
+ <input type="checkbox" onchange="toggle(this,'ci-d-omni'); recalc()" data-val="-20" />
+ Omniscience
+ <span class="mod-badge neg">-20%</span>
+ </label>
+ <label class="condition-item" id="ci-d-compvision">
+ <input type="checkbox" onchange="toggle(this,'ci-d-compvision'); recalc()" data-val="-10" />
+ Compound Vision
+ <span class="mod-badge neg">-10%</span>
+ </label>
+ <label class="condition-item" id="ci-d-chitin">
+ <input type="checkbox" onchange="toggle(this,'ci-d-chitin'); recalc()" data-val="-5" />
+ Chitin Skin (armoured)
+ <span class="mod-badge neg">-5%</span>
+ </label>
+ <label class="condition-item" id="ci-d-adhesion">
+ <input type="checkbox" onchange="toggle(this,'ci-d-adhesion'); recalc()" data-val="-10" />
+ Adhesion (mobile)
+ <span class="mod-badge neg">-10%</span>
+ </label>
+ <label class="condition-item" id="ci-d-colossal">
+ <input type="checkbox" onchange="toggle(this,'ci-d-colossal'); recalc()" data-val="-10" />
+ Imbued with Colossal Power
+ <span class="mod-badge neg">-10%</span>
+ </label>
+ <label class="condition-item" id="ci-d-fireimm">
+ <input type="checkbox" onchange="toggle(this,'ci-d-fireimm'); recalc()" data-val="0" />
+ Fire Immunity (vs fire only)
+ <span class="mod-badge">0%</span>
+ </label>
+ <label class="condition-item" id="ci-d-projimm">
+ <input type="checkbox" onchange="toggle(this,'ci-d-projimm'); recalc()" data-val="0" />
+ Projectile Immunity (vs ranged)
+ <span class="mod-badge">0%</span>
+ </label>
+ </div>
+ </div>
+ </details>
+</div>
+
+<!-- GM TOOLS (notes + weapon editor) -->
+<div class="section acc-gm collapsible collapsed">
+<div class="section-title" onclick="toggleSection(this)">GM tools</div>
+<div class="combat-sub">GM notes</div>
+ <div id="notes-empty" class="status-empty">Select a character to add notes.</div>
+ <textarea id="gm-notes" class="gm-notes" placeholder="Private GM notes for this character..." style="display:none;" oninput="onNotesInput()"></textarea>
+<div class="combat-sub">Weapon editor</div>
+ <div class="planet-note">Add or remove weapons available to equip. The HP damage value is the boost applied on a successful strike.</div>
+ <div class="weapon-add-grid">
+   <input type="text" id="wpn-name" placeholder="Weapon name" />
+   <select id="wpn-category">
+     <option value="melee">Melee</option>
+     <option value="ranged">Ranged</option>
+   </select>
+   <select id="wpn-element">
+     <option value="none">Physical</option>
+     <option value="fire">Fire</option>
+   </select>
+   <input type="number" id="wpn-damage" min="0" max="99" value="2" title="HP damage" />
+   <button onclick="addWeapon()">Add weapon</button>
+ </div>
+ <div class="weapon-cat-label">Melee</div>
+ <div class="weapon-edit-list" id="weapon-list-melee"></div>
+ <div class="weapon-cat-label">Ranged</div>
+ <div class="weapon-edit-list" id="weapon-list-ranged"></div>
+</div>
+
+
+<!-- EVENT RECORD (side panel) -->
+<div class="event-side" id="event-side">
+<div class="event-side-head"><span>Event record</span><button class="event-side-toggle" onclick="toggleEventSide()" id="event-side-toggle">Hide</button></div>
+<div class="event-side-body" id="event-side-body">
+ <div id="log-empty" class="status-empty">Select a character to view their history.</div>
+ <div id="log-body" style="display:none;">
+   <div class="log-actions">
+     <input type="text" id="log-manual" placeholder="Add a manual log entry..." onkeydown="if(event.key==='Enter')addManualLog()" />
+     <button onclick="addManualLog()">Log</button>
+     <button class="log-clear" onclick="clearLog()">Clear history</button>
+   </div>
+   <div class="log-list" id="log-list"></div>
+ </div>
+</div>
+</div>
+</div>
+<script>
+ const attackSelect = document.getElementById('attack-type');
+ const customWrap = document.getElementById('custom-wrap');
+ const customBase = document.getElementById('custom-base');
+
+ attackSelect.addEventListener('change', function() {
+ customWrap.style.display = this.value === 'custom' ? 'block' : 'none';
+ recalc();
+ });
+
+ function toggle(cb, id) {
+ const val = parseInt(cb.dataset.val);
+ const el = document.getElementById(id);
+ el.classList.remove('active', 'active-neg', 'active-pos');
+ if (cb.checked) {
+ if (val > 0) el.classList.add('active-pos');
+ else if (val < 0) el.classList.add('active-neg');
+ else el.classList.add('active');
+ }
+ }
+
+ function getBase() {
+ const v = attackSelect.value;
+ if (v === 'custom') return parseInt(customBase.value) || 50;
+ return parseInt(v);
+ }
+
+ function getMods() {
+ let total = 0;
+ let parts = [];
+ document.querySelectorAll('.condition-item input[type="checkbox"]').forEach(cb => {
+ if (cb.checked) {
+ const val = parseInt(cb.dataset.val);
+ total += val;
+ const label = itemLabel(cb.parentElement);
+ parts.push({ label, val });
+ }
+ });
+ return { total, parts };
+ }
+
+ function recalc() {
+ const base = getBase();
+ const { total, parts } = getMods();
+ const final = Math.min(95, Math.max(5, base + total));
+
+ document.getElementById('res-base').textContent = base + '%';
+ const modEl = document.getElementById('res-mods');
+ modEl.textContent = (total >= 0 ? '+' : '') + total + '%';
+ modEl.className = 'result-number ' + (total > 0 ? 'high' : total < 0 ? 'low' : '');
+
+ const finalEl = document.getElementById('res-final');
+ finalEl.textContent = final + '%';
+ finalEl.className = 'result-number ' + (final >= 65 ? 'high' : final >= 45 ? 'mid' : 'low');
+
+ const bd = document.getElementById('breakdown');
+ if (parts.length === 0) {
+ bd.innerHTML = '';
+ } else {
+ bd.innerHTML = parts.map(p =>
+ `<span class="${p.val > 0 ? 'pos' : 'neg'}">${p.val > 0 ? '+' : ''}${p.val}% ${p.label}</span>`
+ ).join('');
+ if (base + total !== final) {
+ bd.innerHTML += `<span style="color:var(--color-text-tertiary)">(capped at ${final}%)</span>`;
+ }
+ }
+ checkRoll();
+ }
+
+ function checkRoll() {
+ const rollVal = parseInt(document.getElementById('roll-val').value);
+ const el = document.getElementById('roll-result');
+ if (!rollVal || rollVal < 1 || rollVal > 100) { el.textContent = 'Awaiting roll'; el.className = 'roll-result'; return; }
+ const base = getBase();
+ const { total } = getMods();
+ const final = Math.min(95, Math.max(5, base + total));
+ if (rollVal <= final) {
+ el.textContent = 'Hit, rolled ' + rollVal;
+ el.className = 'roll-result hit';
+ } else {
+ el.textContent = 'Miss, rolled ' + rollVal;
+ el.className = 'roll-result miss';
+ }
+ }
+
+ function randomRoll() {
+ const r = Math.floor(Math.random() * 100) + 1;
+ document.getElementById('roll-val').value = r;
+ checkRoll();
+ }
+
+ /* ── MISCAST TRACKER (per-character, persistent) ──────────────── */
+ const FREE_CASTS = 3;
+ const STORAGE_ENDPOINT = '/combat-state'; /* Cloudflare Pages Function; see README */
+
+ let roster = {}; /* { charName: {...} } */
+ let activeChar = null; /* currently selected character name */
+
+ /* School -> planet mapping (matches the RP Calendar) */
+ const SCHOOL_PLANET = {
+ 'Flames': 'Samhan (Sun)',
+ 'Memories': 'Ashr (Moon)',
+ 'Power': 'Nergal (Mars)',
+ 'Insects': 'Lilit (Venus)',
+ 'Changes': 'Perfidio (Mercury)',
+ 'Revelations': 'Termis (Saturn)',
+ 'Obeisance': 'Demaplax (Jupiter)'
+ };
+ /* Global planet influence: { School: 'empowered' | 'weakened' | null } - persisted */
+ let planetState = {};
+
+ /* Global weapon list - persisted, editable by GMs. Each: {name, category, damage, element} */
+ const DEFAULT_WEAPONS = [
+ { name: 'Unarmed', category: 'melee', damage: 1, element: 'none' },
+ { name: 'Blade', category: 'melee', damage: 2, element: 'none' },
+ { name: 'Greatsword', category: 'melee', damage: 3, element: 'none' },
+ { name: 'Bow', category: 'ranged', damage: 2, element: 'none' },
+ { name: 'Handgonne (bullets)', category: 'ranged', damage: 4, element: 'fire' }
+ ];
+ let weapons = DEFAULT_WEAPONS.slice();
+
+ /* +1 free cast if the school is empowered, -1 if weakened (min 1 free cast) */
+ function freeCastsFor(school) {
+ let f = FREE_CASTS;
+ const st = planetState[school];
+ if (st === 'empowered') f += 1;
+ else if (st === 'weakened') f -= 1;
+ return Math.max(1, f);
+ }
+
+ function renderPlanets() {
+ const grid = document.getElementById('planet-grid');
+ if (!grid) return;
+ grid.innerHTML = Object.keys(SCHOOL_PLANET).map(school => {
+ const st = planetState[school] || null;
+ return '<div class="planet-row">' +
+ '<div><div class="pr-school">' + school + '</div><div class="pr-planet">' + SCHOOL_PLANET[school] + '</div></div>' +
+ '<div class="planet-states">' +
+ '<span class="pstate-btn' + (st === 'empowered' ? ' on-emp' : '') + '" onclick="setPlanet(\'' + school + '\',\'empowered\')">Emp</span>' +
+ '<span class="pstate-btn' + (st === 'weakened' ? ' on-weak' : '') + '" onclick="setPlanet(\'' + school + '\',\'weakened\')">Weak</span>' +
+ '<span class="pstate-btn" onclick="setPlanet(\'' + school + '\',null)">None</span>' +
+ '</div></div>';
+ }).join('');
+ }
+
+ function setPlanet(school, state) {
+ if (state === null || planetState[school] === state) delete planetState[school];
+ else planetState[school] = state;
+ renderPlanets();
+ updateMiscastDisplay();
+ saveState();
+ }
+
+ /* ── WEAPONS & ELEMENTAL DAMAGE ───────────────────────────────── */
+ const FIRE_IMMUNE = new Set(['fire immunity', 'fire immune', 'immoluintransigence', 'elemental immunity (fire)']);
+ function isFireImmune(c) {
+ return c.conditions.some(x => {
+ const lc = x.toLowerCase();
+ return FIRE_IMMUNE.has(lc) || (lc.indexOf('immunity') >= 0 && lc.indexOf('fire') >= 0) ||
+ (lc.indexOf('acclimatation') >= 0 && lc.indexOf('fire') >= 0);
+ });
+ }
+
+ function weaponByName(name) {
+ return weapons.find(w => w.name === name) || null;
+ }
+
+ function renderEquippedWeapon() {
+ const sel = document.getElementById('equip-weapon');
+ if (!sel) return;
+ sel.innerHTML = '<option value="">None</option>' +
+ weapons.map(w => '<option value="' + w.name.replace(/"/g,'&quot;') + '">' + w.name + ' (' + w.category + ', ' + w.damage + ' HP' + (w.element === 'fire' ? ', fire' : '') + ')</option>').join('');
+ const c = activeChar ? roster[activeChar] : null;
+ sel.value = (c && c.equippedWeapon) ? c.equippedWeapon : '';
+ const stats = document.getElementById('weapon-stats');
+ const w = c && c.equippedWeapon ? weaponByName(c.equippedWeapon) : null;
+ if (stats) stats.innerHTML = w
+ ? w.category + ' · ' + w.damage + ' HP damage' + (w.element === 'fire' ? ' · <span class="wel-fire">fire (resistible)</span>' : '')
+ : '';
+ /* damage target dropdown: all other characters */
+ const others = Object.keys(roster).filter(n => n !== activeChar).sort((a,b)=>a.localeCompare(b));
+ const optsHtml = others.length
+ ? others.map(n => '<option value="' + n.replace(/"/g,'&quot;') + '">' + n + '</option>').join('')
+ : '<option value="">No other characters</option>';
+ const tgt = document.getElementById('dmg-target');
+ if (tgt) tgt.innerHTML = optsHtml;
+ /* spell target also allows Self (for self-buffs, heals, etc.) */
+ const stgt = document.getElementById('spell-target');
+ if (stgt) {
+ const selfOpt = activeChar ? '<option value="__self__">Self (' + activeChar.replace(/</g,'&lt;') + ')</option>' : '';
+ const otherOpts = others.length
+ ? others.map(n => '<option value="' + n.replace(/"/g,'&quot;') + '">' + n + '</option>').join('')
+ : '';
+ stgt.innerHTML = selfOpt + otherOpts || '<option value="">Select a character</option>';
+ }
+ }
+
+ function setEquippedWeapon(name) {
+ if (!activeChar) return;
+ roster[activeChar].equippedWeapon = name || null;
+ logEvent(roster[activeChar], name ? 'Equipped: ' + name : 'Unequipped weapon');
+ renderEquippedWeapon();
+ saveState();
+ }
+
+ function applyWeaponDamage() {
+ if (!activeChar) return;
+ const attacker = roster[activeChar];
+ const w = attacker.equippedWeapon ? weaponByName(attacker.equippedWeapon) : null;
+ const resEl = document.getElementById('dmg-result');
+ if (!w) { resEl.textContent = 'Equip a weapon first.'; resEl.className = 'dmg-result'; return; }
+ const tgtName = document.getElementById('dmg-target').value;
+ if (!tgtName || !roster[tgtName]) { resEl.textContent = 'No target selected.'; resEl.className = 'dmg-result'; return; }
+ const tgt = roster[tgtName];
+ migrateChar(tgt);
+
+ if (w.element === 'fire' && isFireImmune(tgt)) {
+ resEl.textContent = tgtName + ' is immune to fire, ' + w.damage + ' fire damage negated.';
+ resEl.className = 'dmg-result negated';
+ logEvent(attacker, 'Struck ' + tgtName + ' with ' + w.name + ': fire negated by immunity');
+ logEvent(tgt, 'Hit by ' + activeChar + ' (' + w.name + '): fire damage negated by immunity', 'heal');
+ saveState();
+ return;
+ }
+
+ /* apply damage to target, accounting for any active bleed re-anchor */
+ const cap = effMaxHp(tgt);
+ const before = tgt.bleedStart ? effectiveHp(tgt) : tgt.hp;
+ const after = Math.max(0, Math.round(before) - w.damage);
+ tgt.hp = after;
+ if (tgt.bleedStart) { tgt.bleedAnchorHp = after; tgt.bleedStart = Date.now(); }
+ const fireTag = w.element === 'fire' ? ' fire' : '';
+ resEl.textContent = tgtName + ' takes ' + w.damage + fireTag + ' damage (' + after + '/' + cap + ').';
+ resEl.className = 'dmg-result hit';
+ logEvent(attacker, 'Struck ' + tgtName + ' with ' + w.name + ' for ' + w.damage + fireTag + ' HP');
+ logEvent(tgt, 'Hit by ' + activeChar + ' (' + w.name + ') for ' + w.damage + fireTag + ' HP (now ' + after + '/' + cap + ')');
+ saveState();
+ }
+
+ /* ── GM WEAPON EDITOR ─────────────────────────────────────────── */
+ function renderWeaponEditor() {
+ ['melee', 'ranged'].forEach(cat => {
+ const list = document.getElementById('weapon-list-' + cat);
+ if (!list) return;
+ const items = weapons.filter(w => w.category === cat);
+ list.innerHTML = items.length ? items.map(w =>
+ '<div class="weapon-edit-row"><span class="we-name">' + w.name.replace(/</g,'&lt;') + '</span>' +
+ '<span class="we-dmg">' + w.damage + ' HP</span>' +
+ (w.element === 'fire' ? '<span class="we-fire">fire</span>' : '') +
+ '<span class="we-del" onclick="deleteWeapon(\'' + w.name.replace(/'/g,"\\'") + '\')">×</span></div>'
+ ).join('') : '<div class="cond-pick-empty">None.</div>';
+ });
+ }
+
+ function addWeapon() {
+ const name = document.getElementById('wpn-name').value.trim();
+ if (!name) return;
+ if (weapons.some(w => w.name.toLowerCase() === name.toLowerCase())) { alert('A weapon with that name already exists.'); return; }
+ const category = document.getElementById('wpn-category').value;
+ const element = document.getElementById('wpn-element').value;
+ const damage = Math.max(0, Math.min(99, parseInt(document.getElementById('wpn-damage').value) || 0));
+ weapons.push({ name, category, damage, element });
+ document.getElementById('wpn-name').value = '';
+ renderWeaponEditor();
+ renderEquippedWeapon();
+ saveState();
+ }
+
+ function deleteWeapon(name) {
+ weapons = weapons.filter(w => w.name !== name);
+ /* unequip from any character using it */
+ Object.values(roster).forEach(c => { if (c.equippedWeapon === name) c.equippedWeapon = null; });
+ renderWeaponEditor();
+ renderEquippedWeapon();
+ saveState();
+ }
+
+ function todayStr() {
+ const d = new Date();
+ return d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate();
+ }
+
+ /* Miscast chance for the Nth cast given a free-cast threshold (default 3) */
+ function miscastChanceFor(castNumber, freeCount) {
+ const free = (freeCount == null) ? FREE_CASTS : freeCount;
+ if (castNumber <= free) return 0;
+ const step = castNumber - free; /* 1=>10, 2=>20, 3=>40, 4=>80, 5=>160->90 */
+ return Math.min(90, 10 * Math.pow(2, step - 1));
+ }
+
+ /* Reset any character whose lastReset is not today */
+ function applyDayRollover() {
+ const today = todayStr();
+ let changed = false;
+ Object.keys(roster).forEach(name => {
+ migrateChar(roster[name]); /* ensure new fields exist on older saved data */
+ if (roster[name].lastReset !== today) {
+ roster[name].spellsToday = 0;
+ roster[name].lastReset = today;
+ changed = true;
+ }
+ });
+ return changed;
+ }
+
+ /* Backfill fields for characters saved before HP/conditions existed */
+ function migrateChar(c) {
+ if (c.hp == null) c.hp = 5;
+ if (c.maxHp == null) c.maxHp = 5;
+ if (!Array.isArray(c.conditions)) c.conditions = [];
+ if (c.bleedStart === undefined) c.bleedStart = null;
+ if (c.bleedAnchorHp === undefined) c.bleedAnchorHp = null;
+ if (typeof c.notes !== 'string') c.notes = '';
+ if (!Array.isArray(c.log)) c.log = [];
+ if (c.equippedWeapon === undefined) c.equippedWeapon = null;
+ }
+
+ /* ── CONDITION EFFECT MAPS (keyed by lowercased condition name) ──── */
+ /* Conditions that add a hefty modifier to this character's miscast chance */
+ const MISCAST_MOD = {
+ 'nerve-dead arm (left)': 20,
+ 'nerve-dead arm (right)': 20,
+ 'missing fingers (left)': 15,
+ 'missing fingers (right)': 15,
+ 'tremor (left hand)': 20,
+ 'tremor (right hand)': 20,
+ 'tremor (both hands)': 35,
+ 'shattered jaw': 10
+ };
+ /* Hand-loss conditions mapped to which side they remove (for ensie formation) */
+ const HAND_SIDE = {
+ 'obliterated hand (left)': 'L', 'obliterated hand (right)': 'R',
+ 'amputated hand (left)': 'L', 'amputated hand (right)': 'R',
+ 'amputated arm below elbow (left)': 'L', 'amputated arm below elbow (right)': 'R',
+ 'amputated arm above elbow (left)': 'L', 'amputated arm above elbow (right)': 'R'
+ };
+ const ONE_HAND_MISCAST = 50; /* losing one hand: hefty +50% miscast */
+
+ /* Distinct hands lost (max 2) */
+ function lostHandSides(c) {
+ const sides = new Set();
+ c.conditions.forEach(name => { const s = HAND_SIDE[name.toLowerCase()]; if (s) sides.add(s); });
+ return sides;
+ }
+ /* Conditions that raise the character's effective max HP */
+ const HP_BONUS = {
+ 'imbued with colossal power': 10,
+ 'chitin skin': 3
+ };
+ /* Resolve a condition name to its HP bonus, tolerant of suffixes like "(armoured)" */
+ function hpBonusFor(name) {
+ const lc = (name || '').toLowerCase().trim();
+ if (HP_BONUS[lc] != null) return HP_BONUS[lc];
+ for (const key in HP_BONUS) { if (lc.indexOf(key) >= 0) return HP_BONUS[key]; }
+ return 0;
+ }
+
+ function conditionMiscastMod(c) {
+ let total = 0;
+ c.conditions.forEach(name => { total += (MISCAST_MOD[name.toLowerCase()] || 0); });
+ /* one missing hand adds a hefty miscast penalty (two hands blocks entirely) */
+ if (lostHandSides(c).size === 1) total += ONE_HAND_MISCAST;
+ return total;
+ }
+ /* Spellcasting is fully blocked only when both hands are gone */
+ function blockingConditions(c) {
+ const sides = lostHandSides(c);
+ if (sides.size >= 2) {
+ return c.conditions.filter(name => HAND_SIDE[name.toLowerCase()]);
+ }
+ return [];
+ }
+ function hpBonus(c) {
+ let total = 0;
+ c.conditions.forEach(name => { total += hpBonusFor(name); });
+ return total;
+ }
+ /* Effective max HP including condition bonuses */
+ function effMaxHp(c) {
+ return c.maxHp + hpBonus(c);
+ }
+
+ /* ── EVENT LOG ────────────────────────────────────────────────── */
+ function logEvent(c, text, kind) {
+ if (!c) return;
+ c.log = c.log || [];
+ c.log.push({ t: Date.now(), text: text, kind: kind || '' });
+ if (c.log.length > 200) c.log = c.log.slice(-200); /* cap history */
+ }
+ function fmtLogTime(ms) {
+ const d = new Date(ms);
+ const date = d.getDate() + '/' + (d.getMonth() + 1);
+ let h = d.getHours(), m = d.getMinutes();
+ const hh = (h < 10 ? '0' : '') + h, mm = (m < 10 ? '0' : '') + m;
+ return date + ' ' + hh + ':' + mm;
+ }
+
+ /* ── HEALTH & BLEEDING ────────────────────────────────────────── */
+ const THREE_DAYS_MS = 3 * 24 * 60 * 60 * 1000;
+
+ /* Compute the live effective HP, accounting for any active bleed. */
+ function effectiveHp(c) {
+ if (c.bleedStart && c.bleedAnchorHp != null) {
+ const drained = effMaxHp(c) * (Date.now() - c.bleedStart) / THREE_DAYS_MS;
+ return Math.max(0, +(c.bleedAnchorHp - drained).toFixed(2));
+ }
+ return c.hp;
+ }
+
+ function adjustHp(delta) {
+ if (!activeChar) return;
+ const c = roster[activeChar];
+ const cap = effMaxHp(c);
+ let base = c.bleedStart ? effectiveHp(c) : c.hp;
+ let next = Math.max(0, Math.min(cap, Math.round(base + delta)));
+ const prev = Math.round(base);
+ c.hp = next;
+ if (c.bleedStart) { c.bleedAnchorHp = next; c.bleedStart = Date.now(); } /* re-anchor */
+ if (next !== prev) {
+ logEvent(c, (delta < 0 ? 'Lost ' : 'Gained ') + Math.abs(next - prev) + ' HP (' + next + '/' + cap + ')', delta < 0 ? '' : 'heal');
+ }
+ renderStatus();
+ saveState();
+ }
+
+ function setMaxHp(val) {
+ if (!activeChar) return;
+ const c = roster[activeChar];
+ const m = Math.max(1, Math.min(99, parseInt(val) || 5));
+ const prev = c.maxHp;
+ c.maxHp = m;
+ const cap = effMaxHp(c);
+ if (c.hp > cap) c.hp = cap;
+ if (c.bleedStart) { c.bleedAnchorHp = Math.min(c.bleedAnchorHp, cap); }
+ if (m !== prev) logEvent(c, 'Base max HP set to ' + m);
+ renderStatus();
+ saveState();
+ }
+
+ function fullHeal() {
+ if (!activeChar) return;
+ const c = roster[activeChar];
+ c.hp = effMaxHp(c);
+ /* full heal stops bleeding */
+ if (c.bleedStart) {
+ c.bleedStart = null; c.bleedAnchorHp = null;
+ c.conditions = c.conditions.filter(x => x.toLowerCase() !== 'bleeding');
+ }
+ logEvent(c, 'Full heal to ' + effMaxHp(c) + ' HP', 'heal');
+ renderStatus();
+ saveState();
+ }
+
+ /* ── CONDITIONS ───────────────────────────────────────────────── */
+ function addCondition(forced) {
+ if (!activeChar) return;
+ const input = document.getElementById('cond-input');
+ const name = (forced || input.value).trim();
+ if (!name) return;
+ const c = roster[activeChar];
+ /* avoid duplicates (case-insensitive) */
+ if (!c.conditions.some(x => x.toLowerCase() === name.toLowerCase())) {
+ c.conditions.push(name);
+ logEvent(c, 'Condition applied: ' + name);
+ /* if this condition grants bonus HP, top the character up by that bonus */
+ const bonus = hpBonusFor(name);
+ if (bonus > 0 && !c.bleedStart) {
+ c.hp = Math.min(effMaxHp(c), c.hp + bonus);
+ }
+ }
+ if (name.toLowerCase() === 'bleeding' && !c.bleedStart) {
+ c.bleedStart = Date.now();
+ c.bleedAnchorHp = effectiveHp(c);
+ }
+ if (!forced) input.value = '';
+ renderStatus();
+ saveState();
+ }
+
+ function removeCondition(name) {
+ if (!activeChar) return;
+ const c = roster[activeChar];
+ c.conditions = c.conditions.filter(x => x !== name);
+ logEvent(c, 'Condition removed: ' + name);
+ if (name.toLowerCase() === 'bleeding') {
+ /* freeze current hp, stop the drain */
+ c.hp = Math.round(effectiveHp(c));
+ c.bleedStart = null; c.bleedAnchorHp = null;
+ }
+ /* if removed condition gave bonus HP, cap current hp back to new effective max */
+ c.hp = Math.min(c.hp, effMaxHp(c));
+ renderStatus();
+ saveState();
+ }
+
+ function renderStatus() {
+ const empty = document.getElementById('status-empty');
+ const body = document.getElementById('status-body');
+ if (!activeChar) {
+ empty.style.display = ''; body.style.display = 'none';
+ const ne = document.getElementById('notes-empty'), nel = document.getElementById('gm-notes');
+ if (ne) ne.style.display = ''; if (nel) nel.style.display = 'none';
+ renderLog();
+ updateActiveBanner();
+ updateFaintState();
+ return;
+ }
+ empty.style.display = 'none'; body.style.display = '';
+ const c = roster[activeChar];
+ migrateChar(c);
+
+ /* If bleeding, sync stored hp to the live effective value so it persists sensibly */
+ const eff = effectiveHp(c);
+ if (c.bleedStart) c.hp = Math.round(eff * 100) / 100;
+
+ const cap = effMaxHp(c);
+ const bonus = hpBonus(c);
+ document.getElementById('hp-current').textContent = Math.round(eff * 10) / 10;
+ document.getElementById('hp-max').textContent = cap;
+ document.getElementById('hp-max-input').value = c.maxHp;
+
+ /* HP pips (effective max includes any condition bonus) */
+ const bar = document.getElementById('hp-bar');
+ bar.innerHTML = '';
+ for (let i = 0; i < cap; i++) {
+ const pip = document.createElement('div');
+ pip.className = 'hp-pip';
+ const fillLevel = eff - i;
+ const isBonusPip = i >= c.maxHp; /* pips beyond base max are bonus HP */
+ if (fillLevel >= 1) pip.classList.add(c.bleedStart ? 'bleeding' : (isBonusPip ? 'bonus' : 'filled'));
+ else if (fillLevel > 0) pip.classList.add('partial');
+ bar.appendChild(pip);
+ }
+
+ /* Bonus HP note */
+ const bonusNote = document.getElementById('hp-bonus-note');
+ if (bonusNote) {
+ if (bonus > 0) { bonusNote.style.display = ''; bonusNote.textContent = '+' + bonus + ' bonus HP from active effects (base ' + c.maxHp + ', total ' + cap + ').'; }
+ else bonusNote.style.display = 'none';
+ }
+
+ /* Bleed countdown note */
+ const note = document.getElementById('bleed-note');
+ if (c.bleedStart) {
+ const msLeft = THREE_DAYS_MS * (eff / cap);
+ const hrs = Math.floor(msLeft / 3600000);
+ const mins = Math.floor((msLeft % 3600000) / 60000);
+ note.style.display = '';
+ note.textContent = eff <= 0
+ ? 'Bleeding: health fully drained.'
+ : 'Bleeding: empties in ' + hrs + 'h ' + mins + 'm at current rate.';
+ } else {
+ note.style.display = 'none';
+ }
+
+ /* Conditions list */
+ const list = document.getElementById('cond-list');
+ const countEl = document.getElementById('cond-count');
+ if (countEl) countEl.textContent = c.conditions.length ? '(' + c.conditions.length + ')' : '';
+ if (!c.conditions.length) {
+ list.innerHTML = '<span class="cond-empty">No conditions applied.</span>';
+ } else {
+ list.innerHTML = c.conditions.map(name => {
+ const lc = name.toLowerCase();
+ const isBleed = lc === 'bleeding';
+ const isHand = !!HAND_SIDE[lc];
+ const bothHands = lostHandSides(c).size >= 2;
+ let tag = '';
+ if (isHand) tag = bothHands ? ' (blocks casting)' : ' (+' + ONE_HAND_MISCAST + '% miscast)';
+ else if (MISCAST_MOD[lc]) tag = ' (+' + MISCAST_MOD[lc] + '% miscast)';
+ else if (hpBonusFor(name)) tag = ' (+' + hpBonusFor(name) + ' HP)';
+ return '<span class="cond-chip' + (isBleed ? ' bleed' : '') + '">' +
+ name.replace(/</g,'&lt;') + '<span class="cond-tag">' + tag + '</span>' +
+ '<span class="chip-x" onclick="removeCondition(\'' + name.replace(/'/g,"\\'") + '\')">×</span></span>';
+ }).join('');
+ }
+
+ /* GM notes */
+ const notesEmpty = document.getElementById('notes-empty');
+ const notesEl = document.getElementById('gm-notes');
+ if (notesEmpty && notesEl) {
+ notesEmpty.style.display = 'none';
+ notesEl.style.display = '';
+ if (document.activeElement !== notesEl) notesEl.value = c.notes || '';
+ }
+
+ /* Event log */
+ renderLog();
+
+ /* Refresh picker applied-states */
+ const pickerInput = document.getElementById('cond-input');
+ renderCondPicker(pickerInput ? pickerInput.value : '');
+
+ /* Equipped weapon */
+ renderEquippedWeapon();
+
+ /* Active banner, faint overlay, and char list (HP may have changed) */
+ updateActiveBanner();
+ updateFaintState();
+ renderCharList();
+ }
+
+ function renderLog() {
+ const logEmpty = document.getElementById('log-empty');
+ const logBody = document.getElementById('log-body');
+ if (!activeChar) { if (logEmpty) logEmpty.style.display = ''; if (logBody) logBody.style.display = 'none'; return; }
+ if (logEmpty) logEmpty.style.display = 'none';
+ if (logBody) logBody.style.display = '';
+ const c = roster[activeChar];
+ const list = document.getElementById('log-list');
+ if (!list) return;
+ if (!c.log || !c.log.length) {
+ list.innerHTML = '<div class="log-empty-list">No events recorded yet.</div>';
+ return;
+ }
+ list.innerHTML = c.log.slice().reverse().map(e =>
+ '<div class="log-entry ' + (e.kind || '') + '">' +
+ '<span class="log-time">' + fmtLogTime(e.t) + '</span>' +
+ '<span class="log-text">' + String(e.text).replace(/</g,'&lt;') + '</span></div>'
+ ).join('');
+ }
+
+ /* ── GM NOTES ─────────────────────────────────────────────────── */
+ let notesTimer = null;
+ function onNotesInput() {
+ if (!activeChar) return;
+ roster[activeChar].notes = document.getElementById('gm-notes').value;
+ clearTimeout(notesTimer);
+ notesTimer = setTimeout(saveState, 600);
+ }
+
+ /* ── EVENT LOG actions ────────────────────────────────────────── */
+ function addManualLog() {
+ if (!activeChar) return;
+ const input = document.getElementById('log-manual');
+ const text = input.value.trim();
+ if (!text) return;
+ logEvent(roster[activeChar], text);
+ input.value = '';
+ renderLog();
+ saveState();
+ }
+ function clearLog() {
+ if (!activeChar) return;
+ if (!confirm('Clear all recorded history for ' + activeChar + '?')) return;
+ roster[activeChar].log = [];
+ renderLog();
+ saveState();
+ }
+
+ /* Extract the visible label text from a .condition-item (its direct text nodes,
+    skipping the checkbox input and the badge span) */
+ function itemLabel(item) {
+ let t = '';
+ item.childNodes.forEach(n => { if (n.nodeType === 3) t += n.textContent; });
+ return t.trim().replace(/\s+/g, ' ');
+ }
+
+ /* Build the condition catalog (array of all condition names) from every checkbox label */
+ let CONDITION_CATALOG = [];
+ function buildCondCatalog() {
+ const names = new Set(['Bleeding', 'Fire immunity']);
+ document.querySelectorAll('.condition-item').forEach(item => {
+ const label = itemLabel(item);
+ if (label) names.add(label);
+ });
+ CONDITION_CATALOG = Array.from(names).sort((a, b) => a.localeCompare(b));
+ renderCondPicker('');
+ }
+
+ /* Render the clickable condition picker, filtered by the search query */
+ function renderCondPicker(query) {
+ const picker = document.getElementById('cond-picker');
+ if (!picker) return;
+ const q = (query || '').trim().toLowerCase();
+ const applied = activeChar && roster[activeChar]
+ ? new Set(roster[activeChar].conditions.map(x => x.toLowerCase())) : new Set();
+ const matches = CONDITION_CATALOG.filter(n => q === '' || n.toLowerCase().includes(q));
+ if (!matches.length) {
+ picker.innerHTML = '<span class="cond-pick-empty">No catalog match. Press "Add typed" to apply a custom condition.</span>';
+ return;
+ }
+ picker.innerHTML = matches.map(n => {
+ const isApplied = applied.has(n.toLowerCase());
+ return '<span class="cond-pick-item' + (isApplied ? ' applied' : '') + '"' +
+ (isApplied ? '' : ' onclick="addCondition(\'' + n.replace(/'/g, "\\'") + '\')"') +
+ '>' + n.replace(/</g, '&lt;') + '</span>';
+ }).join('');
+ }
+
+ function filterCondPicker() {
+ renderCondPicker(document.getElementById('cond-input').value);
+ }
+
+ function currentCount() {
+ return activeChar && roster[activeChar] ? roster[activeChar].spellsToday : 0;
+ }
+
+ /* Searchable character list (clickable chips) */
+ function renderCharList() {
+ const list = document.getElementById('char-list');
+ if (!list) return;
+ const q = (document.getElementById('char-search')?.value || '').trim().toLowerCase();
+ const names = Object.keys(roster).sort((a, b) => a.localeCompare(b))
+ .filter(n => q === '' || n.toLowerCase().includes(q));
+ if (!names.length) {
+ list.innerHTML = '<span class="char-chip-empty">' + (Object.keys(roster).length ? 'No match.' : 'No characters yet. Add one above.') + '</span>';
+ } else {
+ list.innerHTML = names.map(n => {
+ const c = roster[n];
+ const fainted = c ? effectiveHp(c) <= 0 : false;
+ const cls = 'char-chip' + (n === activeChar ? ' active' : '') + (fainted ? ' fainted' : '');
+ return '<span class="' + cls + '" onclick="selectCharacter(\'' + n.replace(/'/g,"\\'") + '\')">' + n.replace(/</g,'&lt;') + '</span>';
+ }).join('');
+ }
+ document.getElementById('char-del-btn').style.display = activeChar ? '' : 'none';
+ updateActiveBanner();
+ }
+ /* keep old name working as an alias */
+ function rebuildCharSelect() { renderCharList(); }
+
+ /* Sticky banner showing the active character and HP */
+ function updateActiveBanner() {
+ const nameEl = document.getElementById('ab-name');
+ const hpEl = document.getElementById('ab-hp');
+ if (!nameEl || !hpEl) return;
+ if (!activeChar || !roster[activeChar]) {
+ nameEl.textContent = 'None selected';
+ nameEl.className = 'ab-name none';
+ hpEl.textContent = '';
+ return;
+ }
+ const c = roster[activeChar];
+ const eff = Math.round(effectiveHp(c) * 10) / 10;
+ const cap = effMaxHp(c);
+ nameEl.textContent = activeChar;
+ nameEl.className = 'ab-name';
+ hpEl.textContent = (eff <= 0 ? 'Fainted' : eff + ' / ' + cap + ' HP');
+ hpEl.className = 'ab-hp' + (eff <= 0 ? ' down' : (eff <= cap / 2 ? ' hurt' : ''));
+ }
+
+ /* Grey out the Combat tab with FAINTED when the active character is down */
+ function updateFaintState() {
+ const overlay = document.getElementById('faint-overlay');
+ if (!overlay) return;
+ const fainted = activeChar && roster[activeChar] && effectiveHp(roster[activeChar]) <= 0;
+ overlay.style.display = fainted ? 'flex' : 'none';
+ }
+
+ function updateMiscastDisplay() {
+ const count = currentCount();
+ document.getElementById('spell-count').textContent = count;
+ const pctEl = document.getElementById('miscast-pct');
+ const statusEl = document.getElementById('spell-status');
+ if (!activeChar) {
+ pctEl.textContent = '0%';
+ pctEl.className = 'mc-num safe';
+ statusEl.textContent = 'Select a character';
+ return;
+ }
+ const c = roster[activeChar];
+ const blocks = blockingConditions(c);
+ if (blocks.length) {
+ pctEl.textContent = 'X';
+ pctEl.className = 'mc-num danger';
+ statusEl.textContent = 'Casting blocked: ' + blocks.join(', ');
+ return;
+ }
+ const sel = getSelectedSpell();
+ const school = sel ? sel.school : null;
+ const free = school ? freeCastsFor(school) : FREE_CASTS;
+ const base = miscastChanceFor(count + 1, free);
+ const condMod = conditionMiscastMod(c);
+ const nextChance = Math.min(99, base + condMod);
+ pctEl.textContent = nextChance + '%';
+ pctEl.className = 'mc-num ' + (nextChance === 0 ? 'safe' : nextChance <= 20 ? 'warn' : 'danger');
+ const remaining = Math.max(0, free - count);
+ let s = remaining > 0
+ ? remaining + (remaining === 1 ? ' free cast remaining' : ' free casts remaining')
+ : 'Free casts used, miscast risk active';
+ const extras = [];
+ if (condMod > 0) extras.push('+' + condMod + '% injuries');
+ if (school && planetState[school] === 'empowered') extras.push(school + ' empowered');
+ if (school && planetState[school] === 'weakened') extras.push(school + ' weakened');
+ if (extras.length) s += ' (' + extras.join(', ') + ')';
+ statusEl.textContent = s;
+ }
+
+ function selectCharacter(name) {
+ activeChar = name || null;
+ document.getElementById('char-del-btn').style.display = activeChar ? '' : 'none';
+ const resEl = document.getElementById('miscast-result');
+ resEl.textContent = activeChar ? 'Tracking ' + activeChar + '.' : 'Select or add a character to begin.';
+ resEl.className = 'miscast-result';
+ renderCharList();
+ updateMiscastDisplay();
+ renderStatus();
+ }
+
+ function addCharacter() {
+ const input = document.getElementById('char-new');
+ const name = input.value.trim();
+ if (!name) return;
+ if (!roster[name]) {
+ roster[name] = { spellsToday: 0, lastReset: todayStr(), hp: 5, maxHp: 5, conditions: [], bleedStart: null, bleedAnchorHp: null, notes: '', log: [], equippedWeapon: null };
+ }
+ input.value = '';
+ activeChar = name;
+ rebuildCharSelect();
+ selectCharacter(name);
+ saveState();
+ }
+
+ function deleteCharacter() {
+ if (!activeChar) return;
+ if (!confirm('Delete character "' + activeChar + '"?')) return;
+ delete roster[activeChar];
+ activeChar = null;
+ rebuildCharSelect();
+ selectCharacter('');
+ saveState();
+ }
+
+ function adjustSpells(delta) {
+ if (!activeChar) { flashNoChar(); return; }
+ roster[activeChar].spellsToday = Math.max(0, roster[activeChar].spellsToday + delta);
+ roster[activeChar].lastReset = todayStr();
+ updateMiscastDisplay();
+ saveState();
+ }
+
+ function castSpell(targetName) {
+ if (!activeChar) { flashNoChar(); return; }
+ const c = roster[activeChar];
+ const resEl = document.getElementById('miscast-result');
+ const spell = getSelectedSpell();
+ const spellLabel = spell ? ' [' + spell.name + ']' : '';
+ if (targetName === '__self__') targetName = activeChar;
+ const tgt = (targetName && roster[targetName]) ? roster[targetName] : null;
+ if (tgt) migrateChar(tgt);
+
+ /* Spell-blocking conditions: no hands for ensie formation */
+ const blocks = blockingConditions(c);
+ if (blocks.length) {
+ resEl.innerHTML = activeChar + spellLabel + ': SPELLCASTING BLOCKED' +
+ '<div class="miscast-effect">Cannot form ensie: ' + blocks.join(', ') + '. No cast attempted.</div>';
+ resEl.className = 'miscast-result failed';
+ return;
+ }
+
+ const castNumber = c.spellsToday + 1;
+ const school = spell ? spell.school : null;
+ const free = school ? freeCastsFor(school) : FREE_CASTS;
+ const baseChance = miscastChanceFor(castNumber, free);
+ const condMod = conditionMiscastMod(c);
+ /* condition modifiers can push miscast risk even on otherwise free casts */
+ const chance = Math.min(99, baseChance + condMod);
+ let modParts = [];
+ if (condMod > 0) modParts.push(condMod + '% from injuries');
+ if (school && planetState[school] === 'empowered') modParts.push(school + ' empowered: +1 free cast');
+ if (school && planetState[school] === 'weakened') modParts.push(school + ' weakened: -1 free cast');
+ const modNote = modParts.length ? ' (' + modParts.join('; ') + ')' : '';
+ const tgtLabel = tgt ? ' at ' + targetName : '';
+
+ let clean = false;
+ if (chance === 0) {
+ c.spellsToday = castNumber;
+ resEl.innerHTML = activeChar + spellLabel + tgtLabel + ', cast #' + castNumber + ': clean (free cast, no roll)';
+ resEl.className = 'miscast-result clean';
+ logEvent(c, 'Cast #' + castNumber + (spell ? ' ' + spell.name : '') + (tgt ? ' at ' + targetName : '') + ': clean (free)');
+ clean = true;
+ } else {
+ const roll = Math.floor(Math.random() * 100) + 1;
+ c.spellsToday = castNumber;
+ if (roll <= chance) {
+ let msg = activeChar + spellLabel + tgtLabel + ': MISCAST! Rolled ' + roll + ' vs ' + chance + '%' + modNote;
+ if (spell && spell.miscast && spell.miscast !== '-') {
+ msg += '<div class="miscast-effect">' + spell.miscast + '</div>';
+ }
+ /* Auto-apply the resulting condition from the miscast, if one can be derived */
+ const applied = applyMiscastCondition(c, spell);
+ if (applied) {
+ msg += '<div class="miscast-applied">Condition applied: ' + applied + '</div>';
+ }
+ resEl.innerHTML = msg;
+ resEl.className = 'miscast-result failed';
+ logEvent(c, 'Cast #' + castNumber + (spell ? ' ' + spell.name : '') + ': MISCAST (' + roll + ' vs ' + chance + '%)' + (spell && spell.miscast && spell.miscast !== '-' ? ' - ' + spell.miscast : ''), 'miscast');
+ } else {
+ resEl.innerHTML = activeChar + spellLabel + tgtLabel + ': clean cast. Rolled ' + roll + ' vs ' + chance + '%' + modNote;
+ resEl.className = 'miscast-result clean';
+ logEvent(c, 'Cast #' + castNumber + (spell ? ' ' + spell.name : '') + (tgt ? ' at ' + targetName : '') + ': clean (' + roll + ' vs ' + chance + '%)');
+ clean = true;
+ }
+ }
+
+ /* On a clean cast that targets another character, apply the spell's effects */
+ if (clean && tgt && spell) {
+ const applied = applySpellToTarget(c, targetName, tgt, spell);
+ if (applied) {
+ const r = document.getElementById('miscast-result');
+ r.innerHTML += '<div class="miscast-applied">' + applied + '</div>';
+ }
+ }
+
+ c.lastReset = todayStr();
+ updateMiscastDisplay();
+ renderStatus();
+ renderLog();
+ saveState();
+ }
+
+ /* Parse a spell's HP damage, HP heal, inflicted condition, and fire flag */
+ function parseSpellEffect(spell) {
+ const inflict = spell.inflict || '';
+ let damage = 0, heal = 0, condition = null;
+ const dmgM = inflict.match(/(\d+)\s*HP\s*(?:dmg|damage)/i);
+ if (dmgM) damage = parseInt(dmgM[1]);
+ const healM = inflict.match(/(\d+)\s*HP\s*heal/i);
+ if (healM) heal = parseInt(healM[1]);
+ let cond = inflict.replace(/,?\s*\d+\s*HP\s*(?:dmg|damage|heal)/ig, '').replace(/^[-\s]+/, '').trim();
+ if (cond && cond !== '-' && !/^no effect/i.test(cond)) condition = cond;
+ return { damage, heal, condition, fire: spell.school === 'Flames' };
+ }
+
+ /* Apply a clean-cast spell's damage / heal / condition to a target character */
+ function applySpellToTarget(caster, targetName, tgt, spell) {
+ const eff = parseSpellEffect(spell);
+ const notes = [];
+ const cap = effMaxHp(tgt);
+ const isSelf = targetName === activeChar;
+ const src = isSelf ? 'Self-cast' : ('by ' + activeChar);
+ const hitSrc = isSelf ? 'Self-cast' : ('Hit by ' + activeChar);
+
+ if (eff.damage > 0) {
+ if (eff.fire && isFireImmune(tgt)) {
+ notes.push(targetName + ' is immune to fire: ' + eff.damage + ' fire damage negated');
+ logEvent(tgt, hitSrc + ' (' + spell.name + '): fire damage negated by immunity', 'heal');
+ } else {
+ const before = tgt.bleedStart ? effectiveHp(tgt) : tgt.hp;
+ const after = Math.max(0, Math.round(before) - eff.damage);
+ tgt.hp = after;
+ if (tgt.bleedStart) { tgt.bleedAnchorHp = after; tgt.bleedStart = Date.now(); }
+ const fireTag = eff.fire ? ' fire' : '';
+ notes.push(targetName + ' takes ' + eff.damage + fireTag + ' damage (' + after + '/' + cap + ')');
+ logEvent(tgt, hitSrc + ' (' + spell.name + ') for ' + eff.damage + fireTag + ' HP (now ' + after + '/' + cap + ')');
+ }
+ }
+ if (eff.heal > 0) {
+ const before = tgt.bleedStart ? effectiveHp(tgt) : tgt.hp;
+ const after = Math.min(cap, Math.round(before) + eff.heal);
+ tgt.hp = after;
+ if (tgt.bleedStart) { tgt.bleedAnchorHp = after; tgt.bleedStart = Date.now(); }
+ notes.push(targetName + ' healed ' + eff.heal + ' HP (' + after + '/' + cap + ')');
+ logEvent(tgt, (isSelf ? 'Self-healed' : 'Healed ' + src) + ' (' + spell.name + ') for ' + eff.heal + ' HP (now ' + after + '/' + cap + ')', 'heal');
+ }
+ if (eff.condition) {
+ addCharConditionNamed(tgt, eff.condition, targetName, spell.name, isSelf);
+ notes.push(targetName + ' gains: ' + eff.condition);
+ }
+ return notes.length ? notes.join('. ') + '.' : null;
+ }
+
+ /* Add a condition to a named target (logs reference the source spell) */
+ function addCharConditionNamed(tgt, name, targetName, spellName, isSelf) {
+ if (!name) return;
+ if (!tgt.conditions.some(x => x.toLowerCase() === name.toLowerCase())) {
+ tgt.conditions.push(name);
+ logEvent(tgt, 'Condition applied ' + (isSelf ? '(self-cast' : 'by ' + activeChar + ' (') + spellName + '): ' + name);
+ const bonus = hpBonusFor(name);
+ if (bonus > 0 && !tgt.bleedStart) tgt.hp = Math.min(effMaxHp(tgt), tgt.hp + bonus);
+ if (name.toLowerCase() === 'bleeding' && !tgt.bleedStart) {
+ tgt.bleedStart = Date.now(); tgt.bleedAnchorHp = effectiveHp(tgt);
+ }
+ }
+ }
+
+ /* Derive a condition from a spell's miscast text and add it to the character.
+    Prefers a parenthetical "(Condition)"; otherwise uses the trimmed miscast line. */
+ function applyMiscastCondition(c, spell) {
+ if (!spell || !spell.miscast || spell.miscast === '-') return null;
+ let cond = null;
+ const paren = spell.miscast.match(/\(([^)]+)\)\s*$/);
+ if (paren) {
+ cond = paren[1].trim();
+ } else {
+ /* fall back to the first sentence, trimmed to a reasonable length */
+ let first = spell.miscast.split(/[.!]/)[0].trim();
+ if (first.length > 48) first = first.slice(0, 45).trim() + '...';
+ cond = first;
+ }
+ if (!cond) return null;
+ /* Expand "Amputated hand x2" style into two explicit conditions if it maps to hands */
+ if (/x2$/i.test(cond)) {
+ const base = cond.replace(/\s*x2$/i, '').trim();
+ addCharCondition(c, base + ' (Left)');
+ addCharCondition(c, base + ' (Right)');
+ return base + ' (Left) + (Right)';
+ }
+ addCharCondition(c, cond);
+ return cond;
+ }
+
+ /* Low-level: add a condition to a specific character (no UI side effects beyond log) */
+ function addCharCondition(c, name) {
+ if (!name) return;
+ if (!c.conditions.some(x => x.toLowerCase() === name.toLowerCase())) {
+ c.conditions.push(name);
+ logEvent(c, 'Condition applied (miscast): ' + name);
+ const bonus = hpBonusFor(name);
+ if (bonus > 0 && !c.bleedStart) c.hp = Math.min(effMaxHp(c), c.hp + bonus);
+ if (name.toLowerCase() === 'bleeding' && !c.bleedStart) {
+ c.bleedStart = Date.now(); c.bleedAnchorHp = effectiveHp(c);
+ }
+ }
+ }
+
+ /* Returns the spell object currently selected in the spell-cast dropdown, or null */
+ function getSelectedSpell() {
+ const sel = document.getElementById('spell-cast-select');
+ if (!sel || sel.value === '') return null;
+ return SPELLS[parseInt(sel.value)] || null;
+ }
+
+ /* Attack mode toggle: 'physical' shows hit-chance calc, 'spell' shows spell cast */
+ function setAttackMode(mode) {
+ document.getElementById('mode-physical').classList.toggle('active', mode === 'physical');
+ document.getElementById('mode-spell').classList.toggle('active', mode === 'spell');
+ document.getElementById('physical-block').style.display = mode === 'physical' ? '' : 'none';
+ document.getElementById('spell-block').style.display = mode === 'spell' ? '' : 'none';
+ /* hit-chance block only matters for physical attacks; spells always hit */
+ const rb = document.getElementById('result-block');
+ if (rb) rb.style.display = mode === 'physical' ? '' : 'none';
+ /* spellcasting & miscast only matters in spell mode */
+ const mb = document.getElementById('miscast-block');
+ if (mb) mb.style.display = mode === 'spell' ? '' : 'none';
+ /* weapon & strike is for physical attacks only */
+ const wb = document.getElementById('weapon-block');
+ if (wb) wb.style.display = mode === 'physical' ? '' : 'none';
+ }
+
+ /* Populate the spell-cast dropdown from SPELLS (called once at init) */
+ function populateSpellCastSelect() {
+ const sel = document.getElementById('spell-cast-select');
+ if (!sel) return;
+ const bySchool = {};
+ SPELLS.forEach((sp, i) => {
+ (bySchool[sp.school] = bySchool[sp.school] || []).push({ sp, i });
+ });
+ let html = '<option value="">Generic spell (no specific miscast text)</option>';
+ Object.keys(bySchool).forEach(school => {
+ html += '<optgroup label="' + school + '">';
+ bySchool[school].forEach(({ sp, i }) => {
+ html += '<option value="' + i + '">' + sp.name + ' (' + sp.tier + ')</option>';
+ });
+ html += '</optgroup>';
+ });
+ sel.innerHTML = html;
+ }
+
+ function resetDay() {
+ if (!activeChar) { flashNoChar(); return; }
+ roster[activeChar].spellsToday = 0;
+ roster[activeChar].lastReset = todayStr();
+ const resEl = document.getElementById('miscast-result');
+ resEl.textContent = activeChar + ' reset to 0 casts.';
+ resEl.className = 'miscast-result';
+ updateMiscastDisplay();
+ saveState();
+ }
+
+ function flashNoChar() {
+ const resEl = document.getElementById('miscast-result');
+ resEl.textContent = 'Add or select a character first.';
+ resEl.className = 'miscast-result';
+ }
+
+ /* ── STORAGE (Cloudflare KV via Pages Function) ───────────────── */
+ function setSync(state, msg) {
+ const el = document.getElementById('sync-status');
+ el.className = 'sync-status ' + state;
+ el.textContent = msg;
+ }
+
+ async function loadState() {
+ try {
+ const res = await fetch(STORAGE_ENDPOINT);
+ if (res.ok) {
+ const data = await res.json();
+ if (data && data.characters) roster = data.characters;
+ if (data && data.planets) planetState = data.planets;
+ if (data && Array.isArray(data.weapons) && data.weapons.length) weapons = data.weapons;
+ const changed = applyDayRollover();
+ rebuildCharSelect();
+ renderPlanets();
+ renderWeaponEditor();
+ updateMiscastDisplay();
+ renderStatus();
+ if (changed) saveState();
+ setSync('saved', 'Roster synced.');
+ return;
+ }
+ setSync('error', 'Could not load roster (status ' + res.status + ').');
+ } catch (e) {
+ console.warn('Combat roster load failed:', e);
+ setSync('error', 'Offline. Changes will not be saved. Check server/KV setup.');
+ }
+ rebuildCharSelect();
+ renderPlanets();
+ renderWeaponEditor();
+ updateMiscastDisplay();
+ renderStatus();
+ }
+
+ let saveTimer = null;
+ async function saveState() {
+ setSync('saving', 'Saving…');
+ clearTimeout(saveTimer);
+ saveTimer = setTimeout(async () => {
+ try {
+ const res = await fetch(STORAGE_ENDPOINT, {
+ method: 'POST',
+ headers: { 'Content-Type': 'application/json' },
+ body: JSON.stringify({ characters: roster, planets: planetState, weapons: weapons })
+ });
+ if (res.ok) setSync('saved', 'Saved.');
+ else setSync('error', 'Save failed (status ' + res.status + ').');
+ } catch (e) {
+ console.warn('Combat roster save failed:', e);
+ setSync('error', 'Offline. Change not saved.');
+ }
+ }, 400);
+ }
+
+ /* ── CONDITION SEARCH ─────────────────────────────────────────── */
+ function toggleSection(titleEl) {
+ const section = titleEl.closest('.section');
+ if (section) section.classList.toggle('collapsed');
+ }
+
+ function runSearch(query, containerSelector, clearId, nomatchId) {
+ const q = query.trim().toLowerCase();
+ document.getElementById(clearId).classList.toggle('show', q.length > 0);
+ const containers = document.querySelectorAll(containerSelector);
+ let anyMatch = false;
+ containers.forEach(container => {
+ /* if searching, make sure the parent section is expanded so results are visible */
+ if (q !== '') container.classList.remove('collapsed');
+ container.querySelectorAll('details').forEach(det => {
+ let groupHasMatch = false;
+ det.querySelectorAll('.condition-item').forEach(item => {
+ const text = item.textContent.toLowerCase();
+ const match = q === '' || text.includes(q);
+ item.style.display = match ? '' : 'none';
+ if (match && q !== '') groupHasMatch = true;
+ });
+ if (q !== '') {
+ det.open = groupHasMatch;
+ det.style.display = groupHasMatch ? '' : 'none';
+ if (groupHasMatch) anyMatch = true;
+ } else {
+ det.style.display = '';
+ det.open = false;
+ }
+ });
+ });
+ document.getElementById(nomatchId).style.display = (q !== '' && !anyMatch) ? 'block' : 'none';
+ }
+
+ function filterConditions() {
+ runSearch(document.getElementById('cond-search').value, '#attacker-conditions', 'cond-clear', 'cond-nomatch');
+ }
+
+ function clearCondSearch() {
+ document.getElementById('cond-search').value = '';
+ filterConditions();
+ }
+
+ function filterAttackerMagical() {
+ runSearch(document.getElementById('amag-search').value, '#attacker-magical', 'amag-clear', 'amag-nomatch');
+ }
+
+ function clearAmagSearch() {
+ document.getElementById('amag-search').value = '';
+ filterAttackerMagical();
+ }
+
+ function filterDefender() {
+ runSearch(document.getElementById('def-search').value, '#defender-magical', 'def-clear', 'def-nomatch');
+ }
+
+ function clearDefSearch() {
+ document.getElementById('def-search').value = '';
+ filterDefender();
+ }
+
+ /* ── SPELL REFERENCE ──────────────────────────────────────────── */
+ const SPELLS = [
+ {school:'Flames',name:'Ignite',tier:'I',dur:'Instant',effect:'Flicks a small jet of fire from the finger. Negates the need for gunpowder for gunwielders.',inflict:'No effects.',miscast:'No spark is lit.'},
+ {school:'Flames',name:'Redpalm',tier:'I',dur:'30 Seconds',effect:'Chosen palm reaches incredibly high heat, melting basic metal or cauterizing wounds.',inflict:'Minor burn scars, 1 HP dmg / 1 HP heal',miscast:'Hand overloaded; arm goes numb for hours (Nerve-dead arm).'},
+ {school:'Flames',name:'Petit-Soleil',tier:'I',dur:'5 Seconds',effect:'Generates a small ball of bright material, blinding all viewers ~20 min (caster must look away).',inflict:'Temporary Blindness',miscast:'Hand explodes (Obliterated hand).'},
+ {school:'Flames',name:'Lesser Fireball',tier:'II',dur:'Instant',effect:'Launches an orb of fire, setting a 2x2m area alight.',inflict:'Major Burn Scars',miscast:'Arm explodes (Amputated arm below elbow).'},
+ {school:'Flames',name:'Feuerzunge',tier:'II',dur:'30 Seconds',effect:'Turns liquid in the mouth flammable, spat out as a jet of fire. Must drink beforehand.',inflict:'Major Burn Scars, 3 HP dmg',miscast:'Tongue explodes (No tongue).'},
+ {school:'Flames',name:'Ardorgyration',tier:'II',dur:'30 Minutes',effect:'Summons 3 fire orbs that gyrate and intercept incoming projectiles. Can be launched as bombs.',inflict:'Projectile Immunity, 2 HP dmg',miscast:'Orbs launch in random trajectories.'},
+ {school:'Flames',name:'Immoluintransigence',tier:'III',dur:'1 Day',effect:'Immune to all fire and heat damage. Negates all miscasts while active.',inflict:'Fire Immunity',miscast:'Becomes more vulnerable to fire - double damage.'},
+ {school:'Flames',name:"Samhan's Pillar",tier:'III',dur:'10 Seconds',effect:'Calls a 10x10m twirling pillar of fire from the sky. Moves 2m/s. Outdoors, sunlight only.',inflict:'Major Burn Scars, 4 HP dmg',miscast:'Pillar moves of its own accord, may target the caster.'},
+ {school:'Flames',name:'Greater Fireball',tier:'III',dur:'Instant',effect:'Launches an orb of fire, setting a 15x15m area alight.',inflict:'Major Burn Scars, 5 HP dmg',miscast:'Arm explodes (Amputated arm above elbow).'},
+
+ {school:'Memories',name:'Séance',tier:'I',dur:'1 Minute',effect:'Pulls a soul into conversation; subject sees caster as a beloved companion and answers willingly.',inflict:'No effects.',miscast:'Subject sees the caster as a stranger. Can still be bargained with.'},
+ {school:'Memories',name:'Necrocircuitus',tier:'I',dur:'30 Minutes',effect:"Speaks a subject's true name; a mental path illuminates to their corpse.",inflict:'No effects.',miscast:'Directed toward corpses of people with similar names.'},
+ {school:'Memories',name:'Voyeur-quietus',tier:'I',dur:'10 Minutes',effect:"Touches a subject and trances into their last moments in fine detail.",inflict:'No effects.',miscast:'Trapped in memory until the next new moon (Trance).'},
+ {school:'Memories',name:'Lesser Animation',tier:'II',dur:'1 Lunar Cycle',effect:'Animates a severed limb as an intelligent companion. Works on heads (cannot talk). Recast each cycle.',inflict:'No effects.',miscast:'Limb is feral - scratches, strangles, hits anything (Feral limb).'},
+ {school:'Memories',name:'Selenic Rest',tier:'II',dur:'1 Lunar Cycle',effect:'Grasps a subject 5s, dropping them into a coma until woken by caster or next new moon.',inflict:'Selenic Rest',miscast:"Reflects; caster is left half-awake (Partially-Conscious)."},
+ {school:'Memories',name:'Essesymbiosis',tier:'II',dur:'Instant',effect:'Permanently gains knowledge/memories of the next creature whose flesh or bone is consumed.',inflict:'Essesymbiosisal Knowledge',miscast:"Takes on a sentient sliver of the deceased - a voice in the head (Personality Bleed)."},
+ {school:'Memories',name:'Greater Animation',tier:'III',dur:'1 Lunar Cycle',effect:'Animates a full corpse with robotic intelligence. Must be whole. Recast each cycle.',inflict:'No effect.',miscast:'Animation is feral; attacks everything in reach.'},
+ {school:'Memories',name:'Unburden',tier:'III',dur:'Instant',effect:'Excises a chosen memory from within the last week. Subject is stunned a minute after.',inflict:'Unburdened',miscast:'The memory is also excised from the caster (Unburdened).'},
+ {school:'Memories',name:'Faussemort',tier:'III',dur:'1 Lunar Cycle',effect:'Cannot die until the next new moon; returns to pre-death state after an hour, forgetting the last minute.',inflict:'Faussemortis',miscast:'Returns from death but forgets the last 6 months.'},
+ {school:'Memories',name:'blesse',tier:'IV (Rare)',dur:'30 Seconds',effect:'Every stored memory of pain reopens at once, violently incapacitating the target. No real physical damage.',inflict:'Temporary Paralysis, Mental Trauma',miscast:' - '},
+
+ {school:'Power',name:'Gewaltpush',tier:'I',dur:'Instant',effect:'Next melee attack launches victims up to 10m backward.',inflict:'2 HP dmg',miscast:'Hand or foot explodes (Obliterated hand).'},
+ {school:'Power',name:'Stahlsqueeze',tier:'I',dur:'30 seconds',effect:'Exerts force on metal alloys, pinning armoured or armed targets in place.',inflict:' - ',miscast:'Becomes highly magnetic; nearby metal flies toward them (Magnetic).'},
+ {school:'Power',name:'Bollwerk',tier:'I',dur:'Indefinite',effect:'Holds breath to project an immobile barrier of dark glass - impenetrable while breath held.',inflict:' - ',miscast:'Faints immediately.'},
+ {school:'Power',name:'Lesser Ray of Oblivion',tier:'II',dur:'Instant',effect:'A thin ray melts and destroys everything for 50m. Deflects off very durable substances.',inflict:'4 HP dmg',miscast:'Hand explodes (Obliterated hand).'},
+ {school:'Power',name:'Throws of Power',tier:'II',dur:'5 seconds',effect:'Generates psionic ripples devastating the local environment and all nearby.',inflict:'3 HP dmg',miscast:'Produces ripples but seizures and faints (Seizure).'},
+ {school:'Power',name:'Überleap',tier:'II',dur:'Instant',effect:'A strengthened Gewaltpush on the ground allows jumps up to 20m high.',inflict:' - ',miscast:'Legs break upon jumping (Broken leg x2).'},
+ {school:'Power',name:'Greater Ray of Utter Oblivion',tier:'III',dur:'Instant',effect:'A large beam melts and destroys everything for ~70m. Deflects off very durable substances.',inflict:'8 HP dmg',miscast:'Arm explodes (Amputated arm above elbow).'},
+ {school:'Power',name:'Erdungsstift',tier:'III',dur:'5 minutes',effect:'Applies several atmospheres of force in a 10x10m circle. Very strong entities resist.',inflict:'Prone',miscast:'Caster is crushed too (Prone).'},
+ {school:'Power',name:'Leviathan',tier:'III',dur:'Indefinite',effect:'Grows to ~30m, able to topple buildings. Longer use breeds aggression and megalomania.',inflict:'Imbued with Colossal Power',miscast:'Grown but bones cannot bear the weight - beached and helpless (Colossal weight).'},
+
+ {school:'Insects',name:'Swarmarchia',tier:'I',dur:'1 day',effect:'Taps insect swarm intelligence. Large swarms gain speech and can be ordered into combat. Recast daily.',inflict:'Insect Stings, 2 HP dmg',miscast:'Collective intelligence lost; frenzied cloud attacks itself and nearby.'},
+ {school:'Insects',name:'Scleroderma',tier:'I',dur:'30 Minutes',effect:'Hardens skin with chitin. Slower movement and increased heat vulnerability.',inflict:'Chitin Skin',miscast:'Chitin burrows too deep; movement reduced, must be painfully removed (Rooted Chitin Skin).'},
+ {school:'Insects',name:'Pseudopupila',tier:'I',dur:'10 Minutes',effect:'Eyes form a compound structure, seeing hidden details and granting alertness.',inflict:'Compound Vision',miscast:'Grows random extra insectoid eyes; disorienting unless covered (Disorientation).'},
+ {school:'Insects',name:'Cockroach-song',tier:'II',dur:'Instant',effect:'Forces a subject to vomit up to a pound of insects, usually immobilising them.',inflict:'Nausea',miscast:'Insects heed the song and crawl into the caster\u2019s mouth (Nausea).'},
+ {school:'Insects',name:'Moth-Song',tier:'II',dur:'1 day',effect:'Two or four elytra sprout for flight. Must resist attraction to bright light.',inflict:'Flight',miscast:'Elytra flap uncontrollably, launching the caster randomly (Undirected flight).'},
+ {school:'Insects',name:'Spider-song',tier:'II',dur:'1 day',effect:'Setae bristles allow wall-climbing and immunity to bloodpooling, with light sensitivity.',inflict:'Adhesion',miscast:'Cannot release from a surface without painful intervention (Grounded).'},
+ {school:'Insects',name:'Pupastasis',tier:'III',dur:'Indefinite',effect:'Curls into a durable membrane, healing all wounds within 3 days. Cannot be interrupted.',inflict:'5 HP heal',miscast:'On release, undergoes three random insectoid mutations.'},
+ {school:'Insects',name:'Kiss of Love',tier:'III',dur:'Instant',effect:'Secretes venomous saliva; caster defines its purpose (lethal, incapacitating, persuasive).',inflict:'Excessive Salivation',miscast:'No immunity to own venom; feels the effects immediately.'},
+ {school:'Insects',name:'Swarmstructura',tier:'III',dur:'Indefinite',effect:'A Swarmarchia swarm builds complex hives and rears new larva from local materials.',inflict:' - ',miscast:'Loses control; the hive expands uncontrollably on its own agenda.'},
+
+ {school:'Changes',name:'Crookscript',tier:'I',dur:'Indefinite',effect:'Presses a finger to a document and warps ink to any words, shapes, or art - indistinguishable from original.',inflict:' - ',miscast:'Transcribes subconscious thoughts instead of intended content.'},
+ {school:'Changes',name:'Decimate',tier:'I',dur:'Instant',effect:'Squeezes a small item, breaking it into uneven blocks of pure elements.',inflict:' - ',miscast:'Both hands are cleanly amputated (Amputated hand x2).'},
+ {school:'Changes',name:'Acclimatation',tier:'I',dur:'1 day',effect:'Adapts to one of four elements; becomes vulnerable to all others.',inflict:'Elemental Acclimatation',miscast:'Becomes specifically vulnerable to that element.'},
+ {school:'Changes',name:'Extension',tier:'II',dur:'Indefinite',effect:'Grafts an amputated limb on seamlessly, with intimate familiarity. Recast to remove.',inflict:' - ',miscast:'Limb fails to integrate, moving on its own - annoying, not aggressive (Foreign Limb).'},
+ {school:'Changes',name:'Foolcopy',tier:'II',dur:'3 Days',effect:'Splits into a physically identical but dim, suggestible clone. Dissolves in 3 days unless recast.',inflict:' - ',miscast:'Clone is an uncontrollable animal craving the caster\u2019s desires without moderation.'},
+ {school:'Changes',name:'Imago',tier:'II',dur:'5 Minutes',effect:'Incites vivid, realistic hallucinations on a subject or group. Cannot harm.',inflict:' - ',miscast:'Hallucinations are only visible to the caster. Embarrassing.'},
+ {school:'Changes',name:'Transmutation',tier:'III',dur:'Indefinite',effect:'Objects in a drawn circle transmute into a different element of identical mass.',inflict:' - ',miscast:'A random part of the caster\u2019s body turns to stone.'},
+ {school:'Changes',name:'Becomeye',tier:'III',dur:'Fluctuates',effect:"Mimics an analysed entity's body, language, and voice, lasting as long as it was watched.",inflict:'Mimicry',miscast:'Forgets original motives; genuinely believes they are the entity (Deluded-Mimicry).'},
+ {school:'Changes',name:'Touch of Mercury',tier:'III',dur:'Indefinite',effect:"Changes an object's weight far heavier or lighter. Not for animated entities.",inflict:' - ',miscast:'Intentions reversed - lighter becomes heavier and vice versa.'},
+
+ {school:'Revelations',name:'The Fool',tier:'I',dur:'Indefinite',effect:'Astro-projects into a weightless, incorporeal form. Body can be freely manipulated.',inflict:'Out-of-Body',miscast:'Projected several kilometres from the body.'},
+ {school:'Revelations',name:'Justice',tier:'I',dur:'Instant',effect:'Eye contact reveals truth or lie with certainty. Believed lies register as truth.',inflict:' - ',miscast:'Reads everything as the truth.'},
+ {school:'Revelations',name:'The High Priestess',tier:'I',dur:'1 day',effect:'Enhanced perception: unsurprisable, darkvision, thermal, ultraviolet.',inflict:'Enhanced Perception',miscast:'Sprouts random eyes, sometimes animal; disorienting.'},
+ {school:'Revelations',name:'The Hermit',tier:'II',dur:'1 hour',effect:'Vanishes to their location thousands of years in the past - cannot interact. May bring one other.',inflict:' - ',miscast:'Trapped in the past until recast; stacked miscasts send further back.'},
+ {school:'Revelations',name:'The Nine of Swords',tier:'II',dur:'5 minutes',effect:'Unblinking eye contact traps the subject in visions of a terrible future.',inflict:'Assailed by Visions',miscast:'Caster shares the terror, stricken with paralysing fear (Assailed by Visions).'},
+ {school:'Revelations',name:'The Sun',tier:'II',dur:'10 Minutes',effect:'Sees through walls, flesh, and objects at adjustable distance.',inflict:'Penetrative Vision',miscast:'Goes blind in one eye (Blind).'},
+ {school:'Revelations',name:'The Hierophant',tier:'III',dur:'1 hour',effect:'Gains extensive knowledge of one subject; intelligence in all other fields drops.',inflict:'Astral Wisdom',miscast:'Forgets all knowledge of other subjects until the spell ends (Astral Stupidity).'},
+ {school:'Revelations',name:'The Wheel of Fortune',tier:'III',dur:'Indefinite',effect:"Foresees an enemy's next attack and dodges it perfectly (next attack misses).",inflict:'Precognition',miscast:'Shown too much; confused - the next attack is guaranteed to land.'},
+ {school:'Revelations',name:'The World',tier:'III',dur:'1 hour',effect:'Vast senses across 100m - hears, smells, and feels all, able to detail specifics.',inflict:'Omniscience',miscast:'Cannot handle the information; has a seizure (Seizure).'},
+
+ {school:'Obeisance',name:'Otoshireru',tier:'I',dur:'Indefinite',effect:'Unhinges jaw to swallow and store up to five living creatures, regurgitated at will as loyal familiars.',inflict:'Gullethoard',miscast:'Jaw breaks if unhinged; consumes the entity live instead of storing it.'},
+ {school:'Obeisance',name:"Waizuman's Abidement",tier:'II',dur:'10 minutes',effect:'Swallows an active substance (poison, charcoal, water) and becomes immune or adapted to it.',inflict:'Abidement',miscast:'No effect; ingests whatever was consumed.'},
+ {school:'Obeisance',name:'Daijesuto',tier:'II',dur:'1 hour',effect:'Ingests a stored creature to restore health; the creature is lost forever.',inflict:'3 HP heal',miscast:'Donates health to the creature, weakening self and empowering it.'},
+ {school:'Obeisance',name:'K\u016bki o kamu',tier:'III',dur:' - ',effect:'Uses devourment on entities with no physical form or that cannot be touched.',inflict:' - ',miscast:'Forced to regurgitate a stored entity, now disloyal.'},
+ {school:'Obeisance',name:'Guratton-sh\u012bfu',tier:'III',dur:'1 day',effect:'Temporarily steals the ability of a swallowed entity; it cannot be summoned meanwhile.',inflict:' - ',miscast:'Gains a random mutation based on the consumed creature.'}
+ ];
+
+ function renderSpells(list) {
+ const body = document.getElementById('spell-body');
+ if (!body) return; /* spell reference UI removed */
+ body.innerHTML = '';
+ list.forEach((sp, i) => {
+ const row = document.createElement('tr');
+ row.className = 'spell-row';
+ row.onclick = () => {
+ const d = document.getElementById('spell-detail-' + i);
+ if (d) d.classList.toggle('show');
+ };
+ row.innerHTML =
+ '<td class="spell-name">' + sp.name + '</td>' +
+ '<td class="spell-school">' + sp.school + '</td>' +
+ '<td class="spell-tier">' + sp.tier + '</td>' +
+ '<td>' + sp.dur + '</td>';
+ body.appendChild(row);
+
+ const detail = document.createElement('tr');
+ detail.className = 'spell-detail';
+ detail.id = 'spell-detail-' + i;
+ detail.innerHTML =
+ '<td colspan="4"><div class="spell-detail-inner">' +
+ '<div class="sd-row"><span class="sd-label">Effect</span>' + sp.effect + '</div>' +
+ '<div class="sd-row"><span class="sd-label">Inflicts</span>' + (sp.inflict || ' - ') + '</div>' +
+ '<div class="sd-row"><span class="sd-label">Miscast</span>' + (sp.miscast || ' - ') + '</div>' +
+ '</div></td>';
+ body.appendChild(detail);
+ });
+ }
+
+ function filterSpells() {
+ const si = document.getElementById('spell-search');
+ if (!si) return;
+ const q = si.value.trim().toLowerCase();
+ document.getElementById('spell-clear').classList.toggle('show', q.length > 0);
+ const filtered = q === '' ? SPELLS : SPELLS.filter(sp =>
+ (sp.name + ' ' + sp.school + ' ' + sp.tier + ' ' + sp.dur + ' ' + sp.effect + ' ' + sp.inflict + ' ' + sp.miscast)
+ .toLowerCase().includes(q)
+ );
+ renderSpells(filtered);
+ document.getElementById('spell-nomatch').style.display = filtered.length === 0 ? 'block' : 'none';
+ }
+
+ function clearSpellSearch() {
+ const si = document.getElementById('spell-search');
+ if (!si) return;
+ si.value = '';
+ filterSpells();
+ }
+
+ /* Event record side panel toggle */
+ function toggleEventSide() {
+ const side = document.getElementById('event-side');
+ const btn = document.getElementById('event-side-toggle');
+ const collapsed = side.classList.toggle('collapsed');
+ if (btn) btn.textContent = collapsed ? 'Show' : 'Hide';
+ }
+
+ /* Collapse/expand the applied-conditions list in Character status */
+ function toggleCondList() {
+ const list = document.getElementById('cond-list');
+ const arrow = document.getElementById('cond-list-arrow');
+ const hidden = list.style.display === 'none';
+ list.style.display = hidden ? '' : 'none';
+ if (arrow) arrow.textContent = hidden ? '▾' : '▸';
+ }
+
+ loadState();
+ populateSpellCastSelect();
+ buildCondCatalog();
+ renderPlanets();
+ renderWeaponEditor();
+ renderStatus();
+ /* Refresh status every 30s so the bleeding countdown and HP stay live */
+ setInterval(() => { if (activeChar && roster[activeChar] && roster[activeChar].bleedStart) renderStatus(); }, 30000);
+ recalc();
+</script>
