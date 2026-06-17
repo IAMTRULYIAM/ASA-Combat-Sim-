@@ -32,7 +32,7 @@
  .tv-title { font-size: 10px; letter-spacing: 0.18em; font-weight: bold; text-transform: uppercase; color: #555; margin-bottom: 14px; }
  .panel-head { display: flex; align-items: center; justify-content: flex-start; gap: 14px; margin-bottom: 14px; }
  .panel-head .tv-title { margin-bottom: 0; }
- .panel-logo { width: 88px; height: auto; flex-shrink: 0; mix-blend-mode: multiply; }
+ .panel-logo { width: 150px; height: auto; flex-shrink: 0; mix-blend-mode: multiply; }
  .sr-only { display: none; }
  .section { background: #d4d4d4; border: none; border-top: 1.5px solid #444; border-radius: 0; padding: 14px 2px; margin-bottom: 0; }
  .section:first-of-type { border-top: none; }
@@ -192,8 +192,11 @@
  .cond-list-header { font-size: 12px; font-weight: 600; color: var(--color-text-secondary); cursor: pointer; user-select: none; margin-top: 12px; padding-top: 10px; border-top: 0.5px solid var(--color-border-tertiary); }
  .cond-list-header .cond-count { color: var(--color-text-tertiary); font-weight: 400; }
  /* Event record side panel (fixed to right edge on wide screens) */
- .event-side { position: fixed; top: 80px; right: 16px; width: 270px; max-height: 70vh; z-index: 60; background: var(--color-background-primary); border: 0.5px solid var(--color-border-secondary); border-left: 3px solid var(--color-text-tertiary); border-radius: var(--border-radius-lg); box-shadow: 0 4px 18px rgba(0,0,0,0.12); display: flex; flex-direction: column; overflow: hidden; }
- .event-side-head { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--color-text-secondary); border-bottom: 0.5px solid var(--color-border-tertiary); background: var(--color-background-secondary); }
+ .event-side { position: fixed; top: 80px; right: 16px; width: 270px; max-height: 70vh; z-index: 60; background: #f0f0f0; border: 1.5px solid #444; border-left: 4px solid #888; border-radius: 0; box-shadow: 0 4px 14px rgba(0,0,0,0.2); display: flex; flex-direction: column; overflow: hidden; }
+ .event-side-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 9px 12px; font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.1em; color: #222; border-bottom: 1px solid #888; background: #d4d4d4; cursor: move; user-select: none; }
+ .event-side-head .es-title { display: flex; align-items: center; gap: 6px; }
+ .event-side-head .es-grip { font-size: 12px; color: #888; letter-spacing: -1px; }
+ .event-side-toggle { font-size: 10px; padding: 2px 8px; cursor: pointer; }
  .event-side-toggle { font-size: 11px; padding: 2px 9px; cursor: pointer; border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-sm); background: var(--color-background-primary); }
  .event-side-body { padding: 12px 14px; overflow-y: auto; }
  .event-side.collapsed .event-side-body { display: none; }
@@ -1160,7 +1163,7 @@
 
 <!-- EVENT RECORD (side panel) -->
 <div class="event-side" id="event-side">
-<div class="event-side-head"><span>Event record</span><button class="event-side-toggle" onclick="toggleEventSide()" id="event-side-toggle">Hide</button></div>
+<div class="event-side-head" id="event-side-head" onmousedown="startEventDrag(event)" ontouchstart="startEventDrag(event)"><span class="es-title"><span class="es-grip">⠿</span> Event record</span><button class="event-side-toggle" onclick="toggleEventSide()" id="event-side-toggle">Hide</button></div>
 <div class="event-side-body" id="event-side-body">
  <div id="log-empty" class="status-empty">Select a character to view their history.</div>
  <div id="log-body" style="display:none;">
@@ -2496,6 +2499,47 @@
  const btn = document.getElementById('event-side-toggle');
  const collapsed = side.classList.toggle('collapsed');
  if (btn) btn.textContent = collapsed ? 'Show' : 'Hide';
+ }
+
+ /* Make the Event record panel draggable by its header */
+ let _evDrag = null;
+ function startEventDrag(e) {
+ /* don't start a drag when the Hide/Show button is clicked */
+ if (e.target.closest('.event-side-toggle')) return;
+ const side = document.getElementById('event-side');
+ const rect = side.getBoundingClientRect();
+ const point = e.touches ? e.touches[0] : e;
+ _evDrag = { dx: point.clientX - rect.left, dy: point.clientY - rect.top };
+ /* switch from right-anchored to left/top absolute positioning so it follows the cursor */
+ side.style.right = 'auto';
+ side.style.left = rect.left + 'px';
+ side.style.top = rect.top + 'px';
+ document.addEventListener('mousemove', moveEventDrag);
+ document.addEventListener('mouseup', endEventDrag);
+ document.addEventListener('touchmove', moveEventDrag, { passive: false });
+ document.addEventListener('touchend', endEventDrag);
+ e.preventDefault();
+ }
+ function moveEventDrag(e) {
+ if (!_evDrag) return;
+ const side = document.getElementById('event-side');
+ const point = e.touches ? e.touches[0] : e;
+ let x = point.clientX - _evDrag.dx;
+ let y = point.clientY - _evDrag.dy;
+ /* keep it on screen */
+ const w = side.offsetWidth, h = side.offsetHeight;
+ x = Math.max(4, Math.min(window.innerWidth - w - 4, x));
+ y = Math.max(4, Math.min(window.innerHeight - 40, y));
+ side.style.left = x + 'px';
+ side.style.top = y + 'px';
+ if (e.cancelable) e.preventDefault();
+ }
+ function endEventDrag() {
+ _evDrag = null;
+ document.removeEventListener('mousemove', moveEventDrag);
+ document.removeEventListener('mouseup', endEventDrag);
+ document.removeEventListener('touchmove', moveEventDrag);
+ document.removeEventListener('touchend', endEventDrag);
  }
 
  /* Collapse/expand the applied-conditions list in Character status */
