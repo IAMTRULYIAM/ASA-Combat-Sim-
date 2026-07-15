@@ -107,7 +107,7 @@
  #spell-cast-select { width: 100%; margin-bottom: 4px; }
  /* Miscast tracker */
  .miscast-row { display: grid; grid-template-columns: auto 1fr auto; gap: 16px; align-items: center; }
- .char-bar { display: flex; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; align-items: center; }
+ .char-bar { display: flex; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; align-items: center; position: relative; z-index: 20; }
  /* Active character sticky banner */
  .active-banner { position: sticky; top: 0; z-index: 50; display: flex; align-items: center; gap: 10px; background: #c8c8c8; border: 1.5px solid #444; border-radius: 0; padding: 8px 14px; margin-bottom: 14px; }
  .active-banner .ab-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.12em; color: #555; font-weight: bold; }
@@ -117,7 +117,7 @@
  .active-banner .ab-hp.hurt { color: #b35900; }
  .active-banner .ab-hp.down { color: #cc0000; }
  /* Character list (searchable selection) */
- .char-list { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 10px; }
+ .char-list { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 10px; position: relative; z-index: 20; }
  .char-chip { font-size: 11px; padding: 4px 10px; border-radius: 0; background: #f0f0f0; border: 1px solid #888; cursor: pointer; }
  .char-chip:hover { background: #e2e2e2; }
  .char-chip.active { background: #444; border-color: #222; color: #fff; font-weight: bold; }
@@ -125,7 +125,14 @@
  .char-chip-empty { font-size: 11px; color: #666; font-style: italic; padding: 4px; }
  /* Faint overlay on combat */
  .acc-combat { position: relative; }
- .faint-overlay { position: absolute; inset: 0; z-index: 10; display: flex; align-items: center; justify-content: center; background: rgba(110,110,110,0.6); border-radius: 0; font-size: 26px; font-weight: bold; letter-spacing: 0.2em; color: #fff; text-transform: uppercase; text-shadow: 0 1px 3px rgba(0,0,0,0.5); }
+ .faint-overlay { position: absolute; inset: 0; z-index: 10; display: flex; align-items: center; justify-content: center; background: rgba(110,110,110,0.6); border-radius: 0; }
+ .faint-inner { display: flex; flex-direction: column; align-items: center; gap: 14px; }
+ .faint-word { font-size: 26px; font-weight: bold; letter-spacing: 0.2em; color: #fff; text-transform: uppercase; text-shadow: 0 1px 3px rgba(0,0,0,0.5); }
+ .faint-actions { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+ .revive-btn { background: #008000; color: #fff; border: 1.5px solid #006000; border-radius: 0; font-size: 13px; font-weight: bold; letter-spacing: 0.08em; text-transform: uppercase; padding: 8px 26px; cursor: pointer; }
+ .revive-btn:hover { background: #006a00; }
+ .switch-btn { background: #444; color: #fff; border: 1.5px solid #222; border-radius: 0; font-size: 13px; font-weight: bold; letter-spacing: 0.08em; text-transform: uppercase; padding: 8px 22px; cursor: pointer; }
+ .switch-btn:hover { background: #2c2c2c; }
  .char-bar select { flex: 1; min-width: 160px; }
  .char-bar input { flex: 1; min-width: 140px; }
  .char-bar button { padding: 6px 14px; font-size: 13px; cursor: pointer; white-space: nowrap; }
@@ -155,9 +162,23 @@
  .planet-note { font-size: 12px; color: var(--color-text-secondary); margin-bottom: 12px; line-height: 1.5; }
  .cal-link { color: #0a5fb4; font-weight: bold; text-decoration: underline; }
  .planet-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
- .planet-row { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border: 1.5px solid #444; border-radius: 0; background: #f0f0f0; }
+ .planet-row { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border: 1.5px solid #444; border-radius: 0; background: #f0f0f0; justify-content: space-between; }
  .planet-row .pr-school { font-size: 13px; font-weight: 600; }
  .planet-row .pr-planet { font-size: 10px; color: var(--color-text-tertiary); }
+ .pstate-tag { font-size: 11px; font-weight: bold; letter-spacing: 0.04em; padding: 3px 9px; border: 1px solid #888; white-space: nowrap; }
+ .pstate-tag.ps-emp { color: #18564c; background: #dcefeb; border-color: #2a7d70; }
+ .pstate-tag.ps-weak { color: #8a3a00; background: #f3e2d2; border-color: #c07a3a; }
+ .pstate-tag.ps-neutral { color: #666; background: #ececec; }
+ .ps-prov { font-size: 9px; font-weight: normal; color: #b35900; border: 1px dashed #d98a3a; padding: 0 4px; margin-left: 4px; text-transform: uppercase; letter-spacing: 0.05em; }
+ .cal-sky-status { font-size: 12px; color: #333; background: #ececec; border: 1px solid #999; padding: 8px 10px; margin-bottom: 10px; }
+ .cal-sky-status .sky-emp { color: #18564c; }
+ .cal-sky-status .sky-weak { color: #8a3a00; }
+ .cal-sky-status .cal-err { color: #b00; }
+ .cal-sync-btn { font-size: 11px; padding: 2px 9px; border: 1px solid #444; background: #e2e2e2; cursor: pointer; margin-left: 4px; }
+ .cal-sync-btn:hover { background: #d4d4d4; }
+ .cal-sync-btn.paused { background: #444; color: #fff; border-color: #222; }
+ .cal-sync-btn.paused:hover { background: #2c2c2c; }
+ .cal-sky-status .sky-frozen { font-weight: bold; color: #fff; background: #6a4fb0; padding: 1px 7px; letter-spacing: 0.05em; }
  .planet-states { margin-left: auto; display: flex; gap: 3px; }
  .pstate-btn { font-size: 10px; padding: 3px 7px; cursor: pointer; border: 0.5px solid var(--color-border-secondary); background: var(--color-background-primary); border-radius: var(--border-radius-sm); }
  .pstate-btn.on-emp { background: var(--color-background-success); color: var(--color-text-success); border-color: var(--color-border-success); font-weight: 600; }
@@ -182,6 +203,33 @@
  .cond-add-row { display: flex; gap: 8px; flex-wrap: wrap; }
  .cond-add-row input { flex: 1; min-width: 180px; }
  .cond-add-row button { padding: 6px 12px; font-size: 13px; cursor: pointer; white-space: nowrap; }
+ .cond-browse-btn { background: #e2e2e2; }
+ /* Character traits */
+ .trait-group-label { font-size: 10px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.1em; color: #555; margin: 14px 0 7px; }
+ .trait-grid { display: flex; flex-wrap: wrap; gap: 6px; }
+ .trait-chip { display: inline-flex; flex-direction: column; gap: 2px; padding: 6px 10px; border: 1px solid #888; border-radius: 0; background: #f0f0f0; cursor: pointer; font-size: 12px; line-height: 1.25; }
+ .trait-chip:hover { background: #e2e2e2; }
+ .trait-chip.on { border-color: #2a7d70; background: #dcefeb; color: #18564c; font-weight: bold; }
+ .trait-chip.gm { border-style: dashed; }
+ .trait-chip.gm.on { border-color: #6a4fb0; background: #e8e2f4; color: #4a3580; }
+ .trait-chip .trait-eff { font-size: 10px; font-weight: normal; color: #666; }
+ .trait-chip.on .trait-eff { color: #2a7d70; }
+ .trait-chip.gm.on .trait-eff { color: #6a4fb0; }
+ .trait-gm-tag { font-size: 9px; background: #6a4fb0; color: #fff; padding: 0 4px; border-radius: 0; letter-spacing: 0.05em; }
+ .trait-applied-label { font-size: 10px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.1em; color: #555; margin: 16px 0 7px; }
+ .trait-applied { display: flex; flex-wrap: wrap; gap: 5px; }
+ .trait-tag { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; padding: 4px 9px; border: 1px solid #2a7d70; background: #dcefeb; color: #18564c; cursor: pointer; }
+ .trait-tag:hover { background: #cde7e1; }
+ .trait-tag .trait-x { color: #c00; font-weight: bold; }
+ /* Color-code magical effects by which side they apply to, to prevent confusion */
+ .side-attacker > summary { color: #b35900; border-left: 3px solid #d98a3a; padding-left: 8px; }
+ .side-defender > summary { color: #0a5fb4; border-left: 3px solid #4a90d9; padding-left: 8px; }
+ .side-attacker .condition-item { border-left: 3px solid #e6c39a; }
+ .side-attacker .condition-item:not(.active):not(.active-neg):not(.active-pos) { color: #8a5a2a; }
+ .side-defender .condition-item { border-left: 3px solid #a9cdee; }
+ .side-defender .condition-item:not(.active):not(.active-neg):not(.active-pos) { color: #1a4f80; }
+ .side-attacker .detail-body::before { content: 'Affects the ATTACKER'; display: block; font-size: 9px; font-weight: bold; letter-spacing: 0.1em; color: #b35900; margin-bottom: 8px; }
+ .side-defender .detail-body::before { content: 'Affects the DEFENDER'; display: block; font-size: 9px; font-weight: bold; letter-spacing: 0.1em; color: #0a5fb4; margin-bottom: 8px; }
  .cond-bleed-btn { color: var(--color-text-danger); }
  .cond-picker { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 8px; max-height: 140px; overflow-y: auto; }
  .cond-pick-item { font-size: 11px; padding: 2px 7px; border-radius: var(--border-radius-sm); background: var(--color-background-secondary); border: 0.5px solid var(--color-border-tertiary); cursor: pointer; }
@@ -228,6 +276,28 @@
  .log-empty-list { font-size: 12px; color: var(--color-text-tertiary); font-style: italic; padding: 8px; }
  /* Weapons */
  .weapon-block { margin-top: 1.25rem; padding-top: 1rem; border-top: 0.5px solid var(--color-border-tertiary); }
+ /* Streamlined action rows (shared target, one-click cast/strike) */
+ .action-target-row { display: flex; align-items: center; gap: 10px; margin: 16px 0 10px; }
+ .action-target-row label { margin-bottom: 0; white-space: nowrap; }
+ .action-target-row select { flex: 1; }
+ .action-row { display: flex; gap: 8px; align-items: stretch; margin-top: 10px; }
+ .action-label { margin: 16px 0 4px; font-weight: bold; }
+ details.context-block { margin-top: 16px; padding-top: 12px; border-top: 1px solid #888; }
+ details.context-block > summary { background: #d4d4d4; }
+ .ctx-group-label { font-size: 10px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.1em; color: #555; margin: 4px 0 8px; }
+ .cat-block { margin-top: 18px; padding-top: 14px; border-top: 1px solid #888; }
+ .action-row select { flex: 1; }
+ .act-btn { background: #444; color: #fff; border-color: #222; font-weight: bold; padding: 4px 18px; white-space: nowrap; }
+ .act-btn:hover { background: #2c2c2c; }
+ .mc-line { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; margin-top: 8px; font-size: 11px; color: #444; }
+ .mc-line .mc-tag { font-weight: bold; }
+ .mc-line .mc-num { font-size: 13px; }
+ .mc-line .counter-box { display: inline-flex; align-items: center; border: 1px solid #888; }
+ .mc-line .counter-box button { border: none; border-radius: 0; padding: 2px 8px; background: #e2e2e2; font-size: 13px; }
+ .mc-line .counter-val { padding: 0 8px; font-weight: bold; font-size: 13px; min-width: 22px; text-align: center; }
+ .mc-line .mc-reset { font-size: 10px; padding: 3px 8px; }
+ details.hitcalc { margin-top: 18px; padding-top: 12px; border-top: 1px solid #888; }
+ details.hitcalc > summary { background: #d4d4d4; }
  .weapon-label { font-size: 13px; font-weight: 600; color: var(--color-text-secondary); margin-bottom: 6px; }
  .weapon-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
  .weapon-row select { flex: 1; min-width: 160px; }
@@ -240,13 +310,14 @@
  .dmg-result { font-size: 12px; margin-top: 8px; min-height: 16px; }
  .dmg-result.hit { color: var(--color-text-danger); font-weight: 600; }
  .dmg-result.negated { color: #0a5fb4; font-weight: bold; }
- .weapon-add-grid { display: grid; grid-template-columns: 1.5fr 1fr 1fr 0.7fr auto; gap: 8px; margin-bottom: 14px; align-items: center; }
+ .weapon-add-grid { display: grid; grid-template-columns: 1.4fr 0.9fr 0.9fr 0.9fr 0.6fr auto; gap: 6px; margin-bottom: 14px; align-items: center; }
  .weapon-cat-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--color-text-tertiary); margin: 12px 0 6px; }
  .weapon-edit-list { display: flex; flex-direction: column; gap: 5px; }
  .weapon-edit-row { display: flex; align-items: center; gap: 8px; font-size: 13px; padding: 6px 10px; border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); background: var(--color-background-secondary); }
  .weapon-edit-row .we-name { font-weight: 600; }
  .weapon-edit-row .we-dmg { color: var(--color-text-secondary); font-size: 12px; }
- .weapon-edit-row .we-fire { color: var(--color-text-danger); font-size: 11px; font-weight: 600; }
+ .weapon-edit-row .we-type { color: var(--color-text-tertiary); font-size: 11px; text-transform: capitalize; }
+ .weapon-edit-row .we-fire { color: var(--color-text-danger); font-size: 11px; font-weight: 600; text-transform: capitalize; }
  .weapon-edit-row .we-del { margin-left: auto; cursor: pointer; color: var(--color-text-danger); font-weight: 700; opacity: 0.6; }
  .weapon-edit-row .we-del:hover { opacity: 1; }
  /* Spell reference */
@@ -293,13 +364,14 @@
 <!-- PLANETARY INFLUENCE -->
  <div class="section acc-cosmic collapsible">
  <div class="section-title" onclick="toggleSection(this)">Planetary influence</div>
- <div class="planet-note">Set the current sky. Empowered schools get +1 free cast before miscast risk; weakened schools get -1. Check the <a href="https://asa-project.pages.dev/" target="_blank" rel="noopener" class="cal-link">RP Calendar</a> for current planetary positions.</div>
+ <div class="planet-note">The sky is read from the <a href="https://asa-project.pages.dev/" target="_blank" rel="noopener" class="cal-link">RP Calendar</a> automatically. Empowered schools get +1 free cast before miscast risk; weakened (faint) schools get -1. Five schools follow their planet's orbit. Flames follows the season, empowered through summer and at either solstice; Memories follows Ashr, empowered at the Full Moon and faint at the New Moon. <button class="cal-sync-btn" id="sky-sync-btn" onclick="syncPlanetsFromCalendar(true)">Sync now</button> <button class="cal-sync-btn" id="sky-pause-btn" onclick="toggleSkyPause()">Pause sky</button></div>
+ <div class="cal-sky-status" id="cal-sky-status">Syncing with the calendar...</div>
  <div class="planet-grid" id="planet-grid"></div>
  </div>
 
-<!-- CHARACTER STATUS -->
- <div class="section acc-character collapsible">
- <div class="section-title" onclick="toggleSection(this)">Character status</div>
+<!-- CHARACTER (selection + traits) -->
+ <div class="section acc-character collapsible" id="character-section">
+ <div class="section-title" onclick="toggleSection(this)">Character</div>
 
  <div class="char-bar">
  <input type="text" id="char-search" placeholder="Search characters..." oninput="renderCharList()" autocomplete="off" />
@@ -310,162 +382,35 @@
  <div class="char-list" id="char-list"></div>
  <div class="sync-status" id="sync-status"></div>
 
- <div id="status-empty" class="status-empty">Select or add a character to manage health and conditions.</div>
- <div id="status-body" style="display:none;">
-   <div class="hp-block">
-     <div class="hp-controls">
-       <span class="hp-label">Health</span>
-       <button onclick="adjustHp(-1)" aria-label="Lose 1 HP">−</button>
-       <span class="hp-value"><span id="hp-current">5</span> / <span id="hp-max">5</span></span>
-       <button onclick="adjustHp(1)" aria-label="Gain 1 HP">+</button>
-       <span class="hp-maxedit">
-         <label for="hp-max-input">Max</label>
-         <input type="number" id="hp-max-input" min="1" max="99" value="5" onchange="setMaxHp(this.value)" />
-       </span>
-       <button class="hp-full" onclick="fullHeal()">Full heal</button>
-     </div>
-     <div class="hp-bar" id="hp-bar"></div>
-     <div class="bleed-note" id="bleed-note" style="display:none;"></div>
-     <div class="hp-bonus-note" id="hp-bonus-note" style="display:none;"></div>
-   </div>
-
+ <div id="traits-empty" class="status-empty">Select or add a character above to assign traits.</div>
+ <div id="traits-body" style="display:none;">
+   <div class="planet-note">Click a trait to add or remove it from the active character. Singer and magic traits adjust miscast risk; combat skills sharpen the matching weapon strikes. Other skills are recorded for roleplay.</div>
+   <div class="trait-group-label">Singer &amp; magic traits</div>
+   <div class="trait-grid" id="trait-grid-singer"></div>
+   <div class="trait-group-label">Combat &amp; profession skills</div>
+   <div class="trait-grid" id="trait-grid-skills"></div>
+   <div class="trait-applied-label">Assigned traits</div>
+   <div class="trait-applied" id="trait-applied"></div>
+   <!-- Add / manage conditions -->
+   <div class="trait-group-label" style="margin-top:16px;">Conditions</div>
    <div class="cond-block">
      <div class="cond-add-row">
-       <input type="text" id="cond-input" placeholder="Search all conditions, or type a custom one..." oninput="filterCondPicker()" onkeydown="if(event.key==='Enter')addCondition()" autocomplete="off" />
-       <button onclick="addCondition()">Add typed</button>
+       <input type="text" id="cond-input" placeholder="Add a condition (search or type)..." oninput="filterCondPicker()" onkeydown="if(event.key==='Enter')addCondition()" autocomplete="off" />
+       <button onclick="addCondition()">Add</button>
        <button class="cond-bleed-btn" onclick="addCondition('Bleeding')">+ Bleeding</button>
+       <button class="cond-browse-btn" id="cond-browse-btn" onclick="toggleCondPicker()">Browse all</button>
      </div>
-     <div class="cond-picker" id="cond-picker"></div>
+     <div class="cond-picker" id="cond-picker" style="display:none;"></div>
      <div class="cond-list-header" onclick="toggleCondList()">
        <span id="cond-list-arrow">▾</span> Applied conditions <span class="cond-count" id="cond-count"></span>
      </div>
      <div class="cond-list" id="cond-list"></div>
    </div>
- </div>
- </div>
 
-<!-- COMBAT (merged: miscast, attack type, result, strike) -->
- <div class="section acc-combat collapsible" id="combat-section">
- <div class="section-title" onclick="toggleSection(this)">Combat</div>
- <div class="faint-overlay" id="faint-overlay" style="display:none;">FAINTED</div>
- <div id="combat-inner">
-
- <!-- Attack mode -->
- <div class="combat-sub">Attack type</div>
- <div class="mode-toggle">
-   <button class="mode-btn active" id="mode-physical" onclick="setAttackMode('physical')">Physical attack</button>
-   <button class="mode-btn" id="mode-spell" onclick="setAttackMode('spell')">Spell</button>
- </div>
-
- <div id="physical-block">
-   <div class="grid-2">
-   <div>
-   <label class="field-label" for="attack-type">Action</label>
-   <select id="attack-type" onchange="recalc()">
-   <option value="80">Punch (80%)</option>
-   <option value="80">Kick (80%)</option>
-   <option value="80">Shove (80%)</option>
-   <option value="80" selected>Slash (80%)</option>
-   <option value="80">Thrust (80%)</option>
-   <option value="80">Ranged attack (80%)</option>
-   <option value="custom">Custom...</option>
-   </select>
-   </div>
-   <div id="custom-wrap" style="display:none;">
-   <label class="field-label" for="custom-base">Base chance (%)</label>
-   <input type="number" id="custom-base" min="1" max="100" value="80" oninput="recalc()" />
-   </div>
-   </div>
- </div>
-
- <div id="spell-block" style="display:none;">
-   <label class="field-label" for="spell-cast-select">Spell being cast</label>
-   <select id="spell-cast-select" onchange="updateMiscastDisplay()"></select>
-   <div class="spell-cast-note">Spells always hit. The only roll is for a miscast, based on the selected character's casts today. Use "Cast at target" to apply the spell's damage and inflicted condition to another character (fire spells negated by fire immunity).</div>
-   <div class="dmg-apply-row">
-     <span class="dmg-label">Cast at character:</span>
-     <select id="spell-target"></select>
-     <button onclick="castSpell(document.getElementById('spell-target').value)">Cast at target</button>
-   </div>
- </div>
-
- <!-- Physical result -->
- <div id="result-block">
-   <div class="combat-sub">Hit chance</div>
-   <div class="grid-3">
-   <div class="result-card">
-   <div class="result-label">Base chance</div>
-   <div class="result-number" id="res-base">80%</div>
-   </div>
-   <div class="result-card">
-   <div class="result-label">Total modifiers</div>
-   <div class="result-number" id="res-mods">+0%</div>
-   </div>
-   <div class="result-card">
-   <div class="result-label">Final hit chance</div>
-   <div class="result-number" id="res-final">80%</div>
-   </div>
-   </div>
-   <div class="breakdown" id="breakdown"></div>
-   <div class="roll-row">
-   <div class="roll-input-wrap">
-   <label class="field-label" for="roll-val">Enter roll (1–100)</label>
-   <input type="number" id="roll-val" min="1" max="100" placeholder="00" oninput="checkRoll()" />
-   </div>
-   <button class="random-btn" onclick="randomRoll()">Roll for me</button>
-   <div class="roll-result" id="roll-result">Awaiting roll</div>
-   </div>
- </div>
-
- <!-- Miscast tracking (spell mode) -->
- <div id="miscast-block" style="display:none;">
- <div class="combat-sub">Spellcasting &amp; miscast</div>
- <div class="miscast-row">
- <div class="counter-box">
- <button onclick="adjustSpells(-1)" aria-label="Decrease">−</button>
- <div class="counter-val" id="spell-count">0</div>
- <button onclick="adjustSpells(1)" aria-label="Increase">+</button>
- </div>
- <div>
- <div class="result-label">Spells cast today</div>
- <div class="result-label" id="spell-status" style="margin-top:4px;">Select a character</div>
- </div>
- <div class="miscast-chance">
- <div class="result-label">Next cast miscast chance</div>
- <div class="mc-num safe" id="miscast-pct">0%</div>
- </div>
- </div>
- <div class="miscast-result" id="miscast-result">Select or add a character to begin.</div>
- <div class="mc-actions">
- <button class="mc-cast-btn" onclick="castSpell()">Cast spell &amp; roll miscast</button>
- <button onclick="resetDay()">Reset day</button>
- </div>
- <div class="mc-progression">
- First 3 casts are free. After that, miscast chance doubles each cast: 10% → 20% → 40% → 80% → capped at 90%. Counts reset automatically each real-world day.
- </div>
- </div>
-
- <!-- Equipped weapon and strike -->
- <div id="weapon-block">
- <div class="combat-sub">Weapon &amp; strike</div>
- <div class="weapon-row">
-   <select id="equip-weapon" onchange="setEquippedWeapon(this.value)"></select>
-   <span class="weapon-stats" id="weapon-stats"></span>
- </div>
- <div class="dmg-apply-row">
-   <span class="dmg-label">Strike another character:</span>
-   <select id="dmg-target"></select>
-   <button onclick="applyWeaponDamage()">Strike</button>
- </div>
- <div class="dmg-result" id="dmg-result"></div>
- </div>
- </div><!-- /combat-inner -->
- </div>
-
-<!-- MODIFIERS & CONDITIONS (merged) -->
-<div class="section acc-combat collapsible collapsed" id="attacker-conditions">
-<div class="section-title" onclick="toggleSection(this)">Modifiers &amp; conditions</div>
- <div class="search-wrap">
+   <div class="cat-block" id="cond-catalog">
+   <div class="trait-group-label">Injuries &amp; conditions catalog</div>
+   <div class="planet-note">Tick an injury or condition to apply it to the active character. Conditions inflicted by miscasts tick here automatically.</div>
+   <div class="search-wrap">
  <input type="text" id="cond-search" placeholder="Search injuries and conditions…" oninput="filterConditions()" />
  <span class="clear-x" id="cond-clear" onclick="clearCondSearch()">×</span>
  </div>
@@ -811,7 +756,130 @@
  </div>
  </div>
  </details>
-<div class="combat-sub">Positive: target &amp; situation</div>
+
+ <details>
+ <summary>Elemental acclimation &amp; immunity</summary>
+ <div class="detail-body">
+ <div class="condition-grid">
+ <label class="condition-item" id="ci-accl-fire">
+ <input type="checkbox" onchange="toggle(this,'ci-accl-fire'); recalc()" data-val="0" />
+ Elemental Acclimatation (Fire)
+ <span class="mod-badge">immune</span>
+ </label>
+ <label class="condition-item" id="ci-accl-frost">
+ <input type="checkbox" onchange="toggle(this,'ci-accl-frost'); recalc()" data-val="0" />
+ Elemental Acclimatation (Frost)
+ <span class="mod-badge">immune</span>
+ </label>
+ <label class="condition-item" id="ci-accl-venom">
+ <input type="checkbox" onchange="toggle(this,'ci-accl-venom'); recalc()" data-val="0" />
+ Elemental Acclimatation (Venom)
+ <span class="mod-badge">immune</span>
+ </label>
+ <label class="condition-item" id="ci-accl-lightning">
+ <input type="checkbox" onchange="toggle(this,'ci-accl-lightning'); recalc()" data-val="0" />
+ Elemental Acclimatation (Lightning)
+ <span class="mod-badge">immune</span>
+ </label>
+ <label class="condition-item" id="ci-imm-fire">
+ <input type="checkbox" onchange="toggle(this,'ci-imm-fire'); recalc()" data-val="0" />
+ Fire Immunity
+ <span class="mod-badge">immune</span>
+ </label>
+ <label class="condition-item" id="ci-imm-frost">
+ <input type="checkbox" onchange="toggle(this,'ci-imm-frost'); recalc()" data-val="0" />
+ Frost Immunity
+ <span class="mod-badge">immune</span>
+ </label>
+ <label class="condition-item" id="ci-imm-venom">
+ <input type="checkbox" onchange="toggle(this,'ci-imm-venom'); recalc()" data-val="0" />
+ Venom Immunity
+ <span class="mod-badge">immune</span>
+ </label>
+ <label class="condition-item" id="ci-imm-lightning">
+ <input type="checkbox" onchange="toggle(this,'ci-imm-lightning'); recalc()" data-val="0" />
+ Lightning Immunity
+ <span class="mod-badge">immune</span>
+ </label>
+ </div>
+ </div>
+ </details>
+   </div>
+ </div>
+ </div>
+
+<!-- COMBAT (character, health, actions, conditions - one working view) -->
+ <div class="section acc-combat collapsible" id="combat-section">
+ <div class="section-title" onclick="toggleSection(this)">Combat</div>
+
+ <div class="faint-overlay" id="faint-overlay" style="display:none;">
+   <div class="faint-inner">
+     <div class="faint-word">FAINTED</div>
+     <div class="faint-actions">
+       <button class="revive-btn" onclick="reviveChar()">Revive</button>
+       <button class="switch-btn" onclick="switchCharacter()">Switch character</button>
+     </div>
+   </div>
+ </div>
+ <div id="status-empty" class="status-empty">Select or add a character above to manage and act.</div>
+ <div id="combat-inner" style="display:none;">
+
+   <!-- Health -->
+   <div class="hp-block">
+     <div class="hp-controls">
+       <span class="hp-label">Health</span>
+       <button onclick="adjustHp(-1)" aria-label="Lose 1 HP">−</button>
+       <span class="hp-value"><span id="hp-current">5</span> / <span id="hp-max">5</span></span>
+       <button onclick="adjustHp(1)" aria-label="Gain 1 HP">+</button>
+       <span class="hp-maxedit">
+         <label for="hp-max-input">Max</label>
+         <input type="number" id="hp-max-input" min="1" max="99" value="5" onchange="setMaxHp(this.value)" />
+       </span>
+       <button class="hp-full" onclick="fullHeal()">Full heal</button>
+     </div>
+     <div class="hp-bar" id="hp-bar"></div>
+     <div class="bleed-note" id="bleed-note" style="display:none;"></div>
+     <div class="hp-bonus-note" id="hp-bonus-note" style="display:none;"></div>
+   </div>
+
+   <!-- Tracking banner (which character is active) -->
+   <div class="miscast-result" id="miscast-result">Pick a spell and target, then Cast.</div>
+
+   <!-- Action target (shared by cast and strike) -->
+   <div class="action-target-row">
+     <label class="field-label" for="action-target">Acting on</label>
+     <select id="action-target"></select>
+   </div>
+
+   <!-- Cast spell: one click -->
+   <label class="field-label action-label" for="spell-cast-select">Cast spell</label>
+   <div class="action-row">
+     <select id="spell-cast-select" onchange="updateMiscastDisplay()"></select>
+     <button class="act-btn" onclick="castSpell(document.getElementById('action-target').value)">Cast</button>
+   </div>
+   <div class="mc-line">
+     <span id="spell-status">Select a character</span>
+     <span class="mc-tag">next miscast <b class="mc-num safe" id="miscast-pct">0%</b></span>
+     <span class="counter-box"><button onclick="adjustSpells(-1)" aria-label="Decrease">−</button><span class="counter-val" id="spell-count">0</span><button onclick="adjustSpells(1)" aria-label="Increase">+</button></span>
+     <button class="mc-reset" onclick="resetDay()">Reset day</button>
+   </div>
+
+   <!-- Strike weapon: one click -->
+   <label class="field-label action-label" for="equip-weapon">Use weapon</label>
+   <div class="action-row">
+     <select id="equip-weapon" onchange="setEquippedWeapon(this.value)"></select>
+     <button class="act-btn" onclick="applyWeaponDamage()">Strike</button>
+   </div>
+   <div class="weapon-stats" id="weapon-stats"></div>
+   <div class="dmg-result" id="dmg-result"></div>
+
+
+   <!-- Context: situational modifiers + active magical effects -->
+   <details class="context-block">
+     <summary>Context: situation &amp; magical effects</summary>
+     <div class="detail-body">
+       <div class="ctx-group-label">Target &amp; situation</div>
+       <div class="combat-sub">Positive: target &amp; situation</div>
  <div class="condition-grid">
  <label class="condition-item" id="ci-unaware">
  <input type="checkbox" onchange="toggle(this,'ci-unaware'); recalc()" data-val="15" />
@@ -862,19 +930,16 @@
  <span class="mod-badge neg">−20%</span>
  </label>
  </div>
-</div>
-
-<!-- MAGICAL EFFECTS (merged) -->
-<div class="section acc-combat collapsible collapsed" id="attacker-magical">
-<div class="section-title" onclick="toggleSection(this)">Active magical effects</div>
-<div class="combat-sub">Attacker</div>
+       <div class="ctx-group-label" style="margin-top:14px;">Active magical effects</div>
+       <div id="amag-group">
+       <div class="combat-sub">Attacker</div>
  <div class="search-wrap">
  <input type="text" id="amag-search" placeholder="Search attacker magical effects..." oninput="filterAttackerMagical()" />
  <span class="clear-x" id="amag-clear" onclick="clearAmagSearch()">×</span>
  </div>
  <div class="no-match" id="amag-nomatch" style="display:none;">No matching effects.</div>
 
- <details>
+ <details class="side-attacker">
  <summary>Debilitating effects</summary>
  <div class="detail-body">
  <div class="condition-grid">
@@ -932,7 +997,7 @@
  </div>
  </details>
 
- <details>
+ <details class="side-attacker">
  <summary>Empowering effects</summary>
  <div class="detail-body">
  <div class="condition-grid">
@@ -1009,6 +1074,8 @@
  </div>
  </div>
  </details>
+       </div>
+       <div id="def-group">
 <div class="combat-sub">Defender</div>
  <div class="search-wrap">
  <input type="text" id="def-search" placeholder="Search defender effects..." oninput="filterDefender()" />
@@ -1016,7 +1083,7 @@
  </div>
  <div class="no-match" id="def-nomatch" style="display:none;">No matching effects.</div>
 
- <details>
+ <details class="side-defender">
  <summary>Defender debilitated (easier to hit)</summary>
  <div class="detail-body">
  <div class="condition-grid">
@@ -1074,7 +1141,7 @@
  </div>
  </details>
 
- <details>
+ <details class="side-defender">
  <summary>Defender empowered (harder to hit)</summary>
  <div class="detail-body">
  <div class="condition-grid">
@@ -1131,7 +1198,53 @@
  </div>
  </div>
  </details>
-</div>
+       </div>
+     </div>
+   </details>
+
+   <!-- Hit-chance calculator (physical %, optional) -->
+   <details class="hitcalc">
+     <summary>Hit-chance calculator (physical %)</summary>
+     <div class="detail-body">
+       <div class="grid-2">
+         <div>
+           <label class="field-label" for="attack-type">Action</label>
+           <select id="attack-type" onchange="recalc()">
+             <option value="80">Punch (80%)</option>
+             <option value="80">Kick (80%)</option>
+             <option value="80">Shove (80%)</option>
+             <option value="80" selected>Slash (80%)</option>
+             <option value="80">Thrust (80%)</option>
+             <option value="80">Ranged attack (80%)</option>
+             <option value="custom">Custom...</option>
+           </select>
+         </div>
+         <div id="custom-wrap" style="display:none;">
+           <label class="field-label" for="custom-base">Base chance (%)</label>
+           <input type="number" id="custom-base" min="1" max="100" value="80" oninput="recalc()" />
+         </div>
+       </div>
+       <div class="grid-3" style="margin-top:12px;">
+         <div class="result-card"><div class="result-label">Base chance</div><div class="result-number" id="res-base">80%</div></div>
+         <div class="result-card"><div class="result-label">Total modifiers</div><div class="result-number" id="res-mods">+0%</div></div>
+         <div class="result-card"><div class="result-label">Final hit chance</div><div class="result-number" id="res-final">80%</div></div>
+       </div>
+       <div class="breakdown" id="breakdown"></div>
+       <div class="roll-row">
+         <div class="roll-input-wrap">
+           <label class="field-label" for="roll-val">Enter roll (1–100)</label>
+           <input type="number" id="roll-val" min="1" max="100" placeholder="00" oninput="checkRoll()" />
+         </div>
+         <button class="random-btn" onclick="randomRoll()">Roll for me</button>
+         <div class="roll-result" id="roll-result">Awaiting roll</div>
+       </div>
+       <div class="mc-progression">Modifiers come from the Combat modifiers and Magical effects sections below.</div>
+     </div>
+   </details>
+
+ </div>
+ </div>
+
 
 <!-- GM TOOLS (notes + weapon editor) -->
 <div class="section acc-gm collapsible collapsed">
@@ -1140,16 +1253,24 @@
  <div id="notes-empty" class="status-empty">Select a character to add notes.</div>
  <textarea id="gm-notes" class="gm-notes" placeholder="Private GM notes for this character..." style="display:none;" oninput="onNotesInput()"></textarea>
 <div class="combat-sub">Weapon editor</div>
- <div class="planet-note">Add or remove weapons available to equip. The HP damage value is the boost applied on a successful strike.</div>
+ <div class="planet-note">Add or remove weapons. HP damage is applied on a strike. Damage type: slashing can open a bleed, blunt can daze, piercing is clean. Elements are negated by matching immunity.</div>
  <div class="weapon-add-grid">
    <input type="text" id="wpn-name" placeholder="Weapon name" />
    <select id="wpn-category">
      <option value="melee">Melee</option>
      <option value="ranged">Ranged</option>
    </select>
+   <select id="wpn-dtype">
+     <option value="slashing">Slashing</option>
+     <option value="piercing">Piercing</option>
+     <option value="blunt">Blunt</option>
+   </select>
    <select id="wpn-element">
      <option value="none">Physical</option>
      <option value="fire">Fire</option>
+     <option value="frost">Frost</option>
+     <option value="venom">Venom</option>
+     <option value="lightning">Lightning</option>
    </select>
    <input type="number" id="wpn-damage" min="0" max="99" value="2" title="HP damage" />
    <button onclick="addWeapon()">Add weapon</button>
@@ -1196,6 +1317,28 @@
  else if (val < 0) el.classList.add('active-neg');
  else el.classList.add('active');
  }
+ }
+
+ /* Tick the catalog/effect checkboxes that correspond to the active character's
+    conditions, so anything applied by a miscast (or by hand) shows as checked.
+    Only ticks the injury/condition catalog in the Character tab. */
+ function syncCatalogChecks() {
+ const catalog = document.getElementById('cond-catalog');
+ if (!catalog) return;
+ const names = (activeChar && roster[activeChar])
+ ? new Set(roster[activeChar].conditions.map(x => x.toLowerCase().trim()))
+ : new Set();
+ catalog.querySelectorAll('.condition-item').forEach(item => {
+ const cb = item.querySelector('input[type="checkbox"]');
+ if (!cb) return;
+ const label = itemLabel(item).toLowerCase().trim();
+ const shouldCheck = names.has(label);
+ if (cb.checked !== shouldCheck) {
+ cb.checked = shouldCheck;
+ }
+ toggle(cb, item.id);
+ });
+ if (typeof recalc === 'function') recalc();
  }
 
  function getBase() {
@@ -1288,15 +1431,190 @@
  /* Global planet influence: { School: 'empowered' | 'weakened' | null } - persisted */
  let planetState = {};
 
- /* Global weapon list - persisted, editable by GMs. Each: {name, category, damage, element} */
+ /* Global weapon list - persisted, editable by GMs.
+    Each: {name, category, damage, element, dtype}
+    dtype 'slashing' weapons can cause bleeding; 'blunt' can daze; 'piercing' is clean. */
  const DEFAULT_WEAPONS = [
- { name: 'Unarmed', category: 'melee', damage: 1, element: 'none' },
- { name: 'Blade', category: 'melee', damage: 2, element: 'none' },
- { name: 'Greatsword', category: 'melee', damage: 3, element: 'none' },
- { name: 'Bow', category: 'ranged', damage: 2, element: 'none' },
- { name: 'Handgonne (bullets)', category: 'ranged', damage: 4, element: 'fire' }
+ { name: 'Unarmed', category: 'melee', damage: 1, element: 'none', dtype: 'blunt' },
+ { name: 'Blade', category: 'melee', damage: 2, element: 'none', dtype: 'slashing' },
+ { name: 'Greatsword', category: 'melee', damage: 3, element: 'none', dtype: 'slashing' },
+ { name: 'Mace', category: 'melee', damage: 2, element: 'none', dtype: 'blunt' },
+ { name: 'Spear', category: 'melee', damage: 2, element: 'none', dtype: 'piercing' },
+ { name: 'Bow', category: 'ranged', damage: 2, element: 'none', dtype: 'piercing' },
+ { name: 'Handgonne (bullets)', category: 'ranged', damage: 4, element: 'fire', dtype: 'piercing' }
  ];
  let weapons = DEFAULT_WEAPONS.slice();
+ const BLEED_CHANCE = 40;  /* % chance a slashing hit opens a bleed */
+ const DAZE_CHANCE = 30;   /* % chance a blunt hit dazes the target */
+
+ /* Planet orbit definitions, mirrored from the RP Calendar so the combat sheet can
+    compute the same empowered/weakened sky from a shared anchor (calendar /state).
+    Each: school -> { planet, irl, c: orbital cycle, o: phase offset }.
+    getPPos uses sin(2*PI*(curTot/c + o)); >0.45 = Perlaxis (empowered),
+    < -0.45 = Apoaxis (faint/weakened), else Equidistant (neutral). */
+ const PLAN_ORBIT = {
+ 'Changes':     { planet: 'Perfidio', irl: 'Mercury', c: 7,   o: 0.25 },
+ 'Insects':     { planet: 'Lilit',    irl: 'Venus',   c: 19,  o: 0.0  },
+ 'Power':       { planet: 'Nergal',   irl: 'Mars',    c: 22,  o: 0.75 },
+ 'Obeisance':   { planet: 'Demaplax', irl: 'Jupiter', c: 95,  o: 0.05 },
+ 'Revelations': { planet: 'Termis',   irl: 'Saturn',  c: 236, o: 0.2  }
+ };
+ /* Samhan (Sun) and Ashr (Moon) are deliberately absent from PLAN_ORBIT.
+    The calendar does not model them as orbiting bodies at all: it has exactly the
+    five planets above in its PL array. Ashr is tracked as an 8-phase lunar cycle,
+    and Samhan is not in the orbital math. So their schools are driven by rules
+    derived from the calendar's own state rather than invented orbit constants. */
+ const CAL_SEGS = 12;        /* segments (months) per year, from the calendar */
+ const CAL_SY = 21350;       /* calendar start year (absolute) */
+ const CAL_STATE_URL = 'https://asa-project.pages.dev/state';
+
+ /* Imperial era display, mirrored from the calendar's display layer.
+    Present day: absolute 21350 = 5E-672 (20678 + 672 = 21350). */
+ const ERA_OFFSET = 20678;
+ const ERA_NUM    = 5;
+ const ERA_NAME   = 'Lotus';
+ function fmtEra(absY) { return ERA_NUM + 'E-' + (absY - ERA_OFFSET); }
+
+ /* Segment 0 is Early Summer / June, matching the calendar's SF and MONTHS arrays. */
+ const CAL_MONTHS = ['June','July','August','September','October','November','December','January','February','March','April','May'];
+ const CAL_SEASONS = ['Early Summer','Mid Summer','Late Summer','Early Autumn','Mid Autumn','Late Autumn','Early Winter','Mid Winter','Late Winter','Early Spring','Mid Spring','Late Spring'];
+ const CAL_MOON_PHASES = ['New Moon','Waxing Crescent','First Quarter','Waxing Gibbous','Full Moon','Waning Gibbous','Last Quarter','Waning Crescent'];
+
+ const SEG_SUMMER = [0, 1, 2];       /* Early, Mid, Late Summer */
+ const SEG_WINTER = [6, 7, 8];       /* Early, Mid, Late Winter */
+ const SEG_SOLSTICE = [0, 6];        /* summer solstice (June), winter solstice (December) */
+
+ /* Flames burns hottest in high summer, and flares again at the turning of the year.
+    Set this to true if Flames should also go Faint through the winter months
+    (the winter solstice itself still overrides to Empowered). */
+ const FLAMES_FAINT_IN_WINTER = false;
+
+ /* Ashr's phase, using the calendar's own lunar math: phase index = curTot % 8,
+    where 0 = New Moon and 4 = Full Moon. */
+ function calMoonPhase(year, seg) {
+ const t = calCurTot(year, seg);
+ return ((t % 8) + 8) % 8;
+ }
+
+ /* Live RP date derived from the calendar anchor; null until first successful sync */
+ let calSky = null; /* { year, seg, monthName, empowered:[], weakened:[] } */
+ /* When true, the sky is frozen for a time-bubbled encounter: auto-syncs are skipped
+    and the current empowered/faint sky is held until the GM resumes. */
+ let skyPaused = false;
+
+ /* Replicate the calendar's deterministic position math */
+ function calCurTot(year, seg) { return (year - CAL_SY) * CAL_SEGS + seg; }
+ function calPPos(year, seg, school) {
+ const p = PLAN_ORBIT[school];
+ if (!p) return 'Equidistant';
+ const v = Math.sin(2 * Math.PI * (calCurTot(year, seg) / p.c + p.o));
+ return v > 0.45 ? 'Perlaxis' : (v < -0.45 ? 'Apoaxis' : 'Equidistant');
+ }
+
+ /* Flames follows the sun rather than an orbit: empowered through summer, and at
+    either solstice. The solstice check runs last so it always wins. */
+ function calFlamesPos(year, seg) {
+ if (SEG_SOLSTICE.indexOf(seg) !== -1) return 'Perlaxis';
+ if (SEG_SUMMER.indexOf(seg) !== -1) return 'Perlaxis';
+ if (FLAMES_FAINT_IN_WINTER && SEG_WINTER.indexOf(seg) !== -1) return 'Apoaxis';
+ return 'Equidistant';
+ }
+
+ /* Memories follows Ashr: strongest at the Full Moon, thinnest at the New Moon. */
+ function calMemoriesPos(year, seg) {
+ const phase = calMoonPhase(year, seg);
+ if (phase === 4) return 'Perlaxis';
+ if (phase === 0) return 'Apoaxis';
+ return 'Equidistant';
+ }
+
+ /* Single entry point: routes each school to whichever body actually governs it. */
+ function calSchoolPos(year, seg, school) {
+ if (school === 'Flames') return calFlamesPos(year, seg);
+ if (school === 'Memories') return calMemoriesPos(year, seg);
+ return calPPos(year, seg, school);
+ }
+
+ /* Given a calendar anchor {y,s,sp,t}, advance to "now" exactly as the calendar does */
+ function calAdvance(saved) {
+ const sp = saved.sp || 86400000; /* ms per segment; calendar default 1 day/segment */
+ let year = saved.y, seg = saved.s;
+ const steps = Math.max(0, Math.floor((Date.now() - saved.t) / sp));
+ seg += steps;
+ year += Math.floor(seg / CAL_SEGS);
+ seg = ((seg % CAL_SEGS) + CAL_SEGS) % CAL_SEGS;
+ return { year, seg };
+ }
+
+ /* Compute empowered/weakened schools for a given year+segment and write planetState.
+    Iterates every school, not just the orbital ones, so Flames and Memories are included. */
+ function applyCalendarSky(year, seg) {
+ planetState = {};
+ const empowered = [], weakened = [];
+ Object.keys(SCHOOL_PLANET).forEach(school => {
+ const pos = calSchoolPos(year, seg, school);
+ if (pos === 'Perlaxis') { planetState[school] = 'empowered'; empowered.push(school); }
+ else if (pos === 'Apoaxis') { planetState[school] = 'weakened'; weakened.push(school); }
+ });
+ calSky = {
+ year, seg,
+ monthName: CAL_MONTHS[seg] || ('Segment ' + (seg + 1)),
+ seasonName: CAL_SEASONS[seg] || '',
+ moonName: CAL_MOON_PHASES[calMoonPhase(year, seg)] || '',
+ solstice: SEG_SOLSTICE.indexOf(seg) !== -1,
+ empowered, weakened
+ };
+ renderPlanets();
+ updateMiscastDisplay();
+ }
+
+ /* Fetch the calendar's shared anchor and derive the current sky locally.
+    While the sky is paused, automatic syncs are skipped so the bubble holds. */
+ async function syncPlanetsFromCalendar(manual) {
+ if (skyPaused && !manual) { renderPlanets(); return false; }
+ const statusEl = document.getElementById('cal-sky-status');
+ if (statusEl && manual && !skyPaused) statusEl.textContent = 'Syncing with the calendar...';
+ try {
+ const res = await fetch(CAL_STATE_URL, { cache: 'no-store' });
+ if (!res.ok) throw new Error('status ' + res.status);
+ const saved = await res.json();
+ /* saved is the calendar anchor {y, s, sp, t}; advance to now and apply */
+ const now = calAdvance(saved);
+ applyCalendarSky(now.year, now.seg);
+ return true;
+ } catch (e) {
+ if (statusEl) statusEl.innerHTML = '<span class="cal-err">Could not reach the calendar (' + (e.message || 'offline') + '). Showing the last known sky.</span>';
+ renderPlanets();
+ return false;
+ }
+ }
+
+ /* Freeze or resume the sky for time-bubbled encounters */
+ function toggleSkyPause() {
+ skyPaused = !skyPaused;
+ if (skyPaused) {
+ /* freeze whatever sky is currently showing */
+ renderPlanets();
+ saveState();
+ } else {
+ /* resuming: immediately re-sync to the live calendar */
+ saveState();
+ syncPlanetsFromCalendar(true);
+ }
+ updateSkyPauseUI();
+ }
+
+ /* Reflect the pause state in the button and banner */
+ function updateSkyPauseUI() {
+ const btn = document.getElementById('sky-pause-btn');
+ if (btn) {
+ btn.textContent = skyPaused ? 'Resume sky' : 'Pause sky';
+ btn.className = 'cal-sync-btn' + (skyPaused ? ' paused' : '');
+ }
+ const syncBtn = document.getElementById('sky-sync-btn');
+ if (syncBtn) syncBtn.style.display = skyPaused ? 'none' : '';
+ renderPlanets();
+ }
 
  /* +1 free cast if the school is empowered, -1 if weakened (min 1 free cast) */
  function freeCastsFor(school) {
@@ -1307,38 +1625,40 @@
  return Math.max(1, f);
  }
 
+ /* Read-only display of the sky sourced from the calendar */
  function renderPlanets() {
+ const statusEl = document.getElementById('cal-sky-status');
+ if (statusEl && calSky) {
+ const emp = calSky.empowered.length ? calSky.empowered.join(', ') : 'none';
+ const weak = calSky.weakened.length ? calSky.weakened.join(', ') : 'none';
+ const frozen = skyPaused ? '<span class="sky-frozen">SKY PAUSED (time-bubbled)</span> &middot; ' : '';
+ const sol = calSky.solstice ? ' <b class="sky-emp">(solstice)</b>' : '';
+ statusEl.innerHTML = frozen + 'RP date: <b>' + calSky.seasonName + ' (' + calSky.monthName + '), ' + fmtEra(calSky.year) + '</b>' + sol +
+ ' &middot; Moon: <b>' + calSky.moonName + '</b>' +
+ ' &middot; Empowered: <b class="sky-emp">' + emp + '</b> &middot; Faint: <b class="sky-weak">' + weak + '</b>';
+ }
  const grid = document.getElementById('planet-grid');
  if (!grid) return;
  grid.innerHTML = Object.keys(SCHOOL_PLANET).map(school => {
  const st = planetState[school] || null;
+ const stateLabel = st === 'empowered' ? 'Empowered (+1 free cast)'
+ : st === 'weakened' ? 'Faint (-1 free cast)'
+ : 'Equidistant';
+ const stateCls = st === 'empowered' ? 'ps-emp' : st === 'weakened' ? 'ps-weak' : 'ps-neutral';
+ const driver = school === 'Flames' ? ' <span class="ps-prov" title="Driven by the season, not an orbit: empowered through summer and at either solstice">seasonal</span>'
+ : school === 'Memories' ? ' <span class="ps-prov" title="Driven by Ashr&#39;s phase: empowered at the Full Moon, faint at the New Moon">lunar</span>'
+ : '';
+ const prov = driver;
  return '<div class="planet-row">' +
- '<div><div class="pr-school">' + school + '</div><div class="pr-planet">' + SCHOOL_PLANET[school] + '</div></div>' +
- '<div class="planet-states">' +
- '<span class="pstate-btn' + (st === 'empowered' ? ' on-emp' : '') + '" onclick="setPlanet(\'' + school + '\',\'empowered\')">Emp</span>' +
- '<span class="pstate-btn' + (st === 'weakened' ? ' on-weak' : '') + '" onclick="setPlanet(\'' + school + '\',\'weakened\')">Weak</span>' +
- '<span class="pstate-btn" onclick="setPlanet(\'' + school + '\',null)">None</span>' +
- '</div></div>';
+ '<div><div class="pr-school">' + school + prov + '</div><div class="pr-planet">' + SCHOOL_PLANET[school] + '</div></div>' +
+ '<div class="pstate-tag ' + stateCls + '">' + stateLabel + '</div>' +
+ '</div>';
  }).join('');
  }
 
- function setPlanet(school, state) {
- if (state === null || planetState[school] === state) delete planetState[school];
- else planetState[school] = state;
- renderPlanets();
- updateMiscastDisplay();
- saveState();
- }
-
  /* ── WEAPONS & ELEMENTAL DAMAGE ───────────────────────────────── */
- const FIRE_IMMUNE = new Set(['fire immunity', 'fire immune', 'immoluintransigence', 'elemental immunity (fire)']);
- function isFireImmune(c) {
- return c.conditions.some(x => {
- const lc = x.toLowerCase();
- return FIRE_IMMUNE.has(lc) || (lc.indexOf('immunity') >= 0 && lc.indexOf('fire') >= 0) ||
- (lc.indexOf('acclimatation') >= 0 && lc.indexOf('fire') >= 0);
- });
- }
+ /* isFireImmune kept for backward-compatibility; delegates to the general check */
+ function isFireImmune(c) { return isImmuneTo(c, 'fire'); }
 
  function weaponByName(name) {
  return weapons.find(w => w.name === name) || null;
@@ -1347,37 +1667,34 @@
  function renderEquippedWeapon() {
  const sel = document.getElementById('equip-weapon');
  if (!sel) return;
- sel.innerHTML = '<option value="">None</option>' +
- weapons.map(w => '<option value="' + w.name.replace(/"/g,'&quot;') + '">' + w.name + ' (' + w.category + ', ' + w.damage + ' HP' + (w.element === 'fire' ? ', fire' : '') + ')</option>').join('');
+ sel.innerHTML = weapons.map(w => '<option value="' + w.name.replace(/"/g,'&quot;') + '">' + w.name + ' (' + w.damage + ' HP, ' + (w.dtype || 'slashing') + (w.element && w.element !== 'none' ? ', ' + (ELEMENTS[w.element] ? ELEMENTS[w.element].label : w.element) : '') + ')</option>').join('');
  const c = activeChar ? roster[activeChar] : null;
- sel.value = (c && c.equippedWeapon) ? c.equippedWeapon : '';
+ /* no "None" option: fall back to the first weapon when nothing valid is equipped */
+ let chosen = (c && c.equippedWeapon && weaponByName(c.equippedWeapon)) ? c.equippedWeapon : (weapons[0] ? weapons[0].name : '');
+ sel.value = chosen;
  const stats = document.getElementById('weapon-stats');
- const w = c && c.equippedWeapon ? weaponByName(c.equippedWeapon) : null;
+ const w = weaponByName(chosen);
  if (stats) stats.innerHTML = w
- ? w.category + ' · ' + w.damage + ' HP damage' + (w.element === 'fire' ? ' · <span class="wel-fire">fire (resistible)</span>' : '')
+ ? w.damage + ' HP · ' + (w.dtype || 'slashing') + (w.dtype === 'slashing' ? ' (can bleed)' : w.dtype === 'blunt' ? ' (can daze)' : '') + (w.element && w.element !== 'none' ? ' · <span class="wel-fire">' + (ELEMENTS[w.element] ? ELEMENTS[w.element].label : w.element) + ' (resistible)</span>' : '')
  : '';
- /* damage target dropdown: all other characters */
+ /* Shared action target dropdown (Self + all other characters), used by Cast and Strike */
  const others = Object.keys(roster).filter(n => n !== activeChar).sort((a,b)=>a.localeCompare(b));
- const optsHtml = others.length
- ? others.map(n => '<option value="' + n.replace(/"/g,'&quot;') + '">' + n + '</option>').join('')
- : '<option value="">No other characters</option>';
- const tgt = document.getElementById('dmg-target');
- if (tgt) tgt.innerHTML = optsHtml;
- /* spell target also allows Self (for self-buffs, heals, etc.) */
- const stgt = document.getElementById('spell-target');
- if (stgt) {
+ const at = document.getElementById('action-target');
+ if (at) {
+ const prev = at.value;
  const selfOpt = activeChar ? '<option value="__self__">Self (' + activeChar.replace(/</g,'&lt;') + ')</option>' : '';
- const otherOpts = others.length
- ? others.map(n => '<option value="' + n.replace(/"/g,'&quot;') + '">' + n + '</option>').join('')
- : '';
- stgt.innerHTML = selfOpt + otherOpts || '<option value="">Select a character</option>';
+ const otherOpts = others.map(n => '<option value="' + n.replace(/"/g,'&quot;') + '">' + n + '</option>').join('');
+ at.innerHTML = (selfOpt + otherOpts) || '<option value="">Select a character</option>';
+ /* keep prior selection if still valid, else default to Self */
+ if (prev && [...at.options].some(o => o.value === prev)) at.value = prev;
+ else at.value = '__self__';
  }
  }
 
  function setEquippedWeapon(name) {
  if (!activeChar) return;
  roster[activeChar].equippedWeapon = name || null;
- logEvent(roster[activeChar], name ? 'Equipped: ' + name : 'Unequipped weapon');
+ logEvent(roster[activeChar], name ? 'Using: ' + name : 'Cleared weapon');
  renderEquippedWeapon();
  saveState();
  }
@@ -1385,34 +1702,60 @@
  function applyWeaponDamage() {
  if (!activeChar) return;
  const attacker = roster[activeChar];
- const w = attacker.equippedWeapon ? weaponByName(attacker.equippedWeapon) : null;
+ const sel = document.getElementById('equip-weapon');
+ const w = sel && sel.value ? weaponByName(sel.value) : (attacker.equippedWeapon ? weaponByName(attacker.equippedWeapon) : null);
  const resEl = document.getElementById('dmg-result');
- if (!w) { resEl.textContent = 'Equip a weapon first.'; resEl.className = 'dmg-result'; return; }
- const tgtName = document.getElementById('dmg-target').value;
+ if (!w) { resEl.textContent = 'Pick a weapon first.'; resEl.className = 'dmg-result'; return; }
+ let tgtName = document.getElementById('action-target').value;
+ if (tgtName === '__self__') tgtName = activeChar;
  if (!tgtName || !roster[tgtName]) { resEl.textContent = 'No target selected.'; resEl.className = 'dmg-result'; return; }
  const tgt = roster[tgtName];
  migrateChar(tgt);
+ const el = w.element && w.element !== 'none' ? w.element : null;
 
- if (w.element === 'fire' && isFireImmune(tgt)) {
- resEl.textContent = tgtName + ' is immune to fire, ' + w.damage + ' fire damage negated.';
+ /* elemental damage negated by matching immunity */
+ if (el && isImmuneTo(tgt, el)) {
+ resEl.textContent = tgtName + ' is immune to ' + (ELEMENTS[el] ? ELEMENTS[el].label : el) + ', ' + w.damage + ' damage negated.';
  resEl.className = 'dmg-result negated';
- logEvent(attacker, 'Struck ' + tgtName + ' with ' + w.name + ': fire negated by immunity');
- logEvent(tgt, 'Hit by ' + activeChar + ' (' + w.name + '): fire damage negated by immunity', 'heal');
+ logEvent(attacker, 'Struck ' + tgtName + ' with ' + w.name + ': ' + el + ' negated by immunity');
+ logEvent(tgt, 'Hit by ' + activeChar + ' (' + w.name + '): ' + el + ' damage negated by immunity', 'heal');
  saveState();
  return;
  }
 
  /* apply damage to target, accounting for any active bleed re-anchor */
+ const tb = weaponTraitBonus(attacker, w);
+ const totalDmg = w.damage + tb.dmg;
  const cap = effMaxHp(tgt);
  const before = tgt.bleedStart ? effectiveHp(tgt) : tgt.hp;
- const after = Math.max(0, Math.round(before) - w.damage);
+ const after = Math.max(0, Math.round(before) - totalDmg);
  tgt.hp = after;
  if (tgt.bleedStart) { tgt.bleedAnchorHp = after; tgt.bleedStart = Date.now(); }
- const fireTag = w.element === 'fire' ? ' fire' : '';
- resEl.textContent = tgtName + ' takes ' + w.damage + fireTag + ' damage (' + after + '/' + cap + ').';
+ const elTag = el ? ' ' + (ELEMENTS[el] ? ELEMENTS[el].label : el) : '';
+ const traitTag = tb.notes.length ? ' [' + tb.notes.join(', ') + (tb.dmg ? ' +' + tb.dmg : '') + ']' : '';
+ let msg = tgtName + ' takes ' + totalDmg + elTag + ' damage (' + after + '/' + cap + ')' + traitTag + '.';
+ logEvent(attacker, 'Struck ' + tgtName + ' with ' + w.name + ' for ' + totalDmg + elTag + ' HP' + (tb.notes.length ? ' (' + tb.notes.join(', ') + ')' : ''));
+ logEvent(tgt, 'Hit by ' + activeChar + ' (' + w.name + ') for ' + totalDmg + elTag + ' HP (now ' + after + '/' + cap + ')');
+
+ /* secondary effects from physical damage type (only if the blow connected and dealt damage) */
+ const extras = [];
+ if (after < Math.round(before)) {
+ if (w.dtype === 'slashing' && !tgt.conditions.some(x => x.toLowerCase() === 'bleeding')) {
+ if (Math.random() * 100 < (BLEED_CHANCE + tb.bleed)) {
+ addCharConditionNamed(tgt, 'Bleeding', tgtName, w.name, tgtName === activeChar);
+ extras.push('opens a bleed');
+ }
+ } else if (w.dtype === 'blunt' && !tgt.conditions.some(x => x.toLowerCase() === 'dazed')) {
+ if (Math.random() * 100 < (DAZE_CHANCE + tb.daze)) {
+ addCharConditionNamed(tgt, 'Dazed', tgtName, w.name, tgtName === activeChar);
+ extras.push('leaves them dazed');
+ }
+ }
+ }
+ if (extras.length) msg += ' ' + tgtName + ' ' + extras.join(' and ') + '.';
+ resEl.textContent = msg;
  resEl.className = 'dmg-result hit';
- logEvent(attacker, 'Struck ' + tgtName + ' with ' + w.name + ' for ' + w.damage + fireTag + ' HP');
- logEvent(tgt, 'Hit by ' + activeChar + ' (' + w.name + ') for ' + w.damage + fireTag + ' HP (now ' + after + '/' + cap + ')');
+ renderStatus();
  saveState();
  }
 
@@ -1425,7 +1768,8 @@
  list.innerHTML = items.length ? items.map(w =>
  '<div class="weapon-edit-row"><span class="we-name">' + w.name.replace(/</g,'&lt;') + '</span>' +
  '<span class="we-dmg">' + w.damage + ' HP</span>' +
- (w.element === 'fire' ? '<span class="we-fire">fire</span>' : '') +
+ '<span class="we-type">' + (w.dtype || 'slashing') + '</span>' +
+ (w.element && w.element !== 'none' ? '<span class="we-fire">' + (ELEMENTS[w.element] ? ELEMENTS[w.element].label : w.element) + '</span>' : '') +
  '<span class="we-del" onclick="deleteWeapon(\'' + w.name.replace(/'/g,"\\'") + '\')">×</span></div>'
  ).join('') : '<div class="cond-pick-empty">None.</div>';
  });
@@ -1437,8 +1781,9 @@
  if (weapons.some(w => w.name.toLowerCase() === name.toLowerCase())) { alert('A weapon with that name already exists.'); return; }
  const category = document.getElementById('wpn-category').value;
  const element = document.getElementById('wpn-element').value;
+ const dtype = document.getElementById('wpn-dtype').value;
  const damage = Math.max(0, Math.min(99, parseInt(document.getElementById('wpn-damage').value) || 0));
- weapons.push({ name, category, damage, element });
+ weapons.push({ name, category, damage, element, dtype });
  document.getElementById('wpn-name').value = '';
  renderWeaponEditor();
  renderEquippedWeapon();
@@ -1492,10 +1837,26 @@
  if (typeof c.notes !== 'string') c.notes = '';
  if (!Array.isArray(c.log)) c.log = [];
  if (c.equippedWeapon === undefined) c.equippedWeapon = null;
+ if (!Array.isArray(c.traits)) c.traits = [];
+ }
+ /* Backfill weapon damage type for weapons saved before dtype existed */
+ function migrateWeapons() {
+ weapons.forEach(w => {
+ if (!w.dtype) {
+ const n = (w.name || '').toLowerCase();
+ if (w.category === 'ranged') w.dtype = 'piercing';
+ else if (/blade|sword|knife|axe|scythe|sabre|saber/.test(n)) w.dtype = 'slashing';
+ else if (/mace|hammer|club|staff|fist|unarmed/.test(n)) w.dtype = 'blunt';
+ else w.dtype = 'slashing';
+ }
+ if (!w.element) w.element = 'none';
+ });
  }
 
  /* ── CONDITION EFFECT MAPS (keyed by lowercased condition name) ──── */
- /* Conditions that add a hefty modifier to this character's miscast chance */
+ /* Conditions that add a hefty modifier to this character's miscast chance.
+    Magic needs both hand gestures (ensie formation) and clear incantation, so
+    mouth/tongue injuries hit the verbal component dramatically. */
  const MISCAST_MOD = {
  'nerve-dead arm (left)': 20,
  'nerve-dead arm (right)': 20,
@@ -1504,7 +1865,18 @@
  'tremor (left hand)': 20,
  'tremor (right hand)': 20,
  'tremor (both hands)': 35,
- 'shattered jaw': 10
+ 'shattered jaw': 25,
+ 'dislocated jaw': 15,
+ /* tongue injuries cripple the incantation: dramatic increases */
+ 'no tongue': 70,
+ 'severed tongue': 70,
+ 'split tongue': 40,
+ 'swollen tongue': 30,
+ 'tongue injury': 35,
+ 'bitten tongue': 20,
+ /* head trauma muddles concentration */
+ 'dazed': 15,
+ 'concussed': 25
  };
  /* Hand-loss conditions mapped to which side they remove (for ensie formation) */
  const HAND_SIDE = {
@@ -1514,6 +1886,106 @@
  'amputated arm above elbow (left)': 'L', 'amputated arm above elbow (right)': 'R'
  };
  const ONE_HAND_MISCAST = 50; /* losing one hand: hefty +50% miscast */
+
+ /* ── CHARACTER TRAITS ─────────────────────────────────────────────
+    Skills/professions are mostly descriptive records, but several have
+    mechanical effects in combat. Singer/magic traits feed the miscast
+    system (magic here is sung, so they pair with tongue/jaw injuries). */
+ const TRAIT_SKILLS = [
+ 'Blademaster', 'Trained Swordsman', 'Duelist', 'Brawler/Wrestler',
+ 'Archer', 'Marksman', 'Accomplished Singer', 'Poet/Bard',
+ 'Physician/Doctor', 'Herbalist', 'Gardener', 'Cook',
+ 'Astronomer', 'Sailor', 'Horserider'
+ ];
+ const TRAIT_SINGER = [
+ 'Hedge-Singer', 'Trained Singer', 'Gifted Singer', 'Dragon-Touched', 'Song-maimed'
+ ];
+ /* GM-only traits cannot be self-assigned in flavor, but the toggle still works;
+    they are simply marked so the GM knows. */
+ const TRAIT_GM_ONLY = new Set(['dragon-touched']);
+
+ /* Singer traits that grant extra free casts before miscast risk begins */
+ const TRAIT_FREE_CAST = {
+ 'gifted singer': 1,
+ 'dragon-touched': 2
+ };
+ /* Singer traits that shift miscast chance (negative = more reliable caster) */
+ const TRAIT_MISCAST_MOD = {
+ 'trained singer': -10,   /* disciplined academy technique */
+ 'gifted singer': -5,     /* natural ease */
+ 'hedge-singer': 5,       /* self-taught, rougher control */
+ 'dragon-touched': -15,   /* uniquely gifted */
+ 'song-maimed': 45        /* the voice/song is broken */
+ };
+
+ /* Sum extra free casts a character earns from traits */
+ function traitFreeCastMod(c) {
+ let f = 0;
+ (c.traits || []).forEach(t => { f += (TRAIT_FREE_CAST[t.toLowerCase()] || 0); });
+ return f;
+ }
+ /* Sum miscast-percentage shift a character gets from traits */
+ function traitMiscastMod(c) {
+ let m = 0;
+ (c.traits || []).forEach(t => { m += (TRAIT_MISCAST_MOD[t.toLowerCase()] || 0); });
+ return m;
+ }
+
+ /* Combat synergy: what a trait adds when striking with a given weapon.
+    Returns extra damage, added bleed/daze chance (on top of base), and notes. */
+ function weaponTraitBonus(c, w) {
+ let dmg = 0, bleed = 0, daze = 0; const notes = [];
+ const traits = (c.traits || []).map(t => t.toLowerCase());
+ const has = n => traits.includes(n);
+ if (w.dtype === 'slashing') {
+ if (has('blademaster')) { dmg = Math.max(dmg, 1); bleed = Math.max(bleed, 25); notes.push('Blademaster'); }
+ else if (has('trained swordsman')) { bleed = Math.max(bleed, 15); notes.push('Trained swordsman'); }
+ if (has('duelist') && w.category === 'melee') { dmg = Math.max(dmg, 1); if (!notes.includes('Duelist')) notes.push('Duelist'); }
+ } else if (w.dtype === 'blunt') {
+ if (has('brawler/wrestler')) { dmg = Math.max(dmg, 1); daze = Math.max(daze, 20); notes.push('Brawler'); }
+ if (has('duelist') && w.category === 'melee') { dmg = Math.max(dmg, 1); if (!notes.includes('Duelist')) notes.push('Duelist'); }
+ } else if (w.dtype === 'piercing') {
+ if (has('duelist') && w.category === 'melee') { dmg = Math.max(dmg, 1); notes.push('Duelist'); }
+ }
+ if (w.category === 'ranged') {
+ if (has('marksman')) { dmg = Math.max(dmg, 1); notes.push('Marksman'); }
+ else if (has('archer')) { dmg = Math.max(dmg, 1); notes.push('Archer'); }
+ }
+ return { dmg, bleed, daze, notes };
+ }
+
+ /* Conditions that imply other conditions when applied (severe wounds bleed, etc.) */
+ const CONDITION_IMPLIES = {
+ 'obliterated hand (left)': ['Bleeding'], 'obliterated hand (right)': ['Bleeding'],
+ 'amputated hand (left)': ['Bleeding'], 'amputated hand (right)': ['Bleeding'],
+ 'amputated arm below elbow (left)': ['Bleeding'], 'amputated arm below elbow (right)': ['Bleeding'],
+ 'amputated arm above elbow (left)': ['Bleeding'], 'amputated arm above elbow (right)': ['Bleeding'],
+ 'severed tongue': ['Bleeding'], 'no tongue': ['Bleeding'],
+ 'disembowelled': ['Bleeding'], 'deep laceration': ['Bleeding']
+ };
+
+ /* Elemental damage types and the immunity each is negated by.
+    Extensible: add an element here and a matching immunity keyword. */
+ const ELEMENTS = {
+ fire: { label: 'fire', immune: ['fire immunity', 'fire immune', 'immoluintransigence', 'elemental acclimatation (fire)', 'elemental immunity (fire)'] },
+ frost: { label: 'frost', immune: ['frost immunity', 'cold immunity', 'elemental acclimatation (frost)', 'elemental immunity (frost)'] },
+ venom: { label: 'venom', immune: ['venom immunity', 'poison immunity', 'venom resistance', 'elemental acclimatation (venom)', 'elemental immunity (venom)'] },
+ lightning: { label: 'lightning', immune: ['lightning immunity', 'shock immunity', 'elemental acclimatation (lightning)', 'elemental immunity (lightning)'] }
+ };
+ /* Is the character immune to a given element? Tolerant of "Elemental immunity (X)" phrasing. */
+ function isImmuneTo(c, element) {
+ if (!element || element === 'none') return false;
+ const spec = ELEMENTS[element];
+ if (!spec) return false;
+ return c.conditions.some(x => {
+ const lc = x.toLowerCase();
+ if (spec.immune.includes(lc)) return true;
+ if (lc.indexOf('immunity') >= 0 && lc.indexOf(spec.label) >= 0) return true;
+ if (lc.indexOf('immune') >= 0 && lc.indexOf(spec.label) >= 0) return true;
+ if (lc.indexOf('acclimatation') >= 0 && lc.indexOf(spec.label) >= 0) return true;
+ return false;
+ });
+ }
 
  /* Distinct hands lost (max 2) */
  function lostHandSides(c) {
@@ -1630,7 +2102,137 @@
  saveState();
  }
 
+ /* Bring a fainted character back to consciousness.
+    Stops any active bleed (so they don't drop again immediately) and restores
+    them to 1 HP, just enough to act. Use Full heal for a complete recovery. */
+ function reviveChar() {
+ if (!activeChar) return;
+ const c = roster[activeChar];
+ migrateChar(c);
+ if (effectiveHp(c) > 0) return; /* not actually down */
+ /* a fainted character cannot keep bleeding out; revive halts it */
+ if (c.bleedStart) {
+ c.bleedStart = null; c.bleedAnchorHp = null;
+ c.conditions = c.conditions.filter(x => x.toLowerCase() !== 'bleeding');
+ }
+ c.hp = 1;
+ logEvent(c, 'Revived to 1 HP', 'heal');
+ renderStatus();
+ saveState();
+ }
+
+ /* Move off the current (fainted) character to the next conscious one.
+    If none are conscious, deselect so the GM can pick or add a character. */
+ function switchCharacter() {
+ const names = Object.keys(roster).sort((a, b) => a.localeCompare(b));
+ const conscious = names.filter(n => {
+ migrateChar(roster[n]);
+ return n !== activeChar && effectiveHp(roster[n]) > 0;
+ });
+ if (conscious.length) {
+ /* prefer the next name after the current one, wrapping around */
+ const idx = names.indexOf(activeChar);
+ let pick = conscious[0];
+ for (let i = 1; i <= names.length; i++) {
+ const cand = names[(idx + i) % names.length];
+ if (conscious.includes(cand)) { pick = cand; break; }
+ }
+ selectCharacter(pick);
+ } else {
+ /* nobody else is up: clear the selection back to the roster list */
+ activeChar = null;
+ renderCharList();
+ renderStatus();
+ }
+ }
+
+ /* ── CHARACTER TRAITS ─────────────────────────────────────────── */
+ /* Short label describing a trait's mechanical effect, for the chip tooltip/subtext */
+ function traitEffectLabel(name) {
+ const lc = name.toLowerCase();
+ const parts = [];
+ if (TRAIT_FREE_CAST[lc]) parts.push('+' + TRAIT_FREE_CAST[lc] + ' free cast' + (TRAIT_FREE_CAST[lc] > 1 ? 's' : ''));
+ if (TRAIT_MISCAST_MOD[lc]) parts.push((TRAIT_MISCAST_MOD[lc] > 0 ? '+' : '') + TRAIT_MISCAST_MOD[lc] + '% miscast');
+ const combat = {
+ 'blademaster': '+1 dmg & bleed with blades',
+ 'trained swordsman': 'extra bleed with blades',
+ 'duelist': '+1 dmg in melee',
+ 'brawler/wrestler': '+1 dmg & daze with blunt',
+ 'marksman': '+1 dmg with ranged',
+ 'archer': '+1 dmg with ranged'
+ };
+ if (combat[lc]) parts.push(combat[lc]);
+ return parts.join(', ');
+ }
+
+ function renderTraitGrid(gridId, list) {
+ const grid = document.getElementById(gridId);
+ if (!grid) return;
+ const applied = activeChar && roster[activeChar]
+ ? new Set((roster[activeChar].traits || []).map(t => t.toLowerCase())) : new Set();
+ grid.innerHTML = list.map(name => {
+ const on = applied.has(name.toLowerCase());
+ const gm = TRAIT_GM_ONLY.has(name.toLowerCase());
+ const eff = traitEffectLabel(name);
+ return '<span class="trait-chip' + (on ? ' on' : '') + (gm ? ' gm' : '') + '"' +
+ ' onclick="toggleTrait(\'' + name.replace(/'/g, "\\'") + '\')"' +
+ (eff ? ' title="' + eff.replace(/"/g, '&quot;') + '"' : '') + '>' +
+ name.replace(/</g, '&lt;') + (gm ? ' <span class="trait-gm-tag">GM</span>' : '') +
+ (eff ? '<span class="trait-eff">' + eff + '</span>' : '') +
+ '</span>';
+ }).join('');
+ }
+
+ function renderTraits() {
+ const empty = document.getElementById('traits-empty');
+ const body = document.getElementById('traits-body');
+ if (!empty || !body) return;
+ if (!activeChar) { empty.style.display = ''; body.style.display = 'none'; return; }
+ empty.style.display = 'none'; body.style.display = '';
+ renderTraitGrid('trait-grid-singer', TRAIT_SINGER);
+ renderTraitGrid('trait-grid-skills', TRAIT_SKILLS);
+ const applied = roster[activeChar].traits || [];
+ const box = document.getElementById('trait-applied');
+ if (box) box.innerHTML = applied.length
+ ? applied.map(t => '<span class="trait-tag" onclick="toggleTrait(\'' + t.replace(/'/g, "\\'") + '\')">' + t.replace(/</g, '&lt;') + ' <span class="trait-x">×</span></span>').join('')
+ : '<span class="cond-pick-empty">No traits assigned.</span>';
+ }
+
+ function toggleTrait(name) {
+ if (!activeChar) return;
+ const c = roster[activeChar];
+ if (!Array.isArray(c.traits)) c.traits = [];
+ const i = c.traits.findIndex(t => t.toLowerCase() === name.toLowerCase());
+ if (i >= 0) { c.traits.splice(i, 1); logEvent(c, 'Trait removed: ' + name); }
+ else { c.traits.push(name); logEvent(c, 'Trait gained: ' + name); }
+ renderTraits();
+ updateMiscastDisplay();
+ renderStatus();
+ saveState();
+ }
+
  /* ── CONDITIONS ───────────────────────────────────────────────── */
+ /* Apply any conditions implied by `name` (e.g. an amputation also bleeds).
+    Works on the given character; returns the list of implied names added. */
+ function applyImplications(c, name) {
+ const implied = CONDITION_IMPLIES[name.toLowerCase()];
+ const added = [];
+ if (!implied) return added;
+ implied.forEach(imp => {
+ if (!c.conditions.some(x => x.toLowerCase() === imp.toLowerCase())) {
+ c.conditions.push(imp);
+ added.push(imp);
+ logEvent(c, 'Condition applied (from ' + name + '): ' + imp);
+ if (imp.toLowerCase() === 'bleeding' && !c.bleedStart) {
+ c.bleedStart = Date.now(); c.bleedAnchorHp = effectiveHp(c);
+ }
+ const b = hpBonusFor(imp);
+ if (b > 0 && !c.bleedStart) c.hp = Math.min(effMaxHp(c), c.hp + b);
+ }
+ });
+ return added;
+ }
+
  function addCondition(forced) {
  if (!activeChar) return;
  const input = document.getElementById('cond-input');
@@ -1646,10 +2248,12 @@
  if (bonus > 0 && !c.bleedStart) {
  c.hp = Math.min(effMaxHp(c), c.hp + bonus);
  }
- }
  if (name.toLowerCase() === 'bleeding' && !c.bleedStart) {
  c.bleedStart = Date.now();
  c.bleedAnchorHp = effectiveHp(c);
+ }
+ /* trigger any implied conditions (severe wounds bleed, etc.) */
+ applyImplications(c, name);
  }
  if (!forced) input.value = '';
  renderStatus();
@@ -1674,12 +2278,13 @@
 
  function renderStatus() {
  const empty = document.getElementById('status-empty');
- const body = document.getElementById('status-body');
+ const body = document.getElementById('combat-inner');
  if (!activeChar) {
  empty.style.display = ''; body.style.display = 'none';
  const ne = document.getElementById('notes-empty'), nel = document.getElementById('gm-notes');
  if (ne) ne.style.display = ''; if (nel) nel.style.display = 'none';
  renderLog();
+ renderTraits();
  updateActiveBanner();
  updateFaintState();
  return;
@@ -1687,6 +2292,8 @@
  empty.style.display = 'none'; body.style.display = '';
  const c = roster[activeChar];
  migrateChar(c);
+ renderTraits();
+ syncCatalogChecks();
 
  /* If bleeding, sync stored hp to the live effective value so it persists sensibly */
  const eff = effectiveHp(c);
@@ -1868,7 +2475,24 @@
  }
 
  function filterCondPicker() {
+ const q = document.getElementById('cond-input').value.trim();
+ const picker = document.getElementById('cond-picker');
+ /* typing reveals matches; clearing the box hides the picker again unless manually browsing */
+ if (picker && !picker.classList.contains('pinned')) {
+ picker.style.display = q === '' ? 'none' : '';
+ }
  renderCondPicker(document.getElementById('cond-input').value);
+ }
+
+ /* Toggle the "browse all conditions" picker on/off */
+ function toggleCondPicker() {
+ const picker = document.getElementById('cond-picker');
+ const btn = document.getElementById('cond-browse-btn');
+ if (!picker) return;
+ const showing = picker.classList.toggle('pinned');
+ picker.style.display = showing ? '' : 'none';
+ if (showing) renderCondPicker(document.getElementById('cond-input').value);
+ if (btn) btn.textContent = showing ? 'Hide list' : 'Browse all';
  }
 
  function currentCount() {
@@ -1947,10 +2571,11 @@
  }
  const sel = getSelectedSpell();
  const school = sel ? sel.school : null;
- const free = school ? freeCastsFor(school) : FREE_CASTS;
+ const free = (school ? freeCastsFor(school) : FREE_CASTS) + traitFreeCastMod(c);
  const base = miscastChanceFor(count + 1, free);
  const condMod = conditionMiscastMod(c);
- const nextChance = Math.min(99, base + condMod);
+ const trMod = traitMiscastMod(c);
+ const nextChance = Math.max(0, Math.min(99, base + condMod + trMod));
  pctEl.textContent = nextChance + '%';
  pctEl.className = 'mc-num ' + (nextChance === 0 ? 'safe' : nextChance <= 20 ? 'warn' : 'danger');
  const remaining = Math.max(0, free - count);
@@ -1959,6 +2584,7 @@
  : 'Free casts used, miscast risk active';
  const extras = [];
  if (condMod > 0) extras.push('+' + condMod + '% injuries');
+ if (trMod !== 0) extras.push((trMod > 0 ? '+' : '') + trMod + '% traits');
  if (school && planetState[school] === 'empowered') extras.push(school + ' empowered');
  if (school && planetState[school] === 'weakened') extras.push(school + ' weakened');
  if (extras.length) s += ' (' + extras.join(', ') + ')';
@@ -1981,7 +2607,7 @@
  const name = input.value.trim();
  if (!name) return;
  if (!roster[name]) {
- roster[name] = { spellsToday: 0, lastReset: todayStr(), hp: 5, maxHp: 5, conditions: [], bleedStart: null, bleedAnchorHp: null, notes: '', log: [], equippedWeapon: null };
+ roster[name] = { spellsToday: 0, lastReset: todayStr(), hp: 5, maxHp: 5, conditions: [], bleedStart: null, bleedAnchorHp: null, notes: '', log: [], equippedWeapon: null, traits: [] };
  }
  input.value = '';
  activeChar = name;
@@ -2029,13 +2655,15 @@
 
  const castNumber = c.spellsToday + 1;
  const school = spell ? spell.school : null;
- const free = school ? freeCastsFor(school) : FREE_CASTS;
+ const free = (school ? freeCastsFor(school) : FREE_CASTS) + traitFreeCastMod(c);
  const baseChance = miscastChanceFor(castNumber, free);
  const condMod = conditionMiscastMod(c);
- /* condition modifiers can push miscast risk even on otherwise free casts */
- const chance = Math.min(99, baseChance + condMod);
+ const trMod = traitMiscastMod(c);
+ /* condition and trait modifiers can push miscast risk even on otherwise free casts */
+ const chance = Math.max(0, Math.min(99, baseChance + condMod + trMod));
  let modParts = [];
  if (condMod > 0) modParts.push(condMod + '% from injuries');
+ if (trMod !== 0) modParts.push((trMod > 0 ? '+' : '') + trMod + '% from traits');
  if (school && planetState[school] === 'empowered') modParts.push(school + ' empowered: +1 free cast');
  if (school && planetState[school] === 'weakened') modParts.push(school + ' weakened: -1 free cast');
  const modNote = modParts.length ? ' (' + modParts.join('; ') + ')' : '';
@@ -2096,7 +2724,13 @@
  if (dmgM) damage = parseInt(dmgM[1]);
  const healM = inflict.match(/(\d+)\s*HP\s*heal/i);
  if (healM) heal = parseInt(healM[1]);
- let cond = inflict.replace(/,?\s*\d+\s*HP\s*(?:dmg|damage|heal)/ig, '').replace(/^[-\s]+/, '').trim();
+ /* strip the HP clauses, then tidy stray separators left behind */
+ let cond = inflict
+ .replace(/,?\s*\d+\s*HP\s*(?:dmg|damage|heal)/ig, '')
+ .replace(/[\/,]\s*$/g, '')      /* trailing slash or comma */
+ .replace(/^[-\s\/,]+/, '')      /* leading dashes/slashes/commas */
+ .replace(/\s{2,}/g, ' ')
+ .trim();
  if (cond && cond !== '-' && !/^no effect/i.test(cond)) condition = cond;
  return { damage, heal, condition, fire: spell.school === 'Flames' };
  }
@@ -2109,9 +2743,18 @@
  const isSelf = targetName === activeChar;
  const src = isSelf ? 'Self-cast' : ('by ' + activeChar);
  const hitSrc = isSelf ? 'Self-cast' : ('Hit by ' + activeChar);
+ const nm = (spell.name || '').toLowerCase();
 
- if (eff.damage > 0) {
- if (eff.fire && isFireImmune(tgt)) {
+ /* Spells that both damage and heal (e.g. Redpalm) resolve by target:
+    on self they cauterize (heal, no fire damage); on others they burn (damage, no heal). */
+ let doDamage = eff.damage > 0;
+ let doHeal = eff.heal > 0;
+ if (doDamage && doHeal) {
+ if (isSelf) doDamage = false; else doHeal = false;
+ }
+
+ if (doDamage) {
+ if (eff.fire && isImmuneTo(tgt, 'fire')) {
  notes.push(targetName + ' is immune to fire: ' + eff.damage + ' fire damage negated');
  logEvent(tgt, hitSrc + ' (' + spell.name + '): fire damage negated by immunity', 'heal');
  } else {
@@ -2124,17 +2767,33 @@
  logEvent(tgt, hitSrc + ' (' + spell.name + ') for ' + eff.damage + fireTag + ' HP (now ' + after + '/' + cap + ')');
  }
  }
- if (eff.heal > 0) {
+ if (doHeal) {
  const before = tgt.bleedStart ? effectiveHp(tgt) : tgt.hp;
  const after = Math.min(cap, Math.round(before) + eff.heal);
  tgt.hp = after;
- if (tgt.bleedStart) { tgt.bleedAnchorHp = after; tgt.bleedStart = Date.now(); }
- notes.push(targetName + ' healed ' + eff.heal + ' HP (' + after + '/' + cap + ')');
- logEvent(tgt, (isSelf ? 'Self-healed' : 'Healed ' + src) + ' (' + spell.name + ') for ' + eff.heal + ' HP (now ' + after + '/' + cap + ')', 'heal');
+ /* healing seals wounds: stop any active bleed and clear the Bleeding condition */
+ const wasBleeding = !!tgt.bleedStart || tgt.conditions.some(x => x.toLowerCase() === 'bleeding');
+ tgt.bleedStart = null; tgt.bleedAnchorHp = null;
+ tgt.conditions = tgt.conditions.filter(x => x.toLowerCase() !== 'bleeding');
+ notes.push(targetName + ' healed ' + eff.heal + ' HP (' + after + '/' + cap + ')' + (wasBleeding ? ', bleeding stopped' : ''));
+ logEvent(tgt, (isSelf ? 'Self-healed' : 'Healed ' + src) + ' (' + spell.name + ') for ' + eff.heal + ' HP (now ' + after + '/' + cap + ')' + (wasBleeding ? '; bleeding stopped' : ''), 'heal');
+ }
+ /* Redpalm self-cast also cauterizes even if no heal value resolved */
+ if (nm === 'redpalm' && isSelf && !doHeal) {
+ const wasBleeding = !!tgt.bleedStart || tgt.conditions.some(x => x.toLowerCase() === 'bleeding');
+ if (wasBleeding) {
+ tgt.bleedStart = null; tgt.bleedAnchorHp = null;
+ tgt.conditions = tgt.conditions.filter(x => x.toLowerCase() !== 'bleeding');
+ notes.push(targetName + ' cauterizes the wound: bleeding stopped');
+ logEvent(tgt, 'Self-cast (Redpalm): cauterized, bleeding stopped', 'heal');
+ }
  }
  if (eff.condition) {
- addCharConditionNamed(tgt, eff.condition, targetName, spell.name, isSelf);
- notes.push(targetName + ' gains: ' + eff.condition);
+ /* a spell may inflict several comma-separated conditions */
+ eff.condition.split(',').map(s => s.trim()).filter(Boolean).forEach(cn => {
+ addCharConditionNamed(tgt, cn, targetName, spell.name, isSelf);
+ notes.push(targetName + ' gains: ' + cn);
+ });
  }
  return notes.length ? notes.join('. ') + '.' : null;
  }
@@ -2150,6 +2809,7 @@
  if (name.toLowerCase() === 'bleeding' && !tgt.bleedStart) {
  tgt.bleedStart = Date.now(); tgt.bleedAnchorHp = effectiveHp(tgt);
  }
+ applyImplications(tgt, name);
  }
  }
 
@@ -2190,6 +2850,7 @@
  if (name.toLowerCase() === 'bleeding' && !c.bleedStart) {
  c.bleedStart = Date.now(); c.bleedAnchorHp = effectiveHp(c);
  }
+ applyImplications(c, name);
  }
  }
 
@@ -2198,23 +2859,6 @@
  const sel = document.getElementById('spell-cast-select');
  if (!sel || sel.value === '') return null;
  return SPELLS[parseInt(sel.value)] || null;
- }
-
- /* Attack mode toggle: 'physical' shows hit-chance calc, 'spell' shows spell cast */
- function setAttackMode(mode) {
- document.getElementById('mode-physical').classList.toggle('active', mode === 'physical');
- document.getElementById('mode-spell').classList.toggle('active', mode === 'spell');
- document.getElementById('physical-block').style.display = mode === 'physical' ? '' : 'none';
- document.getElementById('spell-block').style.display = mode === 'spell' ? '' : 'none';
- /* hit-chance block only matters for physical attacks; spells always hit */
- const rb = document.getElementById('result-block');
- if (rb) rb.style.display = mode === 'physical' ? '' : 'none';
- /* spellcasting & miscast only matters in spell mode */
- const mb = document.getElementById('miscast-block');
- if (mb) mb.style.display = mode === 'spell' ? '' : 'none';
- /* weapon & strike is for physical attacks only */
- const wb = document.getElementById('weapon-block');
- if (wb) wb.style.display = mode === 'physical' ? '' : 'none';
  }
 
  /* Populate the spell-cast dropdown from SPELLS (called once at init) */
@@ -2266,11 +2910,18 @@
  if (res.ok) {
  const data = await res.json();
  if (data && data.characters) roster = data.characters;
- if (data && data.planets) planetState = data.planets;
+ /* planetState is no longer read from combat storage; it is derived live from the RP Calendar */
  if (data && Array.isArray(data.weapons) && data.weapons.length) weapons = data.weapons;
+ /* restore a time-bubbled (paused) sky if one was saved */
+ if (data && data.sky && data.sky.paused && data.sky.year != null && data.sky.seg != null) {
+ skyPaused = true;
+ applyCalendarSky(data.sky.year, data.sky.seg);
+ }
+ migrateWeapons();
  const changed = applyDayRollover();
  rebuildCharSelect();
  renderPlanets();
+ updateSkyPauseUI();
  renderWeaponEditor();
  updateMiscastDisplay();
  renderStatus();
@@ -2299,7 +2950,7 @@
  const res = await fetch(STORAGE_ENDPOINT, {
  method: 'POST',
  headers: { 'Content-Type': 'application/json' },
- body: JSON.stringify({ characters: roster, planets: planetState, weapons: weapons })
+ body: JSON.stringify({ characters: roster, weapons: weapons, sky: { paused: skyPaused, year: calSky ? calSky.year : null, seg: calSky ? calSky.seg : null } })
  });
  if (res.ok) setSync('saved', 'Saved.');
  else setSync('error', 'Save failed (status ' + res.status + ').');
@@ -2346,7 +2997,7 @@
  }
 
  function filterConditions() {
- runSearch(document.getElementById('cond-search').value, '#attacker-conditions', 'cond-clear', 'cond-nomatch');
+ runSearch(document.getElementById('cond-search').value, '#cond-catalog', 'cond-clear', 'cond-nomatch');
  }
 
  function clearCondSearch() {
@@ -2355,7 +3006,7 @@
  }
 
  function filterAttackerMagical() {
- runSearch(document.getElementById('amag-search').value, '#attacker-magical', 'amag-clear', 'amag-nomatch');
+ runSearch(document.getElementById('amag-search').value, '#amag-group', 'amag-clear', 'amag-nomatch');
  }
 
  function clearAmagSearch() {
@@ -2364,7 +3015,7 @@
  }
 
  function filterDefender() {
- runSearch(document.getElementById('def-search').value, '#defender-magical', 'def-clear', 'def-nomatch');
+ runSearch(document.getElementById('def-search').value, '#def-group', 'def-clear', 'def-nomatch');
  }
 
  function clearDefSearch() {
@@ -2375,9 +3026,9 @@
  /* ── SPELL REFERENCE ──────────────────────────────────────────── */
  const SPELLS = [
  {school:'Flames',name:'Ignite',tier:'I',dur:'Instant',effect:'Flicks a small jet of fire from the finger. Negates the need for gunpowder for gunwielders.',inflict:'No effects.',miscast:'No spark is lit.'},
- {school:'Flames',name:'Redpalm',tier:'I',dur:'30 Seconds',effect:'Chosen palm reaches incredibly high heat, melting basic metal or cauterizing wounds.',inflict:'Minor burn scars, 1 HP dmg / 1 HP heal',miscast:'Hand overloaded; arm goes numb for hours (Nerve-dead arm).'},
+ {school:'Flames',name:'Redpalm',tier:'I',dur:'30 Seconds',effect:'Chosen palm reaches incredibly high heat, melting basic metal or cauterizing wounds. On self it seals wounds (heals, stops bleeding); on others it burns.',inflict:'Minor burn scars, 1 HP dmg, 1 HP heal',miscast:'Hand overloaded; arm goes numb for hours (Nerve-dead arm).'},
  {school:'Flames',name:'Petit-Soleil',tier:'I',dur:'5 Seconds',effect:'Generates a small ball of bright material, blinding all viewers ~20 min (caster must look away).',inflict:'Temporary Blindness',miscast:'Hand explodes (Obliterated hand).'},
- {school:'Flames',name:'Lesser Fireball',tier:'II',dur:'Instant',effect:'Launches an orb of fire, setting a 2x2m area alight.',inflict:'Major Burn Scars',miscast:'Arm explodes (Amputated arm below elbow).'},
+ {school:'Flames',name:'Lesser Fireball',tier:'II',dur:'Instant',effect:'Launches an orb of fire, setting a 2x2m area alight.',inflict:'Major Burn Scars, 3 HP dmg',miscast:'Arm explodes (Amputated arm below elbow).'},
  {school:'Flames',name:'Feuerzunge',tier:'II',dur:'30 Seconds',effect:'Turns liquid in the mouth flammable, spat out as a jet of fire. Must drink beforehand.',inflict:'Major Burn Scars, 3 HP dmg',miscast:'Tongue explodes (No tongue).'},
  {school:'Flames',name:'Ardorgyration',tier:'II',dur:'30 Minutes',effect:'Summons 3 fire orbs that gyrate and intercept incoming projectiles. Can be launched as bombs.',inflict:'Projectile Immunity, 2 HP dmg',miscast:'Orbs launch in random trajectories.'},
  {school:'Flames',name:'Immoluintransigence',tier:'III',dur:'1 Day',effect:'Immune to all fire and heat damage. Negates all miscasts while active.',inflict:'Fire Immunity',miscast:'Becomes more vulnerable to fire - double damage.'},
@@ -2551,12 +3202,37 @@
  if (arrow) arrow.textContent = hidden ? '▾' : '▸';
  }
 
- loadState();
+ /* Make the injury/condition catalog bidirectional: ticking a box applies the
+    condition to the active character; unticking removes it. */
+ function wireCatalogConditions() {
+ const catalog = document.getElementById('cond-catalog');
+ if (!catalog) return;
+ catalog.addEventListener('change', function(e) {
+ const cb = e.target;
+ if (!cb || cb.type !== 'checkbox') return;
+ if (!activeChar) { cb.checked = false; return; }
+ const item = cb.closest('.condition-item');
+ if (!item) return;
+ const name = itemLabel(item);
+ const c = roster[activeChar];
+ const has = c.conditions.some(x => x.toLowerCase() === name.toLowerCase());
+ if (cb.checked && !has) { addCondition(name); }
+ else if (!cb.checked && has) { removeCondition(c.conditions.find(x => x.toLowerCase() === name.toLowerCase())); }
+ });
+ }
+
+ loadState().then(() => {
+ /* Pull the current sky from the RP Calendar unless a paused bubble was restored */
+ syncPlanetsFromCalendar(false);
+ });
  populateSpellCastSelect();
  buildCondCatalog();
+ wireCatalogConditions();
  renderPlanets();
  renderWeaponEditor();
  renderStatus();
+ updateSkyPauseUI();
+ setInterval(() => syncPlanetsFromCalendar(false), 5 * 60 * 1000); /* re-sync every 5 min (skipped while paused) */
  /* Refresh status every 30s so the bleeding countdown and HP stay live */
  setInterval(() => { if (activeChar && roster[activeChar] && roster[activeChar].bleedStart) renderStatus(); }, 30000);
  recalc();
