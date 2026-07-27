@@ -51,6 +51,9 @@
  .section.acc-danger > .section-title { color: #cc0000; }
  .section.acc-reference > .section-title { color: #2a7d70; }
  .section-title { font-size: 11px; font-weight: bold; color: #222; text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 12px; }
+ .section-title-static { font-size: 11px; font-weight: bold; color: #222; text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 12px; }
+ .acc-combat .section-title-static { color: #b35900; }
+ .acc-cosmic .section-title-static { color: #6a4fb0; }
  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
  label.field-label { font-size: 10px; color: #222; font-weight: bold; text-transform: uppercase; letter-spacing: 0.08em; display: block; margin-bottom: 4px; }
@@ -200,10 +203,6 @@
  .hp-pip.partial { background: linear-gradient(to right, var(--color-text-success) 50%, var(--color-background-tertiary) 50%); }
  .bleed-note { margin-top: 8px; font-size: 12px; font-weight: 600; color: var(--color-text-danger); }
  .cond-block { margin-top: 0.5rem; }
- .cond-add-row { display: flex; gap: 8px; flex-wrap: wrap; }
- .cond-add-row input { flex: 1; min-width: 180px; }
- .cond-add-row button { padding: 6px 12px; font-size: 13px; cursor: pointer; white-space: nowrap; }
- .cond-browse-btn { background: #e2e2e2; }
  /* Character traits */
  .trait-group-label { font-size: 10px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.1em; color: #555; margin: 14px 0 7px; }
  .trait-grid { display: flex; flex-wrap: wrap; gap: 6px; }
@@ -222,16 +221,7 @@
  .trait-tag:hover { background: #cde7e1; }
  .trait-tag .trait-x { color: #c00; font-weight: bold; }
  /* Color-code magical effects by which side they apply to, to prevent confusion */
- .side-attacker > summary { color: #b35900; border-left: 3px solid #d98a3a; padding-left: 8px; }
- .side-defender > summary { color: #0a5fb4; border-left: 3px solid #4a90d9; padding-left: 8px; }
- .side-attacker .condition-item { border-left: 3px solid #e6c39a; }
- .side-attacker .condition-item:not(.active):not(.active-neg):not(.active-pos) { color: #8a5a2a; }
- .side-defender .condition-item { border-left: 3px solid #a9cdee; }
- .side-defender .condition-item:not(.active):not(.active-neg):not(.active-pos) { color: #1a4f80; }
- .side-attacker .detail-body::before { content: 'Affects the ATTACKER'; display: block; font-size: 9px; font-weight: bold; letter-spacing: 0.1em; color: #b35900; margin-bottom: 8px; }
- .side-defender .detail-body::before { content: 'Affects the DEFENDER'; display: block; font-size: 9px; font-weight: bold; letter-spacing: 0.1em; color: #0a5fb4; margin-bottom: 8px; }
  .cond-bleed-btn { color: var(--color-text-danger); }
- .cond-picker { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 8px; max-height: 140px; overflow-y: auto; }
  .cond-pick-item { font-size: 11px; padding: 2px 7px; border-radius: var(--border-radius-sm); background: var(--color-background-secondary); border: 0.5px solid var(--color-border-tertiary); cursor: pointer; }
  .cond-pick-item:hover { background: var(--color-background-info); border-color: var(--color-border-info); color: var(--color-text-info); }
  .cond-pick-item.applied { opacity: 0.4; cursor: default; text-decoration: line-through; }
@@ -282,9 +272,6 @@
  .action-target-row select { flex: 1; }
  .action-row { display: flex; gap: 8px; align-items: stretch; margin-top: 10px; }
  .action-label { margin: 16px 0 4px; font-weight: bold; }
- details.context-block { margin-top: 16px; padding-top: 12px; border-top: 1px solid #888; }
- details.context-block > summary { background: #d4d4d4; }
- .ctx-group-label { font-size: 10px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.1em; color: #555; margin: 4px 0 8px; }
  .cat-block { margin-top: 18px; padding-top: 14px; border-top: 1px solid #888; }
  .action-row select { flex: 1; }
  .act-btn { background: #444; color: #fff; border-color: #222; font-weight: bold; padding: 4px 18px; white-space: nowrap; }
@@ -296,8 +283,6 @@
  .mc-line .counter-box button { border: none; border-radius: 0; padding: 2px 8px; background: #e2e2e2; font-size: 13px; }
  .mc-line .counter-val { padding: 0 8px; font-weight: bold; font-size: 13px; min-width: 22px; text-align: center; }
  .mc-line .mc-reset { font-size: 10px; padding: 3px 8px; }
- details.hitcalc { margin-top: 18px; padding-top: 12px; border-top: 1px solid #888; }
- details.hitcalc > summary { background: #d4d4d4; }
  .weapon-label { font-size: 13px; font-weight: 600; color: var(--color-text-secondary); margin-bottom: 6px; }
  .weapon-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
  .weapon-row select { flex: 1; min-width: 160px; }
@@ -353,6 +338,116 @@
  .section.acc-gm { border-left: 3px solid var(--color-text-tertiary); }
  .section.acc-reference { border-left: 3px solid #2a8a8a; }
  .section.acc-reference > .section-title { color: #2a8a8a; }
+
+ /* ── Tabs ── */
+ .tab-bar { display: flex; gap: 6px; margin: 10px 0 16px; border-bottom: 2px solid var(--color-border, #ccc); }
+ .tab-btn { border: none; background: none; padding: 9px 18px 7px; font-size: 14px; font-weight: 600; cursor: pointer; color: var(--color-text-tertiary, #888); border-bottom: 3px solid transparent; margin-bottom: -2px; }
+ .tab-btn.active { color: var(--color-text, #222); border-bottom-color: #6a4fb0; }
+ .tab-btn .tab-count { font-size: 11px; background: #6a4fb0; color: #fff; border-radius: 9px; padding: 1px 6px; margin-left: 5px; vertical-align: 1px; }
+ body[data-tab="char"] .tabpg-battle, body[data-tab="char"] .tabpg-loadout { display: none; }
+ body[data-tab="battle"] .tabpg-char, body[data-tab="battle"] .tabpg-loadout { display: none; }
+ body[data-tab="loadout"] .tabpg-char, body[data-tab="loadout"] .tabpg-battle { display: none; }
+
+ /* Equipped & learned-spells tabs */
+ .loadout-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 8px; margin: 8px 0; }
+ .loadout-item { display: flex; align-items: center; gap: 8px; border: 1px solid var(--color-border, #ccc); border-radius: 8px; padding: 7px 10px; cursor: pointer; font-size: 13px; }
+ .loadout-item:hover { border-color: #6a4fb0; }
+ .loadout-item.on { background: rgba(106,79,176,0.10); border-color: #6a4fb0; }
+ .loadout-item input { margin: 0; }
+ .loadout-item .li-meta { color: var(--color-text-tertiary, #888); font-size: 11px; margin-left: auto; }
+ .loadout-school { font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; color: #6a4fb0; margin: 14px 0 4px; }
+ .loadout-count { font-weight: 600; margin: 4px 0 8px; }
+ .loadout-empty { font-style: italic; color: var(--color-text-tertiary, #888); font-size: 13px; }
+
+ /* Clearer A/B sides in the battle tracker */
+ .battle-sides { display: grid; grid-template-columns: 1fr auto 1fr; gap: 10px; margin-top: 10px; align-items: stretch; }
+ .battle-side { border: 2px solid var(--color-border, #ccc); border-radius: 10px; padding: 8px 10px; }
+ .battle-side.side-A { border-color: #2f6fb0; background: rgba(47,111,176,0.06); }
+ .battle-side.side-B { border-color: #b0472f; background: rgba(176,71,47,0.06); }
+ .battle-side h4 { margin: 0 0 6px; font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700; display: flex; align-items: center; gap: 6px; }
+ .battle-side.side-A h4 { color: #2f6fb0; }
+ .battle-side.side-B h4 { color: #b0472f; }
+ .side-chip { display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; border-radius: 50%; color: #fff; font-size: 12px; font-weight: 700; }
+ .side-A .side-chip { background: #2f6fb0; }
+ .side-B .side-chip { background: #b0472f; }
+ .side-vs { display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; color: var(--color-text-tertiary, #888); padding: 0 2px; }
+ .hp-standalone { margin-bottom: 14px; }
+
+ /* ── Stats ── */
+ .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin: 8px 0; }
+ .stat-cell { border: 1px solid var(--color-border, #ccc); border-radius: 8px; padding: 8px 10px; }
+ .stat-cell label { font-weight: 600; font-size: 13px; display: block; margin-bottom: 4px; }
+ .stat-cell input { width: 64px; }
+ .stat-cell .stat-fx { font-size: 11px; color: var(--color-text-tertiary, #777); margin-top: 4px; display: block; }
+ .stat-remaining { font-weight: 600; margin: 4px 0 8px; }
+ .stat-remaining.over { color: #b32020; }
+
+ /* ── Battle tracker ── */
+ .battle-card { border: 1px solid var(--color-border, #ccc); border-radius: 10px; padding: 12px 14px; margin: 12px 0; }
+ .battle-card.active-battle { border-color: #6a4fb0; box-shadow: 0 0 0 1px #6a4fb0 inset; }
+ .battle-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+ .battle-name { font-weight: 700; font-size: 15px; }
+ .battle-status { font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; padding: 2px 8px; border-radius: 9px; background: #eee; color: #555; }
+ .battle-status.running { background: #e7ddfa; color: #4b3390; }
+ .combatant { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 4px 6px; border-radius: 6px; font-size: 13px; }
+ .combatant.turn-now { background: #efe8ff; font-weight: 700; }
+ .combatant.down { opacity: 0.5; text-decoration: line-through; }
+ .combatant.escaped { opacity: 0.55; font-style: italic; }
+ .combatant .c-x { cursor: pointer; color: #b32020; font-weight: 700; border: none; background: none; }
+ .initiative-strip { font-size: 12px; margin-top: 8px; color: var(--color-text-tertiary, #777); }
+ .battle-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+ .battle-log { margin-top: 10px; max-height: 180px; overflow-y: auto; font-size: 12px; border-top: 1px solid var(--color-border, #eee); padding-top: 6px; }
+ .battle-log div { padding: 2px 0; border-bottom: 1px dotted #eee; }
+ .blog-entry { border: 1px solid var(--color-border, #ccc); border-radius: 8px; padding: 8px 12px; margin: 8px 0; font-size: 13px; }
+ .blog-entry .blog-result { font-weight: 600; }
+ .escape-roll { font-size: 12px; margin-top: 6px; }
+ .battle-action-panel { border: 1px solid #6a4fb0; border-radius: 10px; padding: 10px 12px; margin: 10px 0 0; background: rgba(106,79,176,0.05); }
+ .battle-action-panel h4 { margin: 0 0 8px; font-size: 13px; }
+ .battle-action-panel .bap-actor { color: #6a4fb0; }
+ .bap-row { display: flex; gap: 8px; align-items: center; margin: 6px 0; flex-wrap: wrap; }
+ .bap-row select { flex: 1; min-width: 120px; }
+ .bap-result { font-size: 13px; margin-top: 8px; min-height: 1em; }
+ .bap-melee-label { flex: 1; font-size: 12px; color: var(--color-text-tertiary, #777); }
+ /* An action row that has been spent this turn is dimmed and inert. */
+ .bap-row.bap-spent { opacity: 0.4; pointer-events: none; }
+ .bap-spent-note { font-size: 11px; color: #6a4fb0; font-style: italic; }
+ .bap-target-label { white-space: nowrap; font-size: 12px; min-width: 44px; }
+ .bap-meta { color: var(--color-text-tertiary, #888); font-weight: normal; font-size: 12px; }
+ .bap-turn-row { margin-top: 10px; padding-top: 9px; border-top: 1px solid rgba(0,0,0,0.12); }
+
+ /* Action buttons: the things that resolve an attack read as primary. */
+ .act-btn { background: #3b2f66; color: #fff; border: 1px solid #2c2350; font-weight: 600; }
+ .act-btn:hover { background: #4a3b80; }
+
+ /* Escape is a gamble and must not be confused with simply passing the turn. */
+ .btn-escape { background: #fdf0dd; color: #8a5300; border: 1px solid #d9a44a; font-weight: 600; }
+ .btn-escape:hover { background: #f8e3c2; }
+ .btn-endturn { background: transparent; color: var(--color-text-tertiary, #777); border: 1px dashed #b0b0b0; font-weight: 500; }
+ .btn-endturn:hover { background: #f0f0f0; color: #444; }
+ /* Once the fighter has acted, ending the turn is the obvious next step. */
+ .btn-endturn.turn-spent { background: #e7ddfa; color: #4b3390; border: 1px solid #6a4fb0; font-weight: 600; }
+ .btn-endturn.turn-spent:hover { background: #dbcdf5; }
+ .cooldown-note { font-size: 11px; color: #8a5300; font-style: italic; }
+ /* Side names are click-to-rename */
+ .side-name { cursor: pointer; border-bottom: 1px dotted currentColor; }
+ .side-name:hover { opacity: 0.75; }
+ .side-rename { font-size: 12px; padding: 1px 4px; max-width: 130px; }
+
+ /* Ending a battle is destructive, so it reads as such and sits by the title. */
+ .btn-conclude { margin-left: auto; background: #f6dede; color: #8f2020; border: 1px solid #d08a8a; font-size: 12px; font-weight: 600; padding: 3px 10px; }
+ .btn-conclude:hover { background: #efc9c9; }
+ .btn-start { background: #e0eddc; color: #2c5c22; border: 1px solid #8dbd7e; font-weight: 600; }
+ .btn-start:hover { background: #d0e4c9; }
+ .btn-discard { background: transparent; color: var(--color-text-tertiary, #777); border: 1px dashed #b0b0b0; }
+
+ /* Side stance markers */
+ .stance-select { margin-left: auto; font-size: 10px; padding: 1px 4px; border-radius: 5px; text-transform: none; letter-spacing: 0; font-weight: 600; }
+ .stance-none { color: var(--color-text-tertiary, #888); }
+ .stance-attacking { background: #fbe4d8; color: #9c4413; border-color: #d98a5a; }
+ .stance-defending { background: #dde8f6; color: #1c4f86; border-color: #6a9bd0; }
+ .stance-surprised { background: #f7e2f0; color: #8a2a6d; border-color: #cf7ab5; }
+ .conclude-row { display: flex; gap: 6px; margin-top: 8px; width: 100%; }
+ .conclude-row input { flex: 1; }
 </style>
 
 <div class="panel">
@@ -361,16 +456,15 @@
    <img class="panel-logo" id="panel-logo" alt="agga sim v1 logo" src="data:image/png;base64,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" />
  </div>
 
-<!-- PLANETARY INFLUENCE -->
- <div class="section acc-cosmic collapsible">
- <div class="section-title" onclick="toggleSection(this)">Planetary influence</div>
- <div class="planet-note">The sky is read from the <a href="https://asa-project.pages.dev/" target="_blank" rel="noopener" class="cal-link">RP Calendar</a> automatically. Empowered schools get +1 free cast before miscast risk; weakened (faint) schools get -1. Five schools follow their planet's orbit. Flames follows the season, empowered through summer and at either solstice; Memories follows Ashr, empowered at the Full Moon and faint at the New Moon. <button class="cal-sync-btn" id="sky-sync-btn" onclick="syncPlanetsFromCalendar(true)">Sync now</button> <button class="cal-sync-btn" id="sky-pause-btn" onclick="toggleSkyPause()">Pause sky</button></div>
- <div class="cal-sky-status" id="cal-sky-status">Syncing with the calendar...</div>
- <div class="planet-grid" id="planet-grid"></div>
+ <div class="tab-bar" role="tablist">
+   <button class="tab-btn active" id="tab-btn-char" onclick="switchTab('char')">Characters</button>
+   <button class="tab-btn" id="tab-btn-loadout" onclick="switchTab('loadout')">Loadout</button>
+   <button class="tab-btn" id="tab-btn-battle" onclick="switchTab('battle')">Battle Tracker<span class="tab-count" id="battle-count" style="display:none;">0</span></button>
  </div>
 
+
 <!-- CHARACTER (selection + traits) -->
- <div class="section acc-character collapsible" id="character-section">
+ <div class="section acc-character collapsible tabpg-char" id="character-section">
  <div class="section-title" onclick="toggleSection(this)">Character</div>
 
  <div class="char-bar">
@@ -384,446 +478,7 @@
 
  <div id="traits-empty" class="status-empty">Select or add a character above to assign traits.</div>
  <div id="traits-body" style="display:none;">
-   <div class="planet-note">Click a trait to add or remove it from the active character. Singer and magic traits adjust miscast risk; combat skills sharpen the matching weapon strikes. Other skills are recorded for roleplay.</div>
-   <div class="trait-group-label">Singer &amp; magic traits</div>
-   <div class="trait-grid" id="trait-grid-singer"></div>
-   <div class="trait-group-label">Combat &amp; profession skills</div>
-   <div class="trait-grid" id="trait-grid-skills"></div>
-   <div class="trait-applied-label">Assigned traits</div>
-   <div class="trait-applied" id="trait-applied"></div>
-   <!-- Add / manage conditions -->
-   <div class="trait-group-label" style="margin-top:16px;">Conditions</div>
-   <div class="cond-block">
-     <div class="cond-add-row">
-       <input type="text" id="cond-input" placeholder="Add a condition (search or type)..." oninput="filterCondPicker()" onkeydown="if(event.key==='Enter')addCondition()" autocomplete="off" />
-       <button onclick="addCondition()">Add</button>
-       <button class="cond-bleed-btn" onclick="addCondition('Bleeding')">+ Bleeding</button>
-       <button class="cond-browse-btn" id="cond-browse-btn" onclick="toggleCondPicker()">Browse all</button>
-     </div>
-     <div class="cond-picker" id="cond-picker" style="display:none;"></div>
-     <div class="cond-list-header" onclick="toggleCondList()">
-       <span id="cond-list-arrow">▾</span> Applied conditions <span class="cond-count" id="cond-count"></span>
-     </div>
-     <div class="cond-list" id="cond-list"></div>
-   </div>
-
-   <div class="cat-block" id="cond-catalog">
-   <div class="trait-group-label">Injuries &amp; conditions catalog</div>
-   <div class="planet-note">Tick an injury or condition to apply it to the active character. Conditions inflicted by miscasts tick here automatically.</div>
-   <div class="search-wrap">
- <input type="text" id="cond-search" placeholder="Search injuries and conditions…" oninput="filterConditions()" />
- <span class="clear-x" id="cond-clear" onclick="clearCondSearch()">×</span>
- </div>
- <div class="no-match" id="cond-nomatch" style="display:none;">No matching conditions.</div>
-
- <details>
- <summary>Mutilation: arms &amp; hands</summary>
- <div class="detail-body">
- <div class="condition-grid">
- <label class="condition-item" id="ci-oblL">
- <input type="checkbox" onchange="toggle(this,'ci-oblL'); recalc()" data-val="-30" />
- Obliterated hand (Left)
- <span class="mod-badge neg">−30%</span>
- </label>
- <label class="condition-item" id="ci-oblR">
- <input type="checkbox" onchange="toggle(this,'ci-oblR'); recalc()" data-val="-30" />
- Obliterated hand (Right)
- <span class="mod-badge neg">−30%</span>
- </label>
- <label class="condition-item" id="ci-ampHL">
- <input type="checkbox" onchange="toggle(this,'ci-ampHL'); recalc()" data-val="-20" />
- Amputated hand (Left)
- <span class="mod-badge neg">−20%</span>
- </label>
- <label class="condition-item" id="ci-ampHR">
- <input type="checkbox" onchange="toggle(this,'ci-ampHR'); recalc()" data-val="-20" />
- Amputated hand (Right)
- <span class="mod-badge neg">−20%</span>
- </label>
- <label class="condition-item" id="ci-fingL">
- <input type="checkbox" onchange="toggle(this,'ci-fingL'); recalc()" data-val="-10" />
- Missing fingers (Left)
- <span class="mod-badge neg">−10%</span>
- </label>
- <label class="condition-item" id="ci-fingR">
- <input type="checkbox" onchange="toggle(this,'ci-fingR'); recalc()" data-val="-10" />
- Missing fingers (Right)
- <span class="mod-badge neg">−10%</span>
- </label>
- <label class="condition-item" id="ci-armBEL">
- <input type="checkbox" onchange="toggle(this,'ci-armBEL'); recalc()" data-val="-25" />
- Amputated arm below elbow (Left)
- <span class="mod-badge neg">−25%</span>
- </label>
- <label class="condition-item" id="ci-armBER">
- <input type="checkbox" onchange="toggle(this,'ci-armBER'); recalc()" data-val="-25" />
- Amputated arm below elbow (Right)
- <span class="mod-badge neg">−25%</span>
- </label>
- <label class="condition-item" id="ci-armAEL">
- <input type="checkbox" onchange="toggle(this,'ci-armAEL'); recalc()" data-val="-30" />
- Amputated arm above elbow (Left)
- <span class="mod-badge neg">−30%</span>
- </label>
- <label class="condition-item" id="ci-armAER">
- <input type="checkbox" onchange="toggle(this,'ci-armAER'); recalc()" data-val="-30" />
- Amputated arm above elbow (Right)
- <span class="mod-badge neg">−30%</span>
- </label>
- <label class="condition-item" id="ci-nerveL">
- <input type="checkbox" onchange="toggle(this,'ci-nerveL'); recalc()" data-val="-20" />
- Nerve-dead arm (Left)
- <span class="mod-badge neg">−20%</span>
- </label>
- <label class="condition-item" id="ci-nerveR">
- <input type="checkbox" onchange="toggle(this,'ci-nerveR'); recalc()" data-val="-20" />
- Nerve-dead arm (Right)
- <span class="mod-badge neg">−20%</span>
- </label>
- </div>
- </div>
- </details>
-
- <details>
- <summary>Mutilation: legs &amp; feet</summary>
- <div class="detail-body">
- <div class="condition-grid">
- <label class="condition-item" id="ci-legL">
- <input type="checkbox" onchange="toggle(this,'ci-legL'); recalc()" data-val="-15" />
- Amputated leg (Left)
- <span class="mod-badge neg">−15%</span>
- </label>
- <label class="condition-item" id="ci-legR">
- <input type="checkbox" onchange="toggle(this,'ci-legR'); recalc()" data-val="-15" />
- Amputated leg (Right)
- <span class="mod-badge neg">−15%</span>
- </label>
- <label class="condition-item" id="ci-footL">
- <input type="checkbox" onchange="toggle(this,'ci-footL'); recalc()" data-val="-5" />
- Amputated foot (Left)
- <span class="mod-badge neg">−5%</span>
- </label>
- <label class="condition-item" id="ci-footR">
- <input type="checkbox" onchange="toggle(this,'ci-footR'); recalc()" data-val="-5" />
- Amputated foot (Right)
- <span class="mod-badge neg">−5%</span>
- </label>
- <label class="condition-item" id="ci-toesL">
- <input type="checkbox" onchange="toggle(this,'ci-toesL'); recalc()" data-val="-3" />
- Missing toes (Left)
- <span class="mod-badge neg">−3%</span>
- </label>
- <label class="condition-item" id="ci-toesR">
- <input type="checkbox" onchange="toggle(this,'ci-toesR'); recalc()" data-val="-3" />
- Missing toes (Right)
- <span class="mod-badge neg">−3%</span>
- </label>
- </div>
- </div>
- </details>
-
- <details>
- <summary>Mutilation: face &amp; head</summary>
- <div class="detail-body">
- <div class="condition-grid">
- <label class="condition-item" id="ci-notongue">
- <input type="checkbox" onchange="toggle(this,'ci-notongue'); recalc()" data-val="-15" />
- No tongue
- <span class="mod-badge neg">−15%</span>
- </label>
- <label class="condition-item" id="ci-eyeL">
- <input type="checkbox" onchange="toggle(this,'ci-eyeL'); recalc()" data-val="-10" />
- Lost eye (Left)
- <span class="mod-badge neg">−10%</span>
- </label>
- <label class="condition-item" id="ci-eyeR">
- <input type="checkbox" onchange="toggle(this,'ci-eyeR'); recalc()" data-val="-10" />
- Lost eye (Right)
- <span class="mod-badge neg">−10%</span>
- </label>
- <label class="condition-item" id="ci-eyeBoth">
- <input type="checkbox" onchange="toggle(this,'ci-eyeBoth'); recalc()" data-val="-40" />
- Lost both eyes
- <span class="mod-badge neg">−40%</span>
- </label>
- <label class="condition-item" id="ci-earL">
- <input type="checkbox" onchange="toggle(this,'ci-earL'); recalc()" data-val="-5" />
- Collapsed ear (Left)
- <span class="mod-badge neg">−5%</span>
- </label>
- <label class="condition-item" id="ci-earR">
- <input type="checkbox" onchange="toggle(this,'ci-earR'); recalc()" data-val="-5" />
- Collapsed ear (Right)
- <span class="mod-badge neg">−5%</span>
- </label>
- <label class="condition-item" id="ci-deaf">
- <input type="checkbox" onchange="toggle(this,'ci-deaf'); recalc()" data-val="-10" />
- Deaf (both ears)
- <span class="mod-badge neg">−10%</span>
- </label>
- <label class="condition-item" id="ci-jaw">
- <input type="checkbox" onchange="toggle(this,'ci-jaw'); recalc()" data-val="-10" />
- Shattered jaw
- <span class="mod-badge neg">−10%</span>
- </label>
- </div>
- </div>
- </details>
-
- <details>
- <summary>Mutilation: torso</summary>
- <div class="detail-body">
- <div class="condition-grid">
- <label class="condition-item" id="ci-ribs">
- <input type="checkbox" onchange="toggle(this,'ci-ribs'); recalc()" data-val="-10" />
- Broken ribs
- <span class="mod-badge neg">−10%</span>
- </label>
- <label class="condition-item" id="ci-organ">
- <input type="checkbox" onchange="toggle(this,'ci-organ'); recalc()" data-val="-15" />
- Organ damage
- <span class="mod-badge neg">−15%</span>
- </label>
- <label class="condition-item" id="ci-lungL">
- <input type="checkbox" onchange="toggle(this,'ci-lungL'); recalc()" data-val="-15" />
- Collapsed lung (Left)
- <span class="mod-badge neg">−15%</span>
- </label>
- <label class="condition-item" id="ci-lungR">
- <input type="checkbox" onchange="toggle(this,'ci-lungR'); recalc()" data-val="-15" />
- Collapsed lung (Right)
- <span class="mod-badge neg">−15%</span>
- </label>
- </div>
- </div>
- </details>
-
- <details>
- <summary>Burns</summary>
- <div class="detail-body">
- <div class="condition-grid">
- <label class="condition-item" id="ci-burnMF">
- <input type="checkbox" onchange="toggle(this,'ci-burnMF'); recalc()" data-val="-3" />
- Minor burn scars (face)
- <span class="mod-badge neg">−3%</span>
- </label>
- <label class="condition-item" id="ci-burnMH">
- <input type="checkbox" onchange="toggle(this,'ci-burnMH'); recalc()" data-val="-5" />
- Minor burn scars (hands)
- <span class="mod-badge neg">−5%</span>
- </label>
- <label class="condition-item" id="ci-burnMB">
- <input type="checkbox" onchange="toggle(this,'ci-burnMB'); recalc()" data-val="-3" />
- Minor burn scars (body)
- <span class="mod-badge neg">−3%</span>
- </label>
- <label class="condition-item" id="ci-burnGF">
- <input type="checkbox" onchange="toggle(this,'ci-burnGF'); recalc()" data-val="-8" />
- Major burn scars (face)
- <span class="mod-badge neg">−8%</span>
- </label>
- <label class="condition-item" id="ci-burnGH">
- <input type="checkbox" onchange="toggle(this,'ci-burnGH'); recalc()" data-val="-15" />
- Major burn scars (hands)
- <span class="mod-badge neg">−15%</span>
- </label>
- <label class="condition-item" id="ci-burnGB">
- <input type="checkbox" onchange="toggle(this,'ci-burnGB'); recalc()" data-val="-8" />
- Major burn scars (body)
- <span class="mod-badge neg">−8%</span>
- </label>
- <label class="condition-item" id="ci-burnFull">
- <input type="checkbox" onchange="toggle(this,'ci-burnFull'); recalc()" data-val="-20" />
- Full-body burn scarring
- <span class="mod-badge neg">−20%</span>
- </label>
- <label class="condition-item" id="ci-burnThroat">
- <input type="checkbox" onchange="toggle(this,'ci-burnThroat'); recalc()" data-val="-10" />
- Internal burns (throat)
- <span class="mod-badge neg">−10%</span>
- </label>
- <label class="condition-item" id="ci-burnLungs">
- <input type="checkbox" onchange="toggle(this,'ci-burnLungs'); recalc()" data-val="-15" />
- Internal burns (lungs)
- <span class="mod-badge neg">−15%</span>
- </label>
- </div>
- </div>
- </details>
-
- <details>
- <summary>Physical conditions</summary>
- <div class="detail-body">
- <div class="condition-grid">
- <label class="condition-item" id="ci-limpL">
- <input type="checkbox" onchange="toggle(this,'ci-limpL'); recalc()" data-val="-5" />
- Limp (Left)
- <span class="mod-badge neg">−5%</span>
- </label>
- <label class="condition-item" id="ci-limpR">
- <input type="checkbox" onchange="toggle(this,'ci-limpR'); recalc()" data-val="-5" />
- Limp (Right)
- <span class="mod-badge neg">−5%</span>
- </label>
- <label class="condition-item" id="ci-tremL">
- <input type="checkbox" onchange="toggle(this,'ci-tremL'); recalc()" data-val="-15" />
- Tremor (Left hand)
- <span class="mod-badge neg">−15%</span>
- </label>
- <label class="condition-item" id="ci-tremR">
- <input type="checkbox" onchange="toggle(this,'ci-tremR'); recalc()" data-val="-15" />
- Tremor (Right hand)
- <span class="mod-badge neg">−15%</span>
- </label>
- <label class="condition-item" id="ci-tremBoth">
- <input type="checkbox" onchange="toggle(this,'ci-tremBoth'); recalc()" data-val="-25" />
- Tremor (both hands)
- <span class="mod-badge neg">−25%</span>
- </label>
- <label class="condition-item" id="ci-spine">
- <input type="checkbox" onchange="toggle(this,'ci-spine'); recalc()" data-val="-15" />
- Spinal injury
- <span class="mod-badge neg">−15%</span>
- </label>
- <label class="condition-item" id="ci-trance">
- <input type="checkbox" onchange="toggle(this,'ci-trance'); recalc()" data-val="-20" />
- Neurological trance
- <span class="mod-badge neg">−20%</span>
- </label>
- <label class="condition-item" id="ci-paraL">
- <input type="checkbox" onchange="toggle(this,'ci-paraL'); recalc()" data-val="-25" />
- Partial paralysis (Left side)
- <span class="mod-badge neg">−25%</span>
- </label>
- <label class="condition-item" id="ci-paraR">
- <input type="checkbox" onchange="toggle(this,'ci-paraR'); recalc()" data-val="-25" />
- Partial paralysis (Right side)
- <span class="mod-badge neg">−25%</span>
- </label>
- <label class="condition-item" id="ci-seizure">
- <input type="checkbox" onchange="toggle(this,'ci-seizure'); recalc()" data-val="-15" />
- Seizure disorder
- <span class="mod-badge neg">−15%</span>
- </label>
- <label class="condition-item" id="ci-migraine">
- <input type="checkbox" onchange="toggle(this,'ci-migraine'); recalc()" data-val="-10" />
- Chronic migraines
- <span class="mod-badge neg">−10%</span>
- </label>
- <label class="condition-item" id="ci-memgap">
- <input type="checkbox" onchange="toggle(this,'ci-memgap'); recalc()" data-val="-5" />
- Memory gaps
- <span class="mod-badge neg">−5%</span>
- </label>
- <label class="condition-item" id="ci-pbleed">
- <input type="checkbox" onchange="toggle(this,'ci-pbleed'); recalc()" data-val="-10" />
- Personality bleed
- <span class="mod-badge neg">−10%</span>
- </label>
- </div>
- </div>
- </details>
-
- <details>
- <summary>Sensory conditions</summary>
- <div class="detail-body">
- <div class="condition-grid">
- <label class="condition-item" id="ci-anosmia">
- <input type="checkbox" onchange="toggle(this,'ci-anosmia'); recalc()" data-val="-3" />
- Anosmia
- <span class="mod-badge neg">−3%</span>
- </label>
- <label class="condition-item" id="ci-ageusia">
- <input type="checkbox" onchange="toggle(this,'ci-ageusia'); recalc()" data-val="-3" />
- Ageusia
- <span class="mod-badge neg">−3%</span>
- </label>
- <label class="condition-item" id="ci-tinnitus">
- <input type="checkbox" onchange="toggle(this,'ci-tinnitus'); recalc()" data-val="-10" />
- Tinnitus
- <span class="mod-badge neg">−10%</span>
- </label>
- <label class="condition-item" id="ci-lightsens">
- <input type="checkbox" onchange="toggle(this,'ci-lightsens'); recalc()" data-val="-10" />
- Light sensitivity
- <span class="mod-badge neg">−10%</span>
- </label>
- <label class="condition-item" id="ci-touchsens">
- <input type="checkbox" onchange="toggle(this,'ci-touchsens'); recalc()" data-val="-5" />
- Touch sensitivity
- <span class="mod-badge neg">−5%</span>
- </label>
- </div>
- </div>
- </details>
-
- <details>
- <summary>Elemental acclimation &amp; immunity</summary>
- <div class="detail-body">
- <div class="condition-grid">
- <label class="condition-item" id="ci-accl-fire">
- <input type="checkbox" onchange="toggle(this,'ci-accl-fire'); recalc()" data-val="0" />
- Elemental Acclimatation (Fire)
- <span class="mod-badge">immune</span>
- </label>
- <label class="condition-item" id="ci-accl-frost">
- <input type="checkbox" onchange="toggle(this,'ci-accl-frost'); recalc()" data-val="0" />
- Elemental Acclimatation (Frost)
- <span class="mod-badge">immune</span>
- </label>
- <label class="condition-item" id="ci-accl-venom">
- <input type="checkbox" onchange="toggle(this,'ci-accl-venom'); recalc()" data-val="0" />
- Elemental Acclimatation (Venom)
- <span class="mod-badge">immune</span>
- </label>
- <label class="condition-item" id="ci-accl-lightning">
- <input type="checkbox" onchange="toggle(this,'ci-accl-lightning'); recalc()" data-val="0" />
- Elemental Acclimatation (Lightning)
- <span class="mod-badge">immune</span>
- </label>
- <label class="condition-item" id="ci-imm-fire">
- <input type="checkbox" onchange="toggle(this,'ci-imm-fire'); recalc()" data-val="0" />
- Fire Immunity
- <span class="mod-badge">immune</span>
- </label>
- <label class="condition-item" id="ci-imm-frost">
- <input type="checkbox" onchange="toggle(this,'ci-imm-frost'); recalc()" data-val="0" />
- Frost Immunity
- <span class="mod-badge">immune</span>
- </label>
- <label class="condition-item" id="ci-imm-venom">
- <input type="checkbox" onchange="toggle(this,'ci-imm-venom'); recalc()" data-val="0" />
- Venom Immunity
- <span class="mod-badge">immune</span>
- </label>
- <label class="condition-item" id="ci-imm-lightning">
- <input type="checkbox" onchange="toggle(this,'ci-imm-lightning'); recalc()" data-val="0" />
- Lightning Immunity
- <span class="mod-badge">immune</span>
- </label>
- </div>
- </div>
- </details>
-   </div>
- </div>
- </div>
-
-<!-- COMBAT (character, health, actions, conditions - one working view) -->
- <div class="section acc-combat collapsible" id="combat-section">
- <div class="section-title" onclick="toggleSection(this)">Combat</div>
-
- <div class="faint-overlay" id="faint-overlay" style="display:none;">
-   <div class="faint-inner">
-     <div class="faint-word">FAINTED</div>
-     <div class="faint-actions">
-       <button class="revive-btn" onclick="reviveChar()">Revive</button>
-       <button class="switch-btn" onclick="switchCharacter()">Switch character</button>
-     </div>
-   </div>
- </div>
- <div id="status-empty" class="status-empty">Select or add a character above to manage and act.</div>
- <div id="combat-inner" style="display:none;">
-
+   <div class="hp-standalone">
    <!-- Health -->
    <div class="hp-block">
      <div class="hp-controls">
@@ -841,413 +496,101 @@
      <div class="bleed-note" id="bleed-note" style="display:none;"></div>
      <div class="hp-bonus-note" id="hp-bonus-note" style="display:none;"></div>
    </div>
-
-   <!-- Tracking banner (which character is active) -->
-   <div class="miscast-result" id="miscast-result">Pick a spell and target, then Cast.</div>
-
-   <!-- Action target (shared by cast and strike) -->
-   <div class="action-target-row">
-     <label class="field-label" for="action-target">Acting on</label>
-     <select id="action-target"></select>
    </div>
-
-   <!-- Cast spell: one click -->
-   <label class="field-label action-label" for="spell-cast-select">Cast spell</label>
-   <div class="action-row">
-     <select id="spell-cast-select" onchange="updateMiscastDisplay()"></select>
-     <button class="act-btn" onclick="castSpell(document.getElementById('action-target').value)">Cast</button>
+   <div class="trait-group-label">Attributes (20 points)</div>
+   <div class="planet-note">Distribute up to 20 points, 0 to 10 per attribute. Strength adds melee damage (+1 per 4 points). Agility makes you harder to hit (-4% per point). Speed drives escape attempts. Dexterity sets initiative order and sharpens your attacks (+3% to hit per point).</div>
+   <div class="stat-remaining" id="stat-remaining">20 points remaining</div>
+   <div class="stat-grid">
+     <div class="stat-cell"><label for="stat-str">Strength</label><input type="number" id="stat-str" min="0" max="10" value="0" onchange="setStat('str',this)" /><span class="stat-fx" id="fx-str"></span></div>
+     <div class="stat-cell"><label for="stat-agi">Agility</label><input type="number" id="stat-agi" min="0" max="10" value="0" onchange="setStat('agi',this)" /><span class="stat-fx" id="fx-agi"></span></div>
+     <div class="stat-cell"><label for="stat-spd">Speed</label><input type="number" id="stat-spd" min="0" max="10" value="0" onchange="setStat('spd',this)" /><span class="stat-fx" id="fx-spd"></span></div>
+     <div class="stat-cell"><label for="stat-dex">Dexterity</label><input type="number" id="stat-dex" min="0" max="10" value="0" onchange="setStat('dex',this)" /><span class="stat-fx" id="fx-dex"></span></div>
    </div>
-   <div class="mc-line">
-     <span id="spell-status">Select a character</span>
-     <span class="mc-tag">next miscast <b class="mc-num safe" id="miscast-pct">0%</b></span>
-     <span class="counter-box"><button onclick="adjustSpells(-1)" aria-label="Decrease">−</button><span class="counter-val" id="spell-count">0</span><button onclick="adjustSpells(1)" aria-label="Increase">+</button></span>
-     <button class="mc-reset" onclick="resetDay()">Reset day</button>
-   </div>
-
-   <!-- Strike weapon: one click -->
-   <label class="field-label action-label" for="equip-weapon">Use weapon</label>
-   <div class="action-row">
-     <select id="equip-weapon" onchange="setEquippedWeapon(this.value)"></select>
-     <button class="act-btn" onclick="applyWeaponDamage()">Strike</button>
-   </div>
-   <div class="weapon-stats" id="weapon-stats"></div>
-   <div class="dmg-result" id="dmg-result"></div>
-
-
-   <!-- Context: situational modifiers + active magical effects -->
-   <details class="context-block">
-     <summary>Context: situation &amp; magical effects</summary>
-     <div class="detail-body">
-       <div class="ctx-group-label">Target &amp; situation</div>
-       <div class="combat-sub">Positive: target &amp; situation</div>
- <div class="condition-grid">
- <label class="condition-item" id="ci-unaware">
- <input type="checkbox" onchange="toggle(this,'ci-unaware'); recalc()" data-val="15" />
- Target unaware / flanked
- <span class="mod-badge pos">+15%</span>
- </label>
- <label class="condition-item" id="ci-prone">
- <input type="checkbox" onchange="toggle(this,'ci-prone'); recalc()" data-val="20" />
- Target restrained / prone
- <span class="mod-badge pos">+20%</span>
- </label>
- <label class="condition-item" id="ci-closemelee">
- <input type="checkbox" onchange="toggle(this,'ci-closemelee'); recalc()" data-val="10" />
- Close range melee
- <span class="mod-badge pos">+10%</span>
- </label>
- </div>
-<div class="combat-sub">Negative: situation</div>
- <div class="condition-grid">
- <label class="condition-item" id="ci-guard">
- <input type="checkbox" onchange="toggle(this,'ci-guard'); recalc()" data-val="-15" />
- Target guarding
- <span class="mod-badge neg">−15%</span>
- </label>
- <label class="condition-item" id="ci-dark">
- <input type="checkbox" onchange="toggle(this,'ci-dark'); recalc()" data-val="-10" />
- Poor visibility (light)
- <span class="mod-badge neg">−10%</span>
- </label>
- <label class="condition-item" id="ci-dark2">
- <input type="checkbox" onchange="toggle(this,'ci-dark2'); recalc()" data-val="-25" />
- Poor visibility (heavy)
- <span class="mod-badge neg">−25%</span>
- </label>
- <label class="condition-item" id="ci-strain">
- <input type="checkbox" onchange="toggle(this,'ci-strain'); recalc()" data-val="-10" />
- Caster injured / strained
- <span class="mod-badge neg">−10%</span>
- </label>
- <label class="condition-item" id="ci-strain2">
- <input type="checkbox" onchange="toggle(this,'ci-strain2'); recalc()" data-val="-20" />
- Caster heavily strained
- <span class="mod-badge neg">−20%</span>
- </label>
- <label class="condition-item" id="ci-longrange">
- <input type="checkbox" onchange="toggle(this,'ci-longrange'); recalc()" data-val="-20" />
- Long range melee
- <span class="mod-badge neg">−20%</span>
- </label>
- </div>
-       <div class="ctx-group-label" style="margin-top:14px;">Active magical effects</div>
-       <div id="amag-group">
-       <div class="combat-sub">Attacker</div>
- <div class="search-wrap">
- <input type="text" id="amag-search" placeholder="Search attacker magical effects..." oninput="filterAttackerMagical()" />
- <span class="clear-x" id="amag-clear" onclick="clearAmagSearch()">×</span>
- </div>
- <div class="no-match" id="amag-nomatch" style="display:none;">No matching effects.</div>
-
- <details class="side-attacker">
- <summary>Debilitating effects</summary>
- <div class="detail-body">
- <div class="condition-grid">
- <label class="condition-item" id="ci-tmpblind">
- <input type="checkbox" onchange="toggle(this,'ci-tmpblind'); recalc()" data-val="-40" />
- Temporary Blindness
- <span class="mod-badge neg">−40%</span>
- </label>
- <label class="condition-item" id="ci-selenicR">
- <input type="checkbox" onchange="toggle(this,'ci-selenicR'); recalc()" data-val="-45" />
- Selenic Rest
- <span class="mod-badge neg">−45%</span>
- </label>
- <label class="condition-item" id="ci-tmpara">
- <input type="checkbox" onchange="toggle(this,'ci-tmpara'); recalc()" data-val="-45" />
- Temporary Paralysis
- <span class="mod-badge neg">−45%</span>
- </label>
- <label class="condition-item" id="ci-nausea">
- <input type="checkbox" onchange="toggle(this,'ci-nausea'); recalc()" data-val="-15" />
- Nausea
- <span class="mod-badge neg">−15%</span>
- </label>
- <label class="condition-item" id="ci-salivation">
- <input type="checkbox" onchange="toggle(this,'ci-salivation'); recalc()" data-val="-5" />
- Excessive Salivation
- <span class="mod-badge neg">−5%</span>
- </label>
- <label class="condition-item" id="ci-stings">
- <input type="checkbox" onchange="toggle(this,'ci-stings'); recalc()" data-val="-10" />
- Insect Stings
- <span class="mod-badge neg">−10%</span>
- </label>
- <label class="condition-item" id="ci-visions">
- <input type="checkbox" onchange="toggle(this,'ci-visions'); recalc()" data-val="-25" />
- Assailed by Visions
- <span class="mod-badge neg">−25%</span>
- </label>
- <label class="condition-item" id="ci-mentrauma">
- <input type="checkbox" onchange="toggle(this,'ci-mentrauma'); recalc()" data-val="-15" />
- Mental Trauma
- <span class="mod-badge neg">−15%</span>
- </label>
- <label class="condition-item" id="ci-proneSelf">
- <input type="checkbox" onchange="toggle(this,'ci-proneSelf'); recalc()" data-val="-20" />
- Prone (self)
- <span class="mod-badge neg">−20%</span>
- </label>
- <label class="condition-item" id="ci-outofbody">
- <input type="checkbox" onchange="toggle(this,'ci-outofbody'); recalc()" data-val="-100" />
- Out-of-Body
- <span class="mod-badge neg">−100%</span>
- </label>
- </div>
- </div>
- </details>
-
- <details class="side-attacker">
- <summary>Empowering effects</summary>
- <div class="detail-body">
- <div class="condition-grid">
- <label class="condition-item" id="ci-chitin">
- <input type="checkbox" onchange="toggle(this,'ci-chitin'); recalc()" data-val="5" />
- Chitin Skin
- <span class="mod-badge pos">+5%</span>
- </label>
- <label class="condition-item" id="ci-compvision">
- <input type="checkbox" onchange="toggle(this,'ci-compvision'); recalc()" data-val="10" />
- Compound Vision
- <span class="mod-badge pos">+10%</span>
- </label>
- <label class="condition-item" id="ci-flight">
- <input type="checkbox" onchange="toggle(this,'ci-flight'); recalc()" data-val="15" />
- Flight
- <span class="mod-badge pos">+15%</span>
- </label>
- <label class="condition-item" id="ci-adhesion">
- <input type="checkbox" onchange="toggle(this,'ci-adhesion'); recalc()" data-val="10" />
- Adhesion
- <span class="mod-badge pos">+10%</span>
- </label>
- <label class="condition-item" id="ci-enhperc">
- <input type="checkbox" onchange="toggle(this,'ci-enhperc'); recalc()" data-val="15" />
- Enhanced Perception
- <span class="mod-badge pos">+15%</span>
- </label>
- <label class="condition-item" id="ci-penvision">
- <input type="checkbox" onchange="toggle(this,'ci-penvision'); recalc()" data-val="10" />
- Penetrative Vision
- <span class="mod-badge pos">+10%</span>
- </label>
- <label class="condition-item" id="ci-astralw">
- <input type="checkbox" onchange="toggle(this,'ci-astralw'); recalc()" data-val="10" />
- Astral Wisdom
- <span class="mod-badge pos">+10%</span>
- </label>
- <label class="condition-item" id="ci-precog">
- <input type="checkbox" onchange="toggle(this,'ci-precog'); recalc()" data-val="30" />
- Precognition
- <span class="mod-badge pos">+30%</span>
- </label>
- <label class="condition-item" id="ci-omni">
- <input type="checkbox" onchange="toggle(this,'ci-omni'); recalc()" data-val="20" />
- Omniscience
- <span class="mod-badge pos">+20%</span>
- </label>
- <label class="condition-item" id="ci-colossal">
- <input type="checkbox" onchange="toggle(this,'ci-colossal'); recalc()" data-val="30" />
- Imbued with Colossal Power
- <span class="mod-badge pos">+30%</span>
- </label>
- <label class="condition-item" id="ci-esseknow">
- <input type="checkbox" onchange="toggle(this,'ci-esseknow'); recalc()" data-val="10" />
- Essesymbiosisal Knowledge
- <span class="mod-badge pos">+10%</span>
- </label>
- <label class="condition-item" id="ci-fausse">
- <input type="checkbox" onchange="toggle(this,'ci-fausse'); recalc()" data-val="10" />
- Faussemortis
- <span class="mod-badge pos">+10%</span>
- </label>
- <label class="condition-item" id="ci-elemacclim">
- <input type="checkbox" onchange="toggle(this,'ci-elemacclim'); recalc()" data-val="5" />
- Elemental Acclimatation
- <span class="mod-badge pos">+5%</span>
- </label>
- <label class="condition-item" id="ci-mimicry">
- <input type="checkbox" onchange="toggle(this,'ci-mimicry'); recalc()" data-val="15" />
- Mimicry
- <span class="mod-badge pos">+15%</span>
- </label>
- </div>
- </div>
- </details>
-       </div>
-       <div id="def-group">
-<div class="combat-sub">Defender</div>
- <div class="search-wrap">
- <input type="text" id="def-search" placeholder="Search defender effects..." oninput="filterDefender()" />
- <span class="clear-x" id="def-clear" onclick="clearDefSearch()">×</span>
- </div>
- <div class="no-match" id="def-nomatch" style="display:none;">No matching effects.</div>
-
- <details class="side-defender">
- <summary>Defender debilitated (easier to hit)</summary>
- <div class="detail-body">
- <div class="condition-grid">
- <label class="condition-item" id="ci-d-tmpblind">
- <input type="checkbox" onchange="toggle(this,'ci-d-tmpblind'); recalc()" data-val="40" />
- Temporary Blindness
- <span class="mod-badge pos">+40%</span>
- </label>
- <label class="condition-item" id="ci-d-selenic">
- <input type="checkbox" onchange="toggle(this,'ci-d-selenic'); recalc()" data-val="45" />
- Selenic Rest (comatose)
- <span class="mod-badge pos">+45%</span>
- </label>
- <label class="condition-item" id="ci-d-tmpara">
- <input type="checkbox" onchange="toggle(this,'ci-d-tmpara'); recalc()" data-val="45" />
- Temporary Paralysis
- <span class="mod-badge pos">+45%</span>
- </label>
- <label class="condition-item" id="ci-d-nausea">
- <input type="checkbox" onchange="toggle(this,'ci-d-nausea'); recalc()" data-val="15" />
- Nausea
- <span class="mod-badge pos">+15%</span>
- </label>
- <label class="condition-item" id="ci-d-stings">
- <input type="checkbox" onchange="toggle(this,'ci-d-stings'); recalc()" data-val="10" />
- Insect Stings
- <span class="mod-badge pos">+10%</span>
- </label>
- <label class="condition-item" id="ci-d-visions">
- <input type="checkbox" onchange="toggle(this,'ci-d-visions'); recalc()" data-val="25" />
- Assailed by Visions
- <span class="mod-badge pos">+25%</span>
- </label>
- <label class="condition-item" id="ci-d-mentrauma">
- <input type="checkbox" onchange="toggle(this,'ci-d-mentrauma'); recalc()" data-val="15" />
- Mental Trauma
- <span class="mod-badge pos">+15%</span>
- </label>
- <label class="condition-item" id="ci-d-prone">
- <input type="checkbox" onchange="toggle(this,'ci-d-prone'); recalc()" data-val="20" />
- Prone
- <span class="mod-badge pos">+20%</span>
- </label>
- <label class="condition-item" id="ci-d-outofbody">
- <input type="checkbox" onchange="toggle(this,'ci-d-outofbody'); recalc()" data-val="35" />
- Out-of-Body (body undefended)
- <span class="mod-badge pos">+35%</span>
- </label>
- <label class="condition-item" id="ci-d-salivation">
- <input type="checkbox" onchange="toggle(this,'ci-d-salivation'); recalc()" data-val="5" />
- Excessive Salivation
- <span class="mod-badge pos">+5%</span>
- </label>
- </div>
- </div>
- </details>
-
- <details class="side-defender">
- <summary>Defender empowered (harder to hit)</summary>
- <div class="detail-body">
- <div class="condition-grid">
- <label class="condition-item" id="ci-d-flight">
- <input type="checkbox" onchange="toggle(this,'ci-d-flight'); recalc()" data-val="-15" />
- Flight (evasive)
- <span class="mod-badge neg">-15%</span>
- </label>
- <label class="condition-item" id="ci-d-enhperc">
- <input type="checkbox" onchange="toggle(this,'ci-d-enhperc'); recalc()" data-val="-15" />
- Enhanced Perception
- <span class="mod-badge neg">-15%</span>
- </label>
- <label class="condition-item" id="ci-d-precog">
- <input type="checkbox" onchange="toggle(this,'ci-d-precog'); recalc()" data-val="-90" />
- Precognition (dodges next attack)
- <span class="mod-badge neg">-90%</span>
- </label>
- <label class="condition-item" id="ci-d-omni">
- <input type="checkbox" onchange="toggle(this,'ci-d-omni'); recalc()" data-val="-20" />
- Omniscience
- <span class="mod-badge neg">-20%</span>
- </label>
- <label class="condition-item" id="ci-d-compvision">
- <input type="checkbox" onchange="toggle(this,'ci-d-compvision'); recalc()" data-val="-10" />
- Compound Vision
- <span class="mod-badge neg">-10%</span>
- </label>
- <label class="condition-item" id="ci-d-chitin">
- <input type="checkbox" onchange="toggle(this,'ci-d-chitin'); recalc()" data-val="-5" />
- Chitin Skin (armoured)
- <span class="mod-badge neg">-5%</span>
- </label>
- <label class="condition-item" id="ci-d-adhesion">
- <input type="checkbox" onchange="toggle(this,'ci-d-adhesion'); recalc()" data-val="-10" />
- Adhesion (mobile)
- <span class="mod-badge neg">-10%</span>
- </label>
- <label class="condition-item" id="ci-d-colossal">
- <input type="checkbox" onchange="toggle(this,'ci-d-colossal'); recalc()" data-val="-10" />
- Imbued with Colossal Power
- <span class="mod-badge neg">-10%</span>
- </label>
- <label class="condition-item" id="ci-d-fireimm">
- <input type="checkbox" onchange="toggle(this,'ci-d-fireimm'); recalc()" data-val="0" />
- Fire Immunity (vs fire only)
- <span class="mod-badge">0%</span>
- </label>
- <label class="condition-item" id="ci-d-projimm">
- <input type="checkbox" onchange="toggle(this,'ci-d-projimm'); recalc()" data-val="0" />
- Projectile Immunity (vs ranged)
- <span class="mod-badge">0%</span>
- </label>
- </div>
- </div>
- </details>
-       </div>
+   <div class="planet-note">Click a trait to add or remove it from the active character. Each trait's effect is listed beneath its name.</div>
+   <div class="trait-group-label">Singer &amp; magic traits</div>
+   <div class="trait-grid" id="trait-grid-singer"></div>
+   <div class="trait-group-label">Combat &amp; profession skills</div>
+   <div class="trait-grid" id="trait-grid-skills"></div>
+   <div class="trait-applied-label">Assigned traits</div>
+   <div class="trait-applied" id="trait-applied"></div>
+   <!-- Conditions are no longer applied by hand: spells and miscasts inflict them,
+        and this list is the running record of what a character is carrying. -->
+   <div class="trait-group-label" style="margin-top:16px;">Conditions</div>
+   <div class="cond-block">
+     <div class="planet-note">Conditions are applied automatically by spell effects and miscasts. Remove one here once it has been treated or healed.</div>
+     <div class="cond-list-header" onclick="toggleCondList()">
+       <span id="cond-list-arrow">▾</span> Applied conditions <span class="cond-count" id="cond-count"></span>
      </div>
-   </details>
-
-   <!-- Hit-chance calculator (physical %, optional) -->
-   <details class="hitcalc">
-     <summary>Hit-chance calculator (physical %)</summary>
-     <div class="detail-body">
-       <div class="grid-2">
-         <div>
-           <label class="field-label" for="attack-type">Action</label>
-           <select id="attack-type" onchange="recalc()">
-             <option value="80">Punch (80%)</option>
-             <option value="80">Kick (80%)</option>
-             <option value="80">Shove (80%)</option>
-             <option value="80" selected>Slash (80%)</option>
-             <option value="80">Thrust (80%)</option>
-             <option value="80">Ranged attack (80%)</option>
-             <option value="custom">Custom...</option>
-           </select>
-         </div>
-         <div id="custom-wrap" style="display:none;">
-           <label class="field-label" for="custom-base">Base chance (%)</label>
-           <input type="number" id="custom-base" min="1" max="100" value="80" oninput="recalc()" />
-         </div>
-       </div>
-       <div class="grid-3" style="margin-top:12px;">
-         <div class="result-card"><div class="result-label">Base chance</div><div class="result-number" id="res-base">80%</div></div>
-         <div class="result-card"><div class="result-label">Total modifiers</div><div class="result-number" id="res-mods">+0%</div></div>
-         <div class="result-card"><div class="result-label">Final hit chance</div><div class="result-number" id="res-final">80%</div></div>
-       </div>
-       <div class="breakdown" id="breakdown"></div>
-       <div class="roll-row">
-         <div class="roll-input-wrap">
-           <label class="field-label" for="roll-val">Enter roll (1–100)</label>
-           <input type="number" id="roll-val" min="1" max="100" placeholder="00" oninput="checkRoll()" />
-         </div>
-         <button class="random-btn" onclick="randomRoll()">Roll for me</button>
-         <div class="roll-result" id="roll-result">Awaiting roll</div>
-       </div>
-       <div class="mc-progression">Modifiers come from the Combat modifiers and Magical effects sections below.</div>
-     </div>
-   </details>
+     <div class="cond-list" id="cond-list"></div>
+   </div>
 
  </div>
  </div>
 
 
+<!-- COMBAT (character, health, actions, conditions - one working view) -->
+<!-- EQUIPPED (weapon loadout) -->
+<!-- LOADOUT: weapons and spells on one tab -->
+<div class="section acc-combat tabpg-loadout" id="equip-section">
+ <div class="section-title-static">Weapons carried</div>
+ <div class="planet-note">Select a character on the Characters tab, then tick what they carry and what they know. A character can only strike with weapons equipped here and only cast spells learned here. Unarmed melee is always available and needs no weapon. New weapons are defined in GM tools.</div>
+ <div id="equip-empty" class="loadout-empty">Select a character first.</div>
+ <div id="equip-body" style="display:none;">
+   <div class="loadout-count" id="equip-count"></div>
+   <div class="loadout-school">Melee</div>
+   <div class="loadout-grid" id="equip-grid-melee"></div>
+   <div class="loadout-school">Ranged</div>
+   <div class="loadout-grid" id="equip-grid-ranged"></div>
+ </div>
+
+ <div class="section-title-static" style="margin-top:22px;">Spells learned</div>
+ <div id="spells-empty" class="loadout-empty">Select a character first.</div>
+ <div id="spells-body" style="display:none;">
+   <div class="loadout-count" id="spells-count"></div>
+   <div class="char-bar" style="margin-bottom:8px;">
+     <input type="text" id="spell-learn-search" placeholder="Filter spells..." oninput="renderLearnedSpells()" autocomplete="off" />
+   </div>
+   <div id="spells-groups"></div>
+ </div>
+</div>
+
+<!-- BATTLE TRACKER -->
+<div class="section acc-danger collapsible tabpg-battle" id="battle-section">
+ <div class="section-title" onclick="toggleSection(this)">Battle tracker</div>
+ <div class="planet-note">Create a battle, add fighters to each side, then start it. Mark each side as attacking, defending, or surprised to reflect how the fight began; this shifts to-hit chances both ways. Initiative is ordered by Dexterity. The fighter whose turn it is shows their own choices on the card. Multiple battles can run at once.</div>
+ <div class="char-bar">
+   <input type="text" id="battle-new-name" placeholder="New battle name (e.g. Ambush at the mill)" onkeydown="if(event.key==='Enter')createBattle()" />
+   <button onclick="createBattle()">Create battle</button>
+ </div>
+ <div id="battle-list"></div>
+ <div class="combat-sub" style="margin-top:16px;">Battle log</div>
+ <div class="planet-note">Concluded battles are recorded here.</div>
+ <div id="battle-log-list"><span class="char-chip-empty">No concluded battles yet.</span></div>
+</div>
+
+ <!-- Hidden combat plumbing: the cast/strike engine still reads and writes these nodes.
+     The player-facing controls now live in the Equipped and Learned-spells tabs and the
+     battle action panel. This scaffold is display:none and never shown. -->
+<div id="combat-scaffold" style="display:none;" aria-hidden="true">
+  <div class="faint-overlay" id="faint-overlay" style="display:none;">
+    <div class="faint-inner"><div class="faint-word">FAINTED</div>
+      <div class="faint-actions"><button class="revive-btn" onclick="reviveChar()">Revive</button>
+      <button class="switch-btn" onclick="switchCharacter()">Switch character</button></div></div>
+  </div>
+  <div id="status-empty" class="status-empty"></div>
+  <div id="combat-inner">
+    <div class="miscast-result" id="miscast-result">Pick a spell and target, then Cast.</div>
+    <div class="action-target-row"><label class="field-label" for="action-target">Acting on</label><select id="action-target"></select></div>
+    <select id="spell-cast-select" onchange="updateMiscastDisplay()"></select>
+    <span id="spell-status"></span><b class="mc-num safe" id="miscast-pct">0%</b>
+    <span class="counter-val" id="spell-count">0</span>
+    <select id="equip-weapon" onchange="setEquippedWeapon(this.value)"></select>
+    <div class="weapon-stats" id="weapon-stats"></div>
+    <div class="dmg-result" id="dmg-result"></div>
+  </div>
+</div>
 <!-- GM TOOLS (notes + weapon editor) -->
-<div class="section acc-gm collapsible collapsed">
+<div class="section acc-gm collapsible collapsed tabpg-char">
 <div class="section-title" onclick="toggleSection(this)">GM tools</div>
 <div class="combat-sub">GM notes</div>
  <div id="notes-empty" class="status-empty">Select a character to add notes.</div>
@@ -1282,6 +625,15 @@
 </div>
 
 
+<!-- PLANETARY INFLUENCE (kept last: reference, not day-to-day input) -->
+ <div class="section acc-cosmic collapsible collapsed tabpg-char">
+ <div class="section-title" onclick="toggleSection(this)">Planetary influence</div>
+ <div class="planet-note">The sky is read from the <a href="https://asa-project.pages.dev/" target="_blank" rel="noopener" class="cal-link">RP Calendar</a> automatically. Empowered schools get +1 free cast before miscast risk; weakened (faint) schools get -1. Five schools follow their planet's orbit. Flames follows the season, empowered through summer and at either solstice; Memories follows Ashr, empowered at the Full Moon and faint at the New Moon. <button class="cal-sync-btn" id="sky-sync-btn" onclick="syncPlanetsFromCalendar(true)">Sync now</button> <button class="cal-sync-btn" id="sky-pause-btn" onclick="toggleSkyPause()">Pause sky</button></div>
+ <div class="cal-sky-status" id="cal-sky-status">Syncing with the calendar...</div>
+ <div class="planet-grid" id="planet-grid"></div>
+ </div>
+
+
 <!-- EVENT RECORD (side panel) -->
 <div class="event-side" id="event-side">
 <div class="event-side-head" id="event-side-head" onmousedown="startEventDrag(event)" ontouchstart="startEventDrag(event)"><span class="es-title"><span class="es-grip">⠿</span> Event record</span><button class="event-side-toggle" onclick="toggleEventSide()" id="event-side-toggle">Hide</button></div>
@@ -1299,14 +651,20 @@
 </div>
 </div>
 <script>
+ /* The standalone hit-chance calculator and its situational-modifier checkboxes were
+    removed along with the Conditions and Context sections. These nodes no longer exist,
+    so everything below is null-guarded and the calculator functions became no-ops.
+    Battle to-hit is resolved by Dexterity vs Agility in battleHitChance(). */
  const attackSelect = document.getElementById('attack-type');
  const customWrap = document.getElementById('custom-wrap');
  const customBase = document.getElementById('custom-base');
 
+ if (attackSelect) {
  attackSelect.addEventListener('change', function() {
- customWrap.style.display = this.value === 'custom' ? 'block' : 'none';
+ if (customWrap) customWrap.style.display = this.value === 'custom' ? 'block' : 'none';
  recalc();
  });
+ }
 
  function toggle(cb, id) {
  const val = parseInt(cb.dataset.val);
@@ -1342,6 +700,7 @@
  }
 
  function getBase() {
+ if (!attackSelect) return 50;
  const v = attackSelect.value;
  if (v === 'custom') return parseInt(customBase.value) || 50;
  return parseInt(v);
@@ -1362,6 +721,7 @@
  }
 
  function recalc() {
+ if (!document.getElementById('res-base')) return;  /* calculator removed */
  const base = getBase();
  const { total, parts } = getMods();
  const final = Math.min(95, Math.max(5, base + total));
@@ -1440,8 +800,9 @@
  { name: 'Greatsword', category: 'melee', damage: 3, element: 'none', dtype: 'slashing' },
  { name: 'Mace', category: 'melee', damage: 2, element: 'none', dtype: 'blunt' },
  { name: 'Spear', category: 'melee', damage: 2, element: 'none', dtype: 'piercing' },
+ { name: 'Quarterstaff', category: 'melee', damage: 2, element: 'none', dtype: 'blunt' },
  { name: 'Bow', category: 'ranged', damage: 2, element: 'none', dtype: 'piercing' },
- { name: 'Handgonne (bullets)', category: 'ranged', damage: 4, element: 'fire', dtype: 'piercing' }
+ { name: 'Musket (bullets)', category: 'ranged', damage: 4, element: 'fire', dtype: 'piercing', cooldown: 3 }
  ];
  let weapons = DEFAULT_WEAPONS.slice();
  const BLEED_CHANCE = 40;  /* % chance a slashing hit opens a bleed */
@@ -1702,16 +1063,40 @@
  function applyWeaponDamage() {
  if (!activeChar) return;
  const attacker = roster[activeChar];
+ migrateChar(attacker);
  const sel = document.getElementById('equip-weapon');
  const w = sel && sel.value ? weaponByName(sel.value) : (attacker.equippedWeapon ? weaponByName(attacker.equippedWeapon) : null);
  const resEl = document.getElementById('dmg-result');
  if (!w) { resEl.textContent = 'Pick a weapon first.'; resEl.className = 'dmg-result'; return; }
+ /* Equipped gate: the weapon must be in this character's loadout.
+    Unarmed melee is exempt - fists are always available and need no weapon. */
+ if (!isUnarmed(w) && !isEquipped(attacker, w.name)) {
+ resEl.textContent = activeChar + ' has not equipped ' + w.name + '. Assign it on the Loadout tab.';
+ resEl.className = 'dmg-result';
+ return;
+ }
  let tgtName = document.getElementById('action-target').value;
  if (tgtName === '__self__') tgtName = activeChar;
  if (!tgtName || !roster[tgtName]) { resEl.textContent = 'No target selected.'; resEl.className = 'dmg-result'; return; }
  const tgt = roster[tgtName];
  migrateChar(tgt);
  const el = w.element && w.element !== 'none' ? w.element : null;
+
+ /* In a running battle, attacks must land first: attacker Dexterity vs defender Agility */
+ const btl = tgtName !== activeChar ? battleWith(activeChar, tgtName) : null;
+ if (btl) {
+ const chance = battleHitChance(attacker, tgt, btl, activeChar, tgtName, w);
+ const roll = Math.floor(Math.random() * 100) + 1;
+ if (roll > chance) {
+ const missMsg = activeChar + ' misses ' + tgtName + ' with ' + w.name + ' (' + roll + ' vs ' + chance + '%).';
+ resEl.textContent = missMsg;
+ resEl.className = 'dmg-result';
+ logEvent(attacker, 'Missed ' + tgtName + ' with ' + w.name + ' (' + roll + ' vs ' + chance + '%)');
+ battleRecord(activeChar, tgtName, missMsg);
+ saveState();
+ return;
+ }
+ }
 
  /* elemental damage negated by matching immunity */
  if (el && isImmuneTo(tgt, el)) {
@@ -1725,7 +1110,10 @@
 
  /* apply damage to target, accounting for any active bleed re-anchor */
  const tb = weaponTraitBonus(attacker, w);
- const totalDmg = w.damage + tb.dmg;
+ const strB = w.category === 'melee' ? strDamageBonus(attacker) : 0;
+ const aloneB = traitAloneDmgMod(activeChar);
+ const openB = assassinOpeningBonus(activeChar, w);
+ const totalDmg = w.damage + tb.dmg + strB + aloneB + openB;
  const cap = effMaxHp(tgt);
  const before = tgt.bleedStart ? effectiveHp(tgt) : tgt.hp;
  const after = Math.max(0, Math.round(before) - totalDmg);
@@ -1748,11 +1136,19 @@
  } else if (w.dtype === 'blunt' && !tgt.conditions.some(x => x.toLowerCase() === 'dazed')) {
  if (Math.random() * 100 < (DAZE_CHANCE + tb.daze)) {
  addCharConditionNamed(tgt, 'Dazed', tgtName, w.name, tgtName === activeChar);
- extras.push('leaves them dazed');
+ extras.push('is dazed');
  }
  }
  }
  if (extras.length) msg += ' ' + tgtName + ' ' + extras.join(' and ') + '.';
+ const bonusBits = [];
+ if (strB) bonusBits.push('+' + strB + ' Strength');
+ if (aloneB) bonusBits.push('+' + aloneB + ' alone');
+ if (openB) bonusBits.push('+' + openB + ' opening strike');
+ if (bonusBits.length) msg += ' (includes ' + bonusBits.join(', ') + ')';
+ /* the opening-strike bonus is spent once this strike lands */
+ markStruck(activeChar);
+ battleRecord(activeChar, tgtName, activeChar + ': ' + msg);
  resEl.textContent = msg;
  resEl.className = 'dmg-result hit';
  renderStatus();
@@ -1837,7 +1233,11 @@
  if (typeof c.notes !== 'string') c.notes = '';
  if (!Array.isArray(c.log)) c.log = [];
  if (c.equippedWeapon === undefined) c.equippedWeapon = null;
+ if (!Array.isArray(c.equipped)) c.equipped = [];
+ if (!Array.isArray(c.known)) c.known = [];
  if (!Array.isArray(c.traits)) c.traits = [];
+ if (!c.stats || typeof c.stats !== 'object') c.stats = { str: 0, agi: 0, spd: 0, dex: 0 };
+ ['str','agi','spd','dex'].forEach(k => { if (typeof c.stats[k] !== 'number') c.stats[k] = 0; });
  }
  /* Backfill weapon damage type for weapons saved before dtype existed */
  function migrateWeapons() {
@@ -1892,17 +1292,119 @@
     mechanical effects in combat. Singer/magic traits feed the miscast
     system (magic here is sung, so they pair with tongue/jaw injuries). */
  const TRAIT_SKILLS = [
- 'Blademaster', 'Trained Swordsman', 'Duelist', 'Brawler/Wrestler',
- 'Archer', 'Marksman', 'Accomplished Singer', 'Poet/Bard',
- 'Physician/Doctor', 'Herbalist', 'Gardener', 'Cook',
- 'Astronomer', 'Sailor', 'Horserider'
+ /* Combat */
+ 'Blademaster', 'Trained Swordsman', 'Duelist', 'Brawler', 'Wrestler',
+ 'Archer', 'Marksman', 'Assassin', 'Rogue', 'Warlord', 'Strategist',
+ /* Craft, learning and profession */
+ 'Schemer', 'Physician', 'Herbalist', 'Gardener', 'Cook',
+ 'Astronomer', 'Sailor', 'Equestrian', 'Hermit',
+ 'Poet', 'Bard'
  ];
  const TRAIT_SINGER = [
- 'Hedge-Singer', 'Trained Singer', 'Gifted Singer', 'Dragon-Touched', 'Song-maimed'
+ 'Hedge-Singer', 'Trained Singer', 'Accomplished Singer', 'Gifted Singer', 'Dragon-Touched', 'Song-maimed'
  ];
  /* GM-only traits cannot be self-assigned in flavor, but the toggle still works;
     they are simply marked so the GM knows. */
  const TRAIT_GM_ONLY = new Set(['dragon-touched']);
+
+ /* ── TRAIT EFFECTS ────────────────────────────────────────────────
+    Every skill trait now carries a mechanical effect. Keys:
+      init      added to initiative order
+      escape    added to the escape roll (percentage points)
+      hitRanged added to hit chance when striking with a ranged weapon
+      hitMelee  added to hit chance when striking in melee
+      hitAttack added to hit chance while this fighter's side is 'attacking'
+      allyHit   granted to every ally on the same side (leadership)
+      heal      extra HP restored whenever this character heals someone
+      maxHp     added to maximum health
+      miscast   shifts miscast chance (negative is safer)
+      freeCast  extra free casts before miscast risk begins
+    Weapon damage synergies stay in weaponTraitBonus() below. */
+ const TRAIT_EFFECTS = {
+ /* Combat */
+ 'blademaster':        { desc: '+1 damage, +bleed (slashing)' },
+ 'trained swordsman':  { desc: '+bleed (slashing)' },
+ 'duelist':            { desc: '+1 damage (melee)' },
+ 'brawler':            { desc: '+1 damage, +daze (blunt)' },
+ 'wrestler':           { desc: '+1 damage, ++daze (blunt)' },
+ 'archer':             { desc: '+1 damage with ranged weapons' },
+ 'marksman':           { hitRanged: 5, desc: '+1 damage with guns, +5% to hit (ranged)' },
+ 'assassin':           { desc: '+2 damage on the opening strike, +bleed (piercing melee)' },
+ 'rogue':              { escape: 15, desc: '+15% escape' },
+ 'warlord':            { allyHit: 5, desc: '+5% to hit for all allies' },
+ 'strategist':         { init: 2, desc: '+2 initiative' },
+ 'schemer':            { hitAttack: 10, desc: '+10% to hit while attacking' },
+ /* Craft, learning and profession */
+ 'physician':          { healAlly: 2, desc: '+2 healing ally' },
+ 'herbalist':          { healAlly: 1, healRecv: 1, desc: '+1 healing ally, +1 being healed' },
+ 'astronomer':         { miscast: -5, desc: '-5% miscast' },
+ 'hermit':             { aloneDmg: 1, desc: '+1 damage when alone' },
+ 'poet':               { miscast: -5, desc: '-5% miscast' },
+ 'bard':               { freeCast: 1, desc: '+1 free cast' }
+ };
+
+ /* Sum one numeric trait effect across everything a character has. */
+ function traitFx(c, key) {
+ let total = 0;
+ (c && c.traits || []).forEach(t => {
+ const e = TRAIT_EFFECTS[String(t).toLowerCase()];
+ if (e && typeof e[key] === 'number') total += e[key];
+ });
+ return total;
+ }
+
+ const TRAIT_INITIATIVE_BONUS = 2;
+ function traitInitiativeMod(c) { return traitFx(c, 'init'); }
+ /* Initiative order is Dexterity plus any trait bonus. */
+ function initiativeScore(c) { migrateChar(c); return c.stats.dex + traitInitiativeMod(c); }
+ /* Extra HP restored when this character heals someone. */
+ /* Extra HP this character adds when healing someone else. */
+ function traitHealAllyMod(c) { return traitFx(c, 'healAlly'); }
+ /* Extra HP this character gains whenever they are the one being healed. */
+ function traitHealRecvMod(c) { return traitFx(c, 'healRecv'); }
+
+ /* "Alone" means no other fighter on their side of a running battle can still act.
+    Outside a battle there is no side to measure, so the bonus does not apply. */
+ function isFightingAlone(name) {
+ if (!name) return false;
+ const b = Object.values(battles).find(x => x.status === 'active' && x.order.includes(name));
+ if (!b) return false;
+ const side = sideOf(b, name);
+ if (!side) return false;
+ return !(b.sides[side] || []).some(n => n !== name && canAct(b, n));
+ }
+ /* Assassin's opening-strike bonus: an extra +2 the first time they strike in a
+    battle, on top of the standing piercing-melee bonus. Applies only inside a
+    running battle and only once, on that fighter's first strike. */
+ function assassinOpeningBonus(name, w) {
+ const c = roster[name];
+ if (!c || !w || w.category !== 'melee') return 0;
+ if (!(c.traits || []).some(t => t.toLowerCase() === 'assassin')) return 0;
+ const b = Object.values(battles).find(x => x.status === 'active' && x.order.includes(name));
+ if (!b) return 0;
+ if (b.struck && b.struck[name]) return 0;   /* already opened */
+ return 2;
+ }
+ /* Record that a fighter has taken their first strike in whatever battle holds them. */
+ function markStruck(name) {
+ Object.values(battles).forEach(b => {
+ if (b.status === 'active' && b.order.includes(name)) {
+ if (!b.struck) b.struck = {};
+ b.struck[name] = true;
+ }
+ });
+ }
+
+ /* Damage a character adds for fighting without allies at their back. */
+ function traitAloneDmgMod(name) {
+ const c = roster[name];
+ if (!c || !isFightingAlone(name)) return 0;
+ return traitFx(c, 'aloneDmg');
+ }
+ /* Extra maximum health. */
+ function traitMaxHpMod(c) { return traitFx(c, 'maxHp'); }
+ /* Bonus to an escape roll. */
+ function traitEscapeMod(c) { return traitFx(c, 'escape'); }
 
  /* Singer traits that grant extra free casts before miscast risk begins */
  const TRAIT_FREE_CAST = {
@@ -1912,6 +1414,7 @@
  /* Singer traits that shift miscast chance (negative = more reliable caster) */
  const TRAIT_MISCAST_MOD = {
  'trained singer': -10,   /* disciplined academy technique */
+ 'accomplished singer': -15,
  'gifted singer': -5,     /* natural ease */
  'hedge-singer': 5,       /* self-taught, rougher control */
  'dragon-touched': -15,   /* uniquely gifted */
@@ -1922,17 +1425,23 @@
  function traitFreeCastMod(c) {
  let f = 0;
  (c.traits || []).forEach(t => { f += (TRAIT_FREE_CAST[t.toLowerCase()] || 0); });
- return f;
+ return f + traitFx(c, 'freeCast');
  }
  /* Sum miscast-percentage shift a character gets from traits */
  function traitMiscastMod(c) {
  let m = 0;
  (c.traits || []).forEach(t => { m += (TRAIT_MISCAST_MOD[t.toLowerCase()] || 0); });
- return m;
+ return m + traitFx(c, 'miscast');
  }
 
  /* Combat synergy: what a trait adds when striking with a given weapon.
     Returns extra damage, added bleed/daze chance (on top of base), and notes. */
+ /* A "gun" is a ranged firearm: it fires (has a reload cooldown) or is a bullet/fire arm.
+    Bows are ranged but not guns. */
+ function isGun(w) {
+ return !!w && w.category === 'ranged' && (!!w.cooldown || /gun|musket|bullet|pistol|rifle|handgonne/i.test(w.name || ''));
+ }
+
  function weaponTraitBonus(c, w) {
  let dmg = 0, bleed = 0, daze = 0; const notes = [];
  const traits = (c.traits || []).map(t => t.toLowerCase());
@@ -1942,14 +1451,17 @@
  else if (has('trained swordsman')) { bleed = Math.max(bleed, 15); notes.push('Trained swordsman'); }
  if (has('duelist') && w.category === 'melee') { dmg = Math.max(dmg, 1); if (!notes.includes('Duelist')) notes.push('Duelist'); }
  } else if (w.dtype === 'blunt') {
- if (has('brawler/wrestler')) { dmg = Math.max(dmg, 1); daze = Math.max(daze, 20); notes.push('Brawler'); }
+ if (has('brawler')) { dmg = Math.max(dmg, 1); daze = Math.max(daze, 20); notes.push('Brawler'); }
+ if (has('wrestler')) { dmg = Math.max(dmg, 1); daze = Math.max(daze, 25); if (!notes.includes('Wrestler')) notes.push('Wrestler'); }
  if (has('duelist') && w.category === 'melee') { dmg = Math.max(dmg, 1); if (!notes.includes('Duelist')) notes.push('Duelist'); }
  } else if (w.dtype === 'piercing') {
  if (has('duelist') && w.category === 'melee') { dmg = Math.max(dmg, 1); notes.push('Duelist'); }
+ if (has('assassin') && w.category === 'melee') { dmg = Math.max(dmg, 2); bleed = Math.max(bleed, 20); if (!notes.includes('Assassin')) notes.push('Assassin'); }
  }
  if (w.category === 'ranged') {
- if (has('marksman')) { dmg = Math.max(dmg, 1); notes.push('Marksman'); }
- else if (has('archer')) { dmg = Math.max(dmg, 1); notes.push('Archer'); }
+ /* Archer sharpens every ranged strike; Marksman adds further only with guns. */
+ if (has('archer')) { dmg += 1; notes.push('Archer'); }
+ if (has('marksman') && isGun(w)) { dmg += 1; notes.push('Marksman'); }
  }
  return { dmg, bleed, daze, notes };
  }
@@ -2028,7 +1540,7 @@
  }
  /* Effective max HP including condition bonuses */
  function effMaxHp(c) {
- return c.maxHp + hpBonus(c);
+ return c.maxHp + hpBonus(c) + traitMaxHpMod(c);
  }
 
  /* ── EVENT LOG ────────────────────────────────────────────────── */
@@ -2153,15 +1665,9 @@
  const parts = [];
  if (TRAIT_FREE_CAST[lc]) parts.push('+' + TRAIT_FREE_CAST[lc] + ' free cast' + (TRAIT_FREE_CAST[lc] > 1 ? 's' : ''));
  if (TRAIT_MISCAST_MOD[lc]) parts.push((TRAIT_MISCAST_MOD[lc] > 0 ? '+' : '') + TRAIT_MISCAST_MOD[lc] + '% miscast');
- const combat = {
- 'blademaster': '+1 dmg & bleed with blades',
- 'trained swordsman': 'extra bleed with blades',
- 'duelist': '+1 dmg in melee',
- 'brawler/wrestler': '+1 dmg & daze with blunt',
- 'marksman': '+1 dmg with ranged',
- 'archer': '+1 dmg with ranged'
- };
- if (combat[lc]) parts.push(combat[lc]);
+ /* Skill traits describe themselves from the single TRAIT_EFFECTS table. */
+ const fx = TRAIT_EFFECTS[lc];
+ if (fx && fx.desc) parts.push(fx.desc);
  return parts.join(', ');
  }
 
@@ -2235,8 +1741,10 @@
 
  function addCondition(forced) {
  if (!activeChar) return;
+ /* The manual add box was removed; conditions now arrive from spells and miscasts,
+    which always pass an explicit name. */
  const input = document.getElementById('cond-input');
- const name = (forced || input.value).trim();
+ const name = String(forced || (input ? input.value : '')).trim();
  if (!name) return;
  const c = roster[activeChar];
  /* avoid duplicates (case-insensitive) */
@@ -2277,6 +1785,7 @@
  }
 
  function renderStatus() {
+ if (typeof renderBattles === "function" && !_bapSelecting && document.getElementById("battle-list")) { try { renderBattles(); } catch(e){} }
  const empty = document.getElementById('status-empty');
  const body = document.getElementById('combat-inner');
  if (!activeChar) {
@@ -2475,23 +1984,26 @@
  }
 
  function filterCondPicker() {
- const q = document.getElementById('cond-input').value.trim();
+ const inp = document.getElementById('cond-input');
+ if (!inp) return;   /* picker UI removed */
+ const q = inp.value.trim();
  const picker = document.getElementById('cond-picker');
  /* typing reveals matches; clearing the box hides the picker again unless manually browsing */
  if (picker && !picker.classList.contains('pinned')) {
  picker.style.display = q === '' ? 'none' : '';
  }
- renderCondPicker(document.getElementById('cond-input').value);
+ renderCondPicker(inp.value);
  }
 
  /* Toggle the "browse all conditions" picker on/off */
  function toggleCondPicker() {
  const picker = document.getElementById('cond-picker');
  const btn = document.getElementById('cond-browse-btn');
- if (!picker) return;
+ const inp = document.getElementById('cond-input');
+ if (!picker || !inp) return;   /* picker UI removed */
  const showing = picker.classList.toggle('pinned');
  picker.style.display = showing ? '' : 'none';
- if (showing) renderCondPicker(document.getElementById('cond-input').value);
+ if (showing) renderCondPicker(inp.value);
  if (btn) btn.textContent = showing ? 'Hide list' : 'Browse all';
  }
 
@@ -2600,6 +2112,9 @@
  renderCharList();
  updateMiscastDisplay();
  renderStatus();
+ renderStats();
+ if (typeof renderEquipLoadout === 'function') renderEquipLoadout();
+ if (typeof renderLearnedSpells === 'function') renderLearnedSpells();
  }
 
  function addCharacter() {
@@ -2607,7 +2122,7 @@
  const name = input.value.trim();
  if (!name) return;
  if (!roster[name]) {
- roster[name] = { spellsToday: 0, lastReset: todayStr(), hp: 5, maxHp: 5, conditions: [], bleedStart: null, bleedAnchorHp: null, notes: '', log: [], equippedWeapon: null, traits: [] };
+ roster[name] = { spellsToday: 0, lastReset: todayStr(), hp: 5, maxHp: 5, conditions: [], bleedStart: null, bleedAnchorHp: null, notes: '', log: [], equippedWeapon: null, equipped: [], known: [], traits: [], stats: { str: 0, agi: 0, spd: 0, dex: 0 } };
  }
  input.value = '';
  activeChar = name;
@@ -2640,6 +2155,16 @@
  const resEl = document.getElementById('miscast-result');
  const spell = getSelectedSpell();
  const spellLabel = spell ? ' [' + spell.name + ']' : '';
+ /* Learned-spell gate: a specific spell must be on the character's known list. */
+ if (spell) {
+ migrateChar(c);
+ if (!isKnown(c, spell.name)) {
+ resEl.innerHTML = activeChar + spellLabel + ': NOT LEARNED' +
+ '<div class="miscast-effect">' + activeChar + ' has not learned ' + spell.name + '. Assign it on the Loadout tab.</div>';
+ resEl.className = 'miscast-result failed';
+ return;
+ }
+ }
  if (targetName === '__self__') targetName = activeChar;
  const tgt = (targetName && roster[targetName]) ? roster[targetName] : null;
  if (tgt) migrateChar(tgt);
@@ -2710,6 +2235,7 @@
  }
 
  c.lastReset = todayStr();
+ battleRecord(activeChar, tgt ? targetName : null, resEl.textContent);
  updateMiscastDisplay();
  renderStatus();
  renderLog();
@@ -2769,13 +2295,19 @@
  }
  if (doHeal) {
  const before = tgt.bleedStart ? effectiveHp(tgt) : tgt.hp;
+ /* Healer traits add to what they give an ally; recipient traits add to what
+    they receive. A self-cast gets no ally bonus, only the receiving one. */
+ let healBonus = 0;
+ if (!isSelf) healBonus += traitHealAllyMod(roster[activeChar] || {});
+ healBonus += traitHealRecvMod(tgt);
+ eff.heal += healBonus;
  const after = Math.min(cap, Math.round(before) + eff.heal);
  tgt.hp = after;
  /* healing seals wounds: stop any active bleed and clear the Bleeding condition */
  const wasBleeding = !!tgt.bleedStart || tgt.conditions.some(x => x.toLowerCase() === 'bleeding');
  tgt.bleedStart = null; tgt.bleedAnchorHp = null;
  tgt.conditions = tgt.conditions.filter(x => x.toLowerCase() !== 'bleeding');
- notes.push(targetName + ' healed ' + eff.heal + ' HP (' + after + '/' + cap + ')' + (wasBleeding ? ', bleeding stopped' : ''));
+ notes.push(targetName + ' healed ' + eff.heal + ' HP (' + after + '/' + cap + ')' + (healBonus ? ' (includes +' + healBonus + ' from traits)' : '') + (wasBleeding ? ', bleeding stopped' : ''));
  logEvent(tgt, (isSelf ? 'Self-healed' : 'Healed ' + src) + ' (' + spell.name + ') for ' + eff.heal + ' HP (now ' + after + '/' + cap + ')' + (wasBleeding ? '; bleeding stopped' : ''), 'heal');
  }
  /* Redpalm self-cast also cauterizes even if no heal value resolved */
@@ -2911,7 +2443,13 @@
  const data = await res.json();
  if (data && data.characters) roster = data.characters;
  /* planetState is no longer read from combat storage; it is derived live from the RP Calendar */
- if (data && Array.isArray(data.weapons) && data.weapons.length) weapons = data.weapons;
+ if (data && Array.isArray(data.weapons) && data.weapons.length) {
+ weapons = data.weapons;
+ /* Keep the musket's reload in step with the current design even when an
+    older weapon list was restored from storage. */
+ weapons.forEach(w => { if (/musket/i.test(w.name || '')) w.cooldown = 3; });
+ }
+ migrateBattles(data);
  /* restore a time-bubbled (paused) sky if one was saved */
  if (data && data.sky && data.sky.paused && data.sky.year != null && data.sky.seg != null) {
  skyPaused = true;
@@ -2950,7 +2488,7 @@
  const res = await fetch(STORAGE_ENDPOINT, {
  method: 'POST',
  headers: { 'Content-Type': 'application/json' },
- body: JSON.stringify({ characters: roster, weapons: weapons, sky: { paused: skyPaused, year: calSky ? calSky.year : null, seg: calSky ? calSky.seg : null } })
+ body: JSON.stringify({ characters: roster, weapons: weapons, battles: battles, battleLog: battleLog, sky: { paused: skyPaused, year: calSky ? calSky.year : null, seg: calSky ? calSky.seg : null } })
  });
  if (res.ok) setSync('saved', 'Saved.');
  else setSync('error', 'Save failed (status ' + res.status + ').');
@@ -2997,11 +2535,15 @@
  }
 
  function filterConditions() {
- runSearch(document.getElementById('cond-search').value, '#cond-catalog', 'cond-clear', 'cond-nomatch');
+ const el = document.getElementById('cond-search');
+ if (!el) return;
+ runSearch(el.value, '#cond-catalog', 'cond-clear', 'cond-nomatch');
  }
 
  function clearCondSearch() {
- document.getElementById('cond-search').value = '';
+ const el = document.getElementById('cond-search');
+ if (!el) return;
+ el.value = '';
  filterConditions();
  }
 
@@ -3221,16 +2763,801 @@
  });
  }
 
+ /* ══ TABS ═══════════════════════════════════════════════════════ */
+ function switchTab(tab) {
+ document.body.dataset.tab = tab;
+ ['char', 'loadout', 'battle'].forEach(t => {
+ const btn = document.getElementById('tab-btn-' + t);
+ if (btn) btn.classList.toggle('active', t === tab);
+ });
+ if (tab === 'loadout') { renderEquipLoadout(); renderLearnedSpells(); }
+ }
+
+ /* ══ EQUIPPED WEAPONS (loadout) ═════════════════════════════════ */
+ function equippedList(c) { migrateChar(c); return c.equipped; }
+ function isEquipped(c, name) { return equippedList(c).indexOf(name) !== -1; }
+ /* Unarmed melee: always usable by anyone, never needs to be equipped. */
+ const UNARMED_NAME = 'Unarmed';
+ function isUnarmed(w) { return !!w && w.name === UNARMED_NAME; }
+ function unarmedWeapon() {
+ return weaponByName(UNARMED_NAME) || { name: UNARMED_NAME, category: 'melee', damage: 1, element: 'none', dtype: 'blunt' };
+ }
+
+ function toggleEquip(name) {
+ if (!activeChar || !roster[activeChar]) return;
+ const c = roster[activeChar];
+ migrateChar(c);
+ const i = c.equipped.indexOf(name);
+ if (i === -1) { c.equipped.push(name); logEvent(c, 'Equipped ' + name); }
+ else { c.equipped.splice(i, 1); logEvent(c, 'Unequipped ' + name); }
+ renderEquipLoadout();
+ renderBattles();   /* inline action panel reflects the new loadout */
+ saveState();
+ }
+
+ function renderEquipLoadout() {
+ const empty = document.getElementById('equip-empty');
+ const body = document.getElementById('equip-body');
+ if (!empty || !body) return;
+ if (!activeChar || !roster[activeChar]) { empty.style.display = ''; body.style.display = 'none'; return; }
+ empty.style.display = 'none'; body.style.display = '';
+ const c = roster[activeChar];
+ migrateChar(c);
+ const cnt = document.getElementById('equip-count');
+ if (cnt) cnt.textContent = activeChar + ' carries ' + c.equipped.length + ' weapon' + (c.equipped.length === 1 ? '' : 's') + '.';
+ const cell = w => {
+ const on = isEquipped(c, w.name);
+ const meta = w.damage + ' HP · ' + (w.dtype || 'slashing') + (w.element && w.element !== 'none' ? ' · ' + (ELEMENTS[w.element] ? ELEMENTS[w.element].label : w.element) : '');
+ return '<label class="loadout-item' + (on ? ' on' : '') + '"><input type="checkbox"' + (on ? ' checked' : '') +
+ ' onchange="toggleEquip(\'' + w.name.replace(/'/g, "\\'") + '\')" /> ' + w.name.replace(/</g, '&lt;') +
+ '<span class="li-meta">' + meta + '</span></label>';
+ };
+ const melee = weapons.filter(w => w.category === 'melee');
+ const ranged = weapons.filter(w => w.category === 'ranged');
+ const gm = document.getElementById('equip-grid-melee');
+ const gr = document.getElementById('equip-grid-ranged');
+ if (gm) gm.innerHTML = melee.length ? melee.map(cell).join('') : '<span class="loadout-empty">No melee weapons defined.</span>';
+ if (gr) gr.innerHTML = ranged.length ? ranged.map(cell).join('') : '<span class="loadout-empty">No ranged weapons defined.</span>';
+ }
+
+ /* ══ LEARNED SPELLS ═════════════════════════════════════════════ */
+ function knownList(c) { migrateChar(c); return c.known; }
+ function isKnown(c, name) { return knownList(c).indexOf(name) !== -1; }
+
+ function toggleKnown(name) {
+ if (!activeChar || !roster[activeChar]) return;
+ const c = roster[activeChar];
+ migrateChar(c);
+ const i = c.known.indexOf(name);
+ if (i === -1) { c.known.push(name); logEvent(c, 'Learned ' + name); }
+ else { c.known.splice(i, 1); logEvent(c, 'Forgot ' + name); }
+ renderLearnedSpells();
+ renderBattles();   /* inline action panel reflects the new spell list */
+ saveState();
+ }
+
+ function renderLearnedSpells() {
+ const empty = document.getElementById('spells-empty');
+ const body = document.getElementById('spells-body');
+ if (!empty || !body) return;
+ if (!activeChar || !roster[activeChar]) { empty.style.display = ''; body.style.display = 'none'; return; }
+ empty.style.display = 'none'; body.style.display = '';
+ const c = roster[activeChar];
+ migrateChar(c);
+ const cnt = document.getElementById('spells-count');
+ if (cnt) cnt.textContent = activeChar + ' knows ' + c.known.length + ' spell' + (c.known.length === 1 ? '' : 's') + '.';
+ const q = (document.getElementById('spell-learn-search')?.value || '').trim().toLowerCase();
+ const bySchool = {};
+ SPELLS.forEach(sp => {
+ if (q && !(sp.name.toLowerCase().includes(q) || sp.school.toLowerCase().includes(q))) return;
+ (bySchool[sp.school] = bySchool[sp.school] || []).push(sp);
+ });
+ const groups = document.getElementById('spells-groups');
+ if (!groups) return;
+ const schools = Object.keys(bySchool);
+ if (!schools.length) { groups.innerHTML = '<span class="loadout-empty">No spells match.</span>'; return; }
+ groups.innerHTML = schools.map(school => {
+ const items = bySchool[school].map(sp => {
+ const on = isKnown(c, sp.name);
+ return '<label class="loadout-item' + (on ? ' on' : '') + '"><input type="checkbox"' + (on ? ' checked' : '') +
+ ' onchange="toggleKnown(\'' + sp.name.replace(/'/g, "\\'") + '\')" /> ' + sp.name.replace(/</g, '&lt;') +
+ '<span class="li-meta">tier ' + sp.tier + '</span></label>';
+ }).join('');
+ return '<div class="loadout-school">' + school + '</div><div class="loadout-grid">' + items + '</div>';
+ }).join('');
+ }
+
+ /* ══ ATTRIBUTES (20-point system) ═══════════════════════════════ */
+ const STAT_KEYS = ['str', 'agi', 'spd', 'dex'];
+ const STAT_POOL = 20, STAT_MAX = 10;
+
+ function statsOf(c) { migrateChar(c); return c.stats; }
+ function statTotal(c) { const s = statsOf(c); return STAT_KEYS.reduce((t, k) => t + (s[k] || 0), 0); }
+
+ /* Strength: +1 melee damage per full 4 points */
+ function strDamageBonus(c) { return Math.floor(statsOf(c).str / 4); }
+ /* Battle hit chance: attacker Dexterity vs defender Agility */
+ /* ── BATTLE CONTEXT ───────────────────────────────────────────────
+    Each side can be marked to reflect how the fight started.
+      hit    modifies that side's own attacks
+      guard  how much harder that side is to hit
+    A surprised side both swings worse and is easier to cut down. */
+ const CONTEXT_OPTS = ['none', 'attacking', 'defending', 'surprised'];
+ const CONTEXT_FX = {
+ 'none':      { hit: 0,   guard: 0,   label: 'No stance' },
+ 'attacking': { hit: 10,  guard: -5,  label: 'Attacking' },
+ 'defending': { hit: -5,  guard: 10,  label: 'Defending' },
+ 'surprised': { hit: -15, guard: -15, label: 'Surprised' }
+ };
+ function sideContext(b, side) {
+ if (!b || !b.context || !side) return 'none';
+ const v = b.context[side];
+ return CONTEXT_OPTS.indexOf(v) !== -1 ? v : 'none';
+ }
+ /* Leadership: a Warlord lifts everyone fighting alongside them. */
+ function allyHitBonus(b, side, selfName) {
+ if (!b || !side) return 0;
+ let best = 0;
+ (b.sides[side] || []).forEach(n => {
+ const c = roster[n];
+ if (!c) return;
+ best = Math.max(best, traitFx(c, 'allyHit'));
+ });
+ return best;
+ }
+
+ /* Battle hit chance: attacker Dexterity vs defender Agility, then stance and traits.
+    Passing the battle is optional; without it only the raw attribute contest applies. */
+ function battleHitChance(att, def, b, attName, defName, w) {
+ let pct = 65 + 3 * statsOf(att).dex - 4 * statsOf(def).agi;
+ if (b) {
+ const aSide = sideOf(b, attName), dSide = sideOf(b, defName);
+ const aCtx = sideContext(b, aSide), dCtx = sideContext(b, dSide);
+ pct += CONTEXT_FX[aCtx].hit;
+ pct -= CONTEXT_FX[dCtx].guard;
+ if (aCtx === 'attacking') pct += traitFx(att, 'hitAttack');
+ pct += allyHitBonus(b, aSide, attName);
+ }
+ if (w) {
+ if (w.category === 'ranged') pct += traitFx(att, 'hitRanged');
+ else pct += traitFx(att, 'hitMelee');
+ }
+ return Math.max(5, Math.min(95, Math.round(pct)));
+ }
+
+ function setStat(key, inputEl) {
+ if (!activeChar || !roster[activeChar]) return;
+ const c = roster[activeChar];
+ migrateChar(c);
+ let v = Math.max(0, Math.min(STAT_MAX, parseInt(inputEl.value) || 0));
+ const others = statTotal(c) - c.stats[key];
+ if (others + v > STAT_POOL) v = STAT_POOL - others; /* clamp to the pool */
+ c.stats[key] = v;
+ inputEl.value = v;
+ renderStats();
+ logEvent(c, 'Attributes set: STR ' + c.stats.str + ', AGI ' + c.stats.agi + ', SPD ' + c.stats.spd + ', DEX ' + c.stats.dex);
+ saveState();
+ }
+
+ function renderStats() {
+ const c = activeChar && roster[activeChar];
+ if (!c) return;
+ migrateChar(c);
+ STAT_KEYS.forEach(k => { const el = document.getElementById('stat-' + k); if (el) el.value = c.stats[k]; });
+ const rem = STAT_POOL - statTotal(c);
+ const remEl = document.getElementById('stat-remaining');
+ if (remEl) {
+ remEl.textContent = rem + ' point' + (rem === 1 ? '' : 's') + ' remaining';
+ remEl.classList.toggle('over', rem < 0);
+ }
+ const fx = {
+ str: '+' + strDamageBonus(c) + ' melee damage',
+ agi: '-' + (4 * c.stats.agi) + '% to be hit',
+ spd: 'escape rolls',
+ dex: 'initiative, +' + (3 * c.stats.dex) + '% to hit'
+ };
+ STAT_KEYS.forEach(k => { const el = document.getElementById('fx-' + k); if (el) el.textContent = fx[k]; });
+ }
+
+ /* ══ BATTLE TRACKER ═════════════════════════════════════════════ */
+ let battles = {};      /* id -> battle */
+ let battleLog = [];    /* concluded battles */
+ let nextBattleId = 1;
+
+ function migrateBattles(data) {
+ if (data && data.battles && typeof data.battles === 'object') battles = data.battles;
+ if (data && Array.isArray(data.battleLog)) battleLog = data.battleLog;
+ /* battles saved before stances existed need the field backfilled */
+ Object.values(battles).forEach(b => {
+ if (!b.context || typeof b.context !== 'object') b.context = { A: 'none', B: 'none' };
+ if (CONTEXT_OPTS.indexOf(b.context.A) === -1) b.context.A = 'none';
+ if (CONTEXT_OPTS.indexOf(b.context.B) === -1) b.context.B = 'none';
+ if (!b.sideNames || typeof b.sideNames !== 'object') b.sideNames = { A: 'Side A', B: 'Side B' };
+ if (!b.sideNames.A) b.sideNames.A = 'Side A';
+ if (!b.sideNames.B) b.sideNames.B = 'Side B';
+ if (!b.cooldowns || typeof b.cooldowns !== 'object') b.cooldowns = {};
+ if (!b.struck || typeof b.struck !== 'object') b.struck = {};
+ if (typeof b.acted !== 'boolean') b.acted = false;
+ });
+ const ids = Object.keys(battles).map(n => parseInt(n)).filter(n => !isNaN(n));
+ nextBattleId = ids.length ? Math.max.apply(null, ids) + 1 : 1;
+ }
+
+ /* Set a side's stance from the dropdown on the battle card. */
+ function setBattleContext(id, side, value) {
+ const b = battles[id]; if (!b) return;
+ if (!b.context) b.context = { A: 'none', B: 'none' };
+ if (CONTEXT_OPTS.indexOf(value) === -1) value = 'none';
+ b.context[side] = value;
+ bLog(b, 'Side ' + side + ' is now ' + (value === 'none' ? 'unmarked' : value) + '.');
+ renderBattles();
+ saveState();
+ }
+
+ function createBattle() {
+ const input = document.getElementById('battle-new-name');
+ const name = (input.value || '').trim() || ('Battle ' + nextBattleId);
+ battles[nextBattleId] = { id: nextBattleId, name, status: 'setup', sides: { A: [], B: [] }, sideNames: { A: 'Side A', B: 'Side B' }, context: { A: 'none', B: 'none' }, cooldowns: {}, struck: {}, acted: false, order: [], turn: 0, round: 1, escaped: [], log: [] };
+ nextBattleId++;
+ input.value = '';
+ renderBattles();
+ saveState();
+ }
+
+ function bLog(b, msg) {
+ b.log.push({ t: Date.now(), msg });
+ if (b.log.length > 200) b.log.shift();
+ }
+
+ function addToBattle(id, side) {
+ const b = battles[id]; if (!b) return;
+ const sel = document.getElementById('badd-' + id + '-' + side);
+ const name = sel && sel.value;
+ if (!name || !roster[name]) return;
+ if (b.sides.A.includes(name) || b.sides.B.includes(name)) return;
+ b.sides[side].push(name);
+ bLog(b, name + ' joins side ' + side + '.');
+ if (b.status === 'active') rebuildInitiative(b, true);
+ renderBattles();
+ saveState();
+ }
+
+ function removeFromBattle(id, name) {
+ const b = battles[id]; if (!b) return;
+ ['A', 'B'].forEach(s => { b.sides[s] = b.sides[s].filter(n => n !== name); });
+ b.order = b.order.filter(n => n !== name);
+ b.escaped = b.escaped.filter(n => n !== name);
+ if (b.turn >= b.order.length) b.turn = 0;
+ bLog(b, name + ' removed from the battle.');
+ renderBattles();
+ saveState();
+ }
+
+ /* Initiative: Dexterity desc, ties broken by Speed, then randomly */
+ function rebuildInitiative(b, keepTurn) {
+ const current = b.order[b.turn];
+ const all = b.sides.A.concat(b.sides.B).filter(n => roster[n]);
+ b.order = all.slice().sort((x, y) => {
+ const cx = roster[x], cy = roster[y];
+ migrateChar(cx); migrateChar(cy);
+ const ix = initiativeScore(cx), iy = initiativeScore(cy);
+ if (iy !== ix) return iy - ix;
+ if (cy.stats.spd !== cx.stats.spd) return cy.stats.spd - cx.stats.spd;
+ return Math.random() - 0.5;
+ });
+ b.turn = keepTurn && current ? Math.max(0, b.order.indexOf(current)) : 0;
+ }
+
+ function startBattle(id) {
+ const b = battles[id]; if (!b) return;
+ if (!b.sides.A.length || !b.sides.B.length) { bLog(b, 'Both sides need at least one fighter.'); renderBattles(); return; }
+ b.status = 'active';
+ b.round = 1;
+ rebuildInitiative(b, false);
+ bLog(b, 'Battle begins. Initiative: ' + b.order.map(n => {
+ const bonus = traitInitiativeMod(roster[n]);
+ return n + ' (' + initiativeScore(roster[n]) + (bonus ? ', incl. +' + bonus + ' Strategist' : '') + ')';
+ }).join(', ') + '.');
+ renderBattles();
+ saveState();
+ }
+
+ /* A fighter still able to act: in the order, not escaped, HP above zero */
+ function canAct(b, name) {
+ return roster[name] && !b.escaped.includes(name) && effectiveHp(roster[name]) > 0;
+ }
+ function livingOrder(b) { return b.order.filter(n => canAct(b, n)); }
+ function currentActor(b) {
+ const live = livingOrder(b);
+ if (!live.length) return null;
+ return live[b.turn % live.length];
+ }
+ function sideOf(b, name) { return b.sides.A.includes(name) ? 'A' : b.sides.B.includes(name) ? 'B' : null; }
+
+ /* ── WEAPON COOLDOWNS ─────────────────────────────────────────────
+    A weapon with a cooldown must be reloaded: after firing on round N it
+    cannot be used again until round N + cooldown. */
+ function weaponReadyRound(b, name, wname) {
+ if (!b || !b.cooldowns || !b.cooldowns[name]) return 0;
+ return b.cooldowns[name][wname] || 0;
+ }
+ function isWeaponReady(b, name, w) {
+ if (!w || !w.cooldown) return true;
+ if (!b) return true;
+ const ready = weaponReadyRound(b, name, w.name);
+ return b.round >= ready;
+ }
+ function markWeaponUsed(b, name, w) {
+ if (!b || !w || !w.cooldown) return;
+ if (!b.cooldowns) b.cooldowns = {};
+ if (!b.cooldowns[name]) b.cooldowns[name] = {};
+ b.cooldowns[name][w.name] = b.round + w.cooldown;
+ }
+
+ /* ── AUTO-CONCLUDE ────────────────────────────────────────────────
+    A fight ends on its own once only one side can still act, or nobody can.
+    Escaped fighters count as gone, downed fighters as out. */
+ function sidesStillFighting(b) {
+ return ['A', 'B'].filter(s => (b.sides[s] || []).some(n => canAct(b, n)));
+ }
+ function checkAutoConclude(id) {
+ const b = battles[id];
+ if (!b || b.status !== 'active') return false;
+ /* a battle that never had two sides should not resolve itself */
+ if (!b.sides.A.length || !b.sides.B.length) return false;
+ const live = sidesStillFighting(b);
+ if (live.length > 1) return false;
+ let result;
+ if (live.length === 1) {
+ const s = live[0];
+ const fled = b.escaped.length ? ' (' + b.escaped.join(', ') + ' fled)' : '';
+ result = sideLabel(b, s) + ' left standing' + fled + '.';
+ } else {
+ result = 'No one left standing.';
+ }
+ bLog(b, 'Battle resolved: ' + result);
+ archiveBattle(id, result, true);
+ return true;
+ }
+
+ /* Shared archiving used by both the manual and automatic paths. */
+ function archiveBattle(id, result, auto) {
+ const b = battles[id]; if (!b) return;
+ battleLog.unshift({
+ name: b.name,
+ result: (result || 'Concluded.') + (auto ? ' (auto)' : ''),
+ rounds: b.round,
+ sides: { A: b.sides.A.slice(), B: b.sides.B.slice() },
+ sideNames: { A: sideLabel(b, 'A'), B: sideLabel(b, 'B') },
+ escaped: b.escaped.slice(),
+ when: Date.now()
+ });
+ if (battleLog.length > 60) battleLog.pop();
+ delete battles[id];
+ if (_actingBattle === id) _actingBattle = null;
+ renderBattles();
+ renderBattleArchive();
+ saveState();
+ }
+
+ /* ── SIDE NAMES ───────────────────────────────────────────────────*/
+ function sideLabel(b, s) {
+ return (b && b.sideNames && b.sideNames[s]) || ('Side ' + s);
+ }
+ function beginRenameSide(id, s) {
+ const b = battles[id]; if (!b) return;
+ b._renaming = s;
+ renderBattles();
+ const inp = document.getElementById('side-rename-' + id + '-' + s);
+ if (inp) { inp.focus(); inp.select(); }
+ }
+ function commitRenameSide(id, s) {
+ const b = battles[id]; if (!b) return;
+ const inp = document.getElementById('side-rename-' + id + '-' + s);
+ const v = inp ? inp.value.trim() : '';
+ if (!b.sideNames) b.sideNames = { A: 'Side A', B: 'Side B' };
+ const old = sideLabel(b, s);
+ b.sideNames[s] = v || ('Side ' + s);
+ b._renaming = null;
+ if (b.sideNames[s] !== old) bLog(b, old + ' renamed to ' + b.sideNames[s] + '.');
+ renderBattles();
+ saveState();
+ }
+ function cancelRenameSide(id) {
+ const b = battles[id]; if (!b) return;
+ b._renaming = null;
+ renderBattles();
+ }
+
+ /* Every action marks the turn as spent, then tests for a natural end. */
+ function afterAction(id) {
+ const b = battles[id];
+ if (b && b.status === 'active') b.acted = true;
+ return checkAutoConclude(id);
+ }
+
+ function endTurn(id) {
+ const b = battles[id]; if (!b || b.status !== 'active') return;
+ const live = livingOrder(b);
+ /* with nobody able to act the fight is over, so resolve it rather than stalling */
+ if (!live.length) { if (!checkAutoConclude(id)) { renderBattles(); saveState(); } return; }
+ b.turn = (b.turn + 1) % live.length;
+ b.acted = false;   /* fresh turn, fresh action */
+ if (b.turn === 0) { b.round++; bLog(b, 'Round ' + b.round + ' begins.'); }
+ if (checkAutoConclude(id)) return;
+ renderBattles();
+ saveState();
+ }
+
+ /* Escape: a Speed contest against the fastest opposing fighter still standing.
+    40% base, +6% per point of Speed advantage, clamped 5-95. Costs the turn. */
+ function attemptEscape(id) {
+ const b = battles[id]; if (!b || b.status !== 'active') return;
+ const name = currentActor(b); if (!name) return;
+ const c = roster[name];
+ const side = sideOf(b, name);
+ const foes = b.sides[side === 'A' ? 'B' : 'A'].filter(n => canAct(b, n));
+ let chance;
+ if (!foes.length) { chance = 95; }
+ else {
+ const maxFoeSpd = Math.max.apply(null, foes.map(n => statsOf(roster[n]).spd));
+ chance = Math.max(5, Math.min(95, 40 + 6 * (statsOf(c).spd - maxFoeSpd) + traitEscapeMod(c)));
+ }
+ const roll = Math.floor(Math.random() * 100) + 1;
+ if (roll <= chance) {
+ b.escaped.push(name);
+ bLog(b, name + ' escapes the battle! (rolled ' + roll + ' vs ' + chance + '%)');
+ logEvent(c, 'Escaped from ' + b.name + ' (' + roll + ' vs ' + chance + '%)');
+ const live = livingOrder(b);
+ if (b.turn >= live.length) b.turn = 0;
+ /* fleeing can leave a single side holding the field */
+ if (checkAutoConclude(id)) return;
+ } else {
+ bLog(b, name + ' tries to flee and fails. (rolled ' + roll + ' vs ' + chance + '%)');
+ logEvent(c, 'Failed to escape ' + b.name + ' (' + roll + ' vs ' + chance + '%)');
+ endTurn(id);
+ return;
+ }
+ renderBattles();
+ saveState();
+ }
+
+ /* Step 1: reveal an inline result field on the battle card (prompt() is blocked in
+    sandboxed iframes, which silently returned null and did nothing). */
+ function askConclude(id) {
+ const b = battles[id]; if (!b) return;
+ b._concluding = true;
+ renderBattles();
+ const inp = document.getElementById('conclude-input-' + id);
+ if (inp) inp.focus();
+ }
+ function cancelConclude(id) {
+ const b = battles[id]; if (!b) return;
+ b._concluding = false;
+ renderBattles();
+ }
+ /* Step 2: read the inline field and archive the battle. */
+ function concludeBattle(id) {
+ const b = battles[id]; if (!b) return;
+ const inp = document.getElementById('conclude-input-' + id);
+ archiveBattle(id, inp ? inp.value.trim() : '', false);
+ }
+ /* Discard a setup battle outright (no archive entry). */
+ function discardBattle(id) {
+ const b = battles[id]; if (!b) return;
+ delete battles[id];
+ if (_actingBattle === id) { _actingBattle = null; renderBattleActionPanel(); }
+ renderBattles();
+ saveState();
+ }
+
+ /* The battle tab keeps only a lean action panel: pick a target, then Cast or Strike.
+    Both route through the same combat functions (miscast math, planetary bonuses,
+    Strength/Dexterity, battle logging) used on the character sheet. No status screen. */
+ var _actingBattle = null;
+ var _bapSelecting = false;
+
+
+ /* The action panel is rendered inside each running battle card, so every
+    simultaneous fight shows its own actor's choices with no extra click.
+    Handlers take the battle id and make that fighter active at click time. */
+
+ /* Make a battle's current fighter the active character (used before any action). */
+ function focusActor(id) {
+ const b = battles[id]; if (!b) return null;
+ const name = currentActor(b); if (!name) return null;
+ _actingBattle = id;
+ if (activeChar !== name) { _bapSelecting = true; selectCharacter(name); _bapSelecting = false; }
+ return name;
+ }
+
+ /* Build the "X chooses to:" block for one running battle. */
+ function battleActionHtml(b) {
+ const actor = b && b.status === 'active' ? currentActor(b) : null;
+ if (!actor) return '';
+ const c = roster[actor];
+ if (!c) return '';
+ migrateChar(c);
+ const id = b.id;
+ const side = sideOf(b, actor);
+ const foes = b.sides[side === 'A' ? 'B' : 'A'].filter(n => canAct(b, n));
+ const allTargets = b.order.filter(n => n !== actor && canAct(b, n));
+ /* Default target is the first standing opponent, not self. */
+ const defaultTarget = foes.length ? foes[0] : (allTargets[0] || actor);
+ const targetList = [];
+ foes.forEach(n => targetList.push(n));
+ allTargets.filter(n => !foes.includes(n)).forEach(n => targetList.push(n));
+ targetList.push(actor);
+ const opts = targetList.map(n => {
+ const isSelf = n === actor;
+ const label = n + (isSelf ? ' (self)' : sideOf(b, n) === side ? ' (ally)' : '');
+ return '<option value="' + n + '"' + (n === defaultTarget ? ' selected' : '') + '>' + label + '</option>';
+ }).join('');
+ /* Only spells this character has learned, and only weapons they have equipped. */
+ const learned = SPELLS.map((sp, i) => ({ sp, i })).filter(x => isKnown(c, x.sp.name));
+ const equippedW = weapons.filter(w => isEquipped(c, w.name));
+ const uw = unarmedWeapon();
+
+ /* One action per turn. Once it is spent, the action controls gray out until
+    the turn ends; escape and end-turn stay live. */
+ const spent = !!b.acted;
+ const dis = spent ? ' disabled' : '';
+ const rowCls = spent ? ' bap-spent' : '';
+
+ const castRow = learned.length
+ ? '<div class="bap-row' + rowCls + '"><select id="bap-spell-' + id + '"' + dis + '>' +
+ learned.map(x => '<option value="' + x.i + '">' + x.sp.name + ' (' + x.sp.school + ')</option>').join('') +
+ '</select><button class="act-btn" onclick="battleCast(' + id + ')"' + dis + '>Cast</button></div>'
+ : '<div class="bap-row"><span class="loadout-empty">No learned spells - assign some on the Loadout tab.</span></div>';
+ /* A weapon that is reloading cannot be chosen until its cooldown passes. */
+ const readyW = equippedW.filter(w => isWeaponReady(b, actor, w));
+ const coolingW = equippedW.filter(w => !isWeaponReady(b, actor, w));
+ const coolNote = coolingW.length
+ ? '<div class="bap-row"><span class="cooldown-note">Reloading: ' +
+ coolingW.map(w => w.name + ' (ready round ' + weaponReadyRound(b, actor, w.name) + ')').join(', ') + '</span></div>'
+ : '';
+ const strikeRow = (readyW.length
+ ? '<div class="bap-row' + rowCls + '"><select id="bap-weapon-' + id + '"' + dis + '>' +
+ readyW.map(w => '<option value="' + w.name + '">' + w.name + ' (' + w.damage + (w.element && w.element !== 'none' ? ' ' + w.element : '') + ')</option>').join('') +
+ '</select><button class="act-btn" onclick="battleStrike(' + id + ')"' + dis + '>Strike</button></div>'
+ : (equippedW.length
+ ? '<div class="bap-row"><span class="loadout-empty">Every equipped weapon is reloading.</span></div>'
+ : '<div class="bap-row"><span class="loadout-empty">No weapons equipped - assign some on the Loadout tab.</span></div>')) + coolNote;
+ const meleeRow = '<div class="bap-row' + rowCls + '"><span class="bap-melee-label">Unarmed melee (' + uw.damage + ' HP, ' + (uw.dtype || 'blunt') + ')</span>' +
+ '<button class="act-btn" onclick="battleMelee(' + id + ')"' + dis + '>Melee</button></div>';
+ const spentNote = spent ? '<div class="bap-row"><span class="bap-spent-note">Action used - end the turn to continue.</span></div>' : '';
+
+ return '<div class="battle-action-panel">' +
+ '<h4><span class="bap-actor">' + actor + '</span> chooses to:</h4>' +
+ '<div class="bap-row"><label class="bap-target-label">Target</label><select id="bap-target-' + id + '">' + opts + '</select></div>' +
+ castRow + strikeRow + meleeRow + spentNote +
+ '<div class="bap-row bap-turn-row">' +
+ '<button class="btn-escape" onclick="attemptEscape(' + id + ')">Attempt escape</button>' +
+ '<button class="btn-endturn' + (b.acted ? ' turn-spent' : '') + '" onclick="endTurn(' + id + ')">' +
+ (b.acted ? 'End turn &rarr;' : 'End turn') + '</button>' +
+ '</div>' +
+ '<div class="bap-result" id="bap-result-' + id + '"></div>' +
+ '</div>';
+ }
+
+ /* Legacy standalone panel is no longer used; keep it hidden and inert. */
+ function renderBattleActionPanel() {
+ const panel = document.getElementById('battle-action-panel');
+ if (panel) panel.style.display = 'none';
+ }
+
+ /* Write an action's outcome into the right battle's result line.
+    renderBattles() rebuilds the markup, so this runs after the re-render. */
+ /* The hidden action-target select represents "self" as __self__, not the
+    character's own name, so a self-directed action must be translated. */
+ function setActionTarget(tgt) {
+ const at = document.getElementById('action-target');
+ if (!at) return;
+ const val = (tgt && tgt === activeChar) ? '__self__' : tgt;
+ if (![...at.options].some(o => o.value === val)) {
+ const o = document.createElement('option'); o.value = val; o.textContent = val; at.appendChild(o);
+ }
+ at.value = val;
+ }
+
+ function showBattleResult(id, text, isHtml) {
+ const r = document.getElementById('bap-result-' + id);
+ if (!r) return;
+ if (isHtml) r.innerHTML = text; else r.textContent = text;
+ }
+
+ function battleCast(id) {
+ const b = battles[id]; if (!b || b.status !== 'active') return;
+ if (b.acted) return;   /* one action per turn */
+ if (!focusActor(id)) return;
+ const spellSel = document.getElementById('bap-spell-' + id);
+ const tsel = document.getElementById('bap-target-' + id);
+ if (!spellSel || !tsel) return;
+ const tgt = tsel.value;
+ const combatSpell = document.getElementById('spell-cast-select');
+ if (combatSpell) combatSpell.value = spellSel.value;
+ setActionTarget(tgt);
+ castSpell(tgt);
+ const out = (document.getElementById('miscast-result') || {}).innerHTML || '';
+ if (afterAction(id)) return;   /* battle may have resolved itself */
+ renderBattles();
+ showBattleResult(id, out, true);
+ }
+
+ /* Unarmed melee: same damage pipeline as a weapon strike, but no loadout needed. */
+ function battleMelee(id) {
+ const b = battles[id]; if (!b || b.status !== 'active') return;
+ if (b.acted) return;   /* one action per turn */
+ if (!focusActor(id)) return;
+ const tsel = document.getElementById('bap-target-' + id); if (!tsel) return;
+ const tgt = tsel.value;
+ const equip = document.getElementById('equip-weapon');
+ if (equip) {
+ if (![...equip.options].some(o => o.value === UNARMED_NAME)) {
+ const o = document.createElement('option'); o.value = UNARMED_NAME; o.textContent = UNARMED_NAME; equip.appendChild(o);
+ }
+ equip.value = UNARMED_NAME;
+ }
+ setActionTarget(tgt);
+ applyWeaponDamage();
+ const out = (document.getElementById('dmg-result') || {}).textContent || '';
+ if (afterAction(id)) return;
+ renderBattles();
+ showBattleResult(id, out, false);
+ }
+
+ function battleStrike(id) {
+ const b = battles[id]; if (!b || b.status !== 'active') return;
+ if (b.acted) return;   /* one action per turn */
+ const actorName = focusActor(id);
+ if (!actorName) return;
+ const wpnSel = document.getElementById('bap-weapon-' + id);
+ const tsel = document.getElementById('bap-target-' + id);
+ if (!wpnSel || !tsel) return;
+ const tgt = tsel.value;
+ const equip = document.getElementById('equip-weapon');
+ if (equip) {
+ if (![...equip.options].some(o => o.value === wpnSel.value)) {
+ const o = document.createElement('option'); o.value = wpnSel.value; o.textContent = wpnSel.value; equip.appendChild(o);
+ }
+ equip.value = wpnSel.value;
+ }
+ setActionTarget(tgt);
+ applyWeaponDamage();
+ /* a fired weapon with a cooldown must reload before it can be used again */
+ markWeaponUsed(b, actorName, weaponByName(wpnSel.value));
+ const out = (document.getElementById('dmg-result') || {}).textContent || '';
+ if (afterAction(id)) return;
+ renderBattles();
+ showBattleResult(id, out, false);
+ }
+
+
+ /* Called from strike/cast flows: mirror the action into any battle holding the attacker */
+ function battleRecord(attacker, target, msg) {
+ if (!attacker || !msg) return;
+ let touched = false;
+ Object.values(battles).forEach(b => {
+ if (b.status !== 'active') return;
+ const hasA = b.order.includes(attacker);
+ const hasT = target && b.order.includes(target);
+ if (hasA && (hasT || !target)) { bLog(b, msg); touched = true; }
+ });
+ if (touched) renderBattles();
+ }
+
+ /* Find a running battle that contains both fighters, on opposing sides */
+ function battleWith(a, t) {
+ return Object.values(battles).find(b =>
+ b.status === 'active' && b.order.includes(a) && b.order.includes(t) &&
+ sideOf(b, a) && sideOf(b, t) && sideOf(b, a) !== sideOf(b, t)) || null;
+ }
+
+ function fmtBattleTime(t) {
+ const d = new Date(t);
+ return d.toLocaleDateString() + ' ' + d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+ }
+
+ function combatantRow(b, name) {
+ const c = roster[name];
+ if (!c) return '';
+ migrateChar(c);
+ const hp = effectiveHp(c), cap = effMaxHp(c);
+ const isTurn = b.status === 'active' && currentActor(b) === name;
+ const esc = b.escaped.includes(name);
+ const down = hp <= 0;
+ const cls = 'combatant' + (isTurn ? ' turn-now' : '') + (down ? ' down' : '') + (esc ? ' escaped' : '');
+ const st = c.stats;
+ const tag = esc ? ' (escaped)' : down ? ' (down)' : '';
+ return '<div class="' + cls + '"><span>' + name + tag +
+ ' <span style="color:var(--color-text-tertiary,#888);">' + hp + '/' + cap + ' HP &middot; S' + st.str + ' A' + st.agi + ' Sp' + st.spd + ' D' + st.dex + '</span></span>' +
+ (b.status !== 'done' ? '<button class="c-x" title="Remove from battle" onclick="removeFromBattle(' + b.id + ',\'' + name.replace(/'/g, "\\'") + '\')">&times;</button>' : '') +
+ '</div>';
+ }
+
+ function renderBattles() {
+ const list = document.getElementById('battle-list');
+ if (!list) return;
+ const ids = Object.keys(battles);
+ const badge = document.getElementById('battle-count');
+ const activeCount = Object.values(battles).filter(b => b.status === 'active').length;
+ if (badge) { badge.style.display = activeCount ? '' : 'none'; badge.textContent = activeCount; }
+ if (!ids.length) { list.innerHTML = '<span class="char-chip-empty">No battles yet. Create one above.</span>'; return; }
+ const rosterNames = Object.keys(roster).sort((a, b) => a.localeCompare(b));
+ list.innerHTML = ids.map(id => {
+ const b = battles[id];
+ const inBattle = b.sides.A.concat(b.sides.B);
+ const options = '<option value="">Add fighter...</option>' + rosterNames.filter(n => !inBattle.includes(n))
+ .map(n => '<option value="' + n + '">' + n + '</option>').join('');
+ const sideBox = s => {
+ const ctx = sideContext(b, s);
+ const ctxSel = '<select class="stance-select stance-' + ctx + '" onchange="setBattleContext(' + b.id + ',\'' + s + '\',this.value)">' +
+ CONTEXT_OPTS.map(o => '<option value="' + o + '"' + (o === ctx ? ' selected' : '') + '>' + CONTEXT_FX[o].label + '</option>').join('') +
+ '</select>';
+ /* Click the name to rename the side. */
+ const nameHtml = b._renaming === s
+ ? '<input class="side-rename" id="side-rename-' + b.id + '-' + s + '" value="' + sideLabel(b, s).replace(/"/g, '&quot;') + '" ' +
+ 'onblur="commitRenameSide(' + b.id + ',\'' + s + '\')" ' +
+ 'onkeydown="if(event.key===\'Enter\')commitRenameSide(' + b.id + ',\'' + s + '\');if(event.key===\'Escape\')cancelRenameSide(' + b.id + ')" />'
+ : '<span class="side-name" title="Click to rename" onclick="beginRenameSide(' + b.id + ',\'' + s + '\')">' + sideLabel(b, s) + '</span>';
+ return '<div class="battle-side side-' + s + '"><h4><span class="side-chip">' + s + '</span> ' + nameHtml + ctxSel + '</h4>' +
+ (b.sides[s].length ? b.sides[s].map(n => combatantRow(b, n)).join('') : '<span class="loadout-empty" style="font-size:12px;">Empty</span>') +
+ (b.status !== 'done' ? '<div style="display:flex;gap:6px;margin-top:6px;"><select id="badd-' + b.id + '-' + s + '" style="flex:1;">' + options + '</select><button onclick="addToBattle(' + b.id + ',\'' + s + '\')">Add</button></div>' : '') +
+ '</div>';
+ };
+ const actor = b.status === 'active' ? currentActor(b) : null;
+ const init = b.status === 'active'
+ ? '<div class="initiative-strip">Round ' + b.round + ' &middot; Initiative: ' + livingOrder(b).map(n => n === actor ? '<b>' + n + '</b>' : n).join(' &rarr; ') + '</div>'
+ : '';
+ const concludeUI = b._concluding
+ ? '<div class="conclude-row"><input type="text" id="conclude-input-' + b.id + '" placeholder="Result (e.g. Side A victorious, truce called)" onkeydown="if(event.key===\'Enter\')concludeBattle(' + b.id + ')" /><button onclick="concludeBattle(' + b.id + ')">Save</button><button onclick="cancelConclude(' + b.id + ')">Cancel</button></div>'
+ : '';
+ const actions = b.status === 'setup'
+ ? '<div class="battle-actions"><button class="btn-start" onclick="startBattle(' + b.id + ')">Start battle</button><button class="btn-discard" onclick="discardBattle(' + b.id + ')">Discard</button></div>'
+ : (actor ? battleActionHtml(b) : '<div class="battle-actions"><span class="char-chip-empty">No one left standing.</span></div>') + concludeUI;
+ const logHtml = b.log.length
+ ? '<div class="battle-log">' + b.log.slice(-40).map(e => '<div>' + e.msg + '</div>').join('') + '</div>'
+ : '';
+ const concludeBtn = (b.status !== 'setup' && !b._concluding)
+ ? '<button class="btn-conclude" onclick="askConclude(' + b.id + ')">Conclude</button>'
+ : '';
+ return '<div class="battle-card' + (b.status === 'active' ? ' active-battle' : '') + '">' +
+ '<div class="battle-head"><span class="battle-name">' + b.name + '</span>' +
+ '<span class="battle-status' + (b.status === 'active' ? ' running' : '') + '">' + (b.status === 'setup' ? 'setup' : 'running') + '</span>' +
+ concludeBtn + '</div>' +
+ '<div class="battle-sides">' + sideBox('A') + '<div class="side-vs">vs</div>' + sideBox('B') + '</div>' + init + actions + logHtml +
+ '</div>';
+ }).join('');
+ }
+
+ function renderBattleArchive() {
+ const el = document.getElementById('battle-log-list');
+ if (!el) return;
+ if (!battleLog.length) { el.innerHTML = '<span class="char-chip-empty">No concluded battles yet.</span>'; return; }
+ el.innerHTML = battleLog.map(e =>
+ '<div class="blog-entry"><span class="blog-result">' + e.name + ':</span> ' + e.result +
+ '<div style="color:var(--color-text-tertiary,#888);font-size:11px;margin-top:2px;">' + e.rounds + ' round' + (e.rounds === 1 ? '' : 's') +
+ ' &middot; ' + ((e.sideNames && e.sideNames.A) || 'Side A') + ': ' + (e.sides.A.join(', ') || '-') +
+ ' &middot; ' + ((e.sideNames && e.sideNames.B) || 'Side B') + ': ' + (e.sides.B.join(', ') || '-') +
+ (e.escaped.length ? ' &middot; Escaped: ' + e.escaped.join(', ') : '') +
+ ' &middot; ' + fmtBattleTime(e.when) + '</div></div>').join('');
+ }
+
  loadState().then(() => {
  /* Pull the current sky from the RP Calendar unless a paused bubble was restored */
  syncPlanetsFromCalendar(false);
+ renderBattles();
+ renderBattleArchive();
  });
+ document.body.dataset.tab = 'char';
  populateSpellCastSelect();
  buildCondCatalog();
  wireCatalogConditions();
  renderPlanets();
  renderWeaponEditor();
  renderStatus();
+ renderBattles();
+ renderBattleArchive();
  updateSkyPauseUI();
  setInterval(() => syncPlanetsFromCalendar(false), 5 * 60 * 1000); /* re-sync every 5 min (skipped while paused) */
  /* Refresh status every 30s so the bleeding countdown and HP stay live */
