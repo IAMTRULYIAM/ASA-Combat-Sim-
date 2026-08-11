@@ -249,6 +249,14 @@
  .cond-chip .chip-x:hover { opacity: 1; }
  .cond-empty { font-size: 12px; color: var(--color-text-tertiary); font-style: italic; }
  .hp-pip.bonus { background: #2a6ec0; border-color: #2a6ec0; }
+ .hp-pip.stage-start { margin-left: 9px; }
+ .hp-stage { margin-left: 10px; font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.06em; padding: 1px 8px; border: 1px solid #444; border-radius: 0; background: #e6e6e6; color: #333; }
+ .hp-stage.stage-5 { background: #dff0d8; border-color: #3c763d; color: #2b542c; }
+ .hp-stage.stage-4 { background: #e8f0d8; border-color: #6b8e23; color: #4a6314; }
+ .hp-stage.stage-3 { background: #fcf8e3; border-color: #b8912f; color: #8a6d3b; }
+ .hp-stage.stage-2 { background: #fbead2; border-color: #b3610e; color: #8a4b0a; }
+ .hp-stage.stage-1 { background: #f7dede; border-color: #c9302c; color: #a02622; }
+ .hp-stage.stage-0 { background: #444; border-color: #000; color: #fff; }
  .hp-bonus-note { margin-top: 6px; font-size: 12px; font-weight: bold; color: #2a6ec0; }
  /* GM notes */
  .gm-notes { width: 100%; min-height: 90px; font-family: var(--font-sans); font-size: 13px; padding: 10px; border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); background: var(--color-background-secondary); resize: vertical; line-height: 1.5; }
@@ -484,11 +492,11 @@
      <div class="hp-controls">
        <span class="hp-label">Health</span>
        <button onclick="adjustHp(-1)" aria-label="Lose 1 HP">−</button>
-       <span class="hp-value"><span id="hp-current">5</span> / <span id="hp-max">5</span></span>
+       <span class="hp-value"><span id="hp-current">10</span> / <span id="hp-max">10</span></span><span class="hp-stage" id="hp-stage"></span>
        <button onclick="adjustHp(1)" aria-label="Gain 1 HP">+</button>
        <span class="hp-maxedit">
          <label for="hp-max-input">Max</label>
-         <input type="number" id="hp-max-input" min="1" max="99" value="5" onchange="setMaxHp(this.value)" />
+         <input type="number" id="hp-max-input" min="1" max="99" value="10" onchange="setMaxHp(this.value)" />
        </span>
        <button class="hp-full" onclick="fullHeal()">Full heal</button>
      </div>
@@ -773,6 +781,11 @@
 
  /* ── MISCAST TRACKER (per-character, persistent) ──────────────── */
  const FREE_CASTS = 3;
+ /* Separate lethality dials for weapons and spells. Each multiplies that source's
+    base damage; character bonuses (Strength, traits) are always left at full.
+    1 = full damage. Weapons run at three-quarters; spell damage is at full. */
+ const WEAPON_DAMAGE_SCALE = 0.75;
+ const SPELL_DAMAGE_SCALE = 1;
  const STORAGE_ENDPOINT = '/combat-state'; /* Cloudflare Pages Function; see README */
 
  let roster = {}; /* { charName: {...} } */
@@ -1113,7 +1126,7 @@
  const strB = w.category === 'melee' ? strDamageBonus(attacker) : 0;
  const aloneB = traitAloneDmgMod(activeChar);
  const openB = assassinOpeningBonus(activeChar, w);
- const totalDmg = w.damage + tb.dmg + strB + aloneB + openB;
+ const totalDmg = Math.max(0, Math.round(w.damage * WEAPON_DAMAGE_SCALE) + tb.dmg + strB + aloneB + openB);
  const cap = effMaxHp(tgt);
  const before = tgt.bleedStart ? effectiveHp(tgt) : tgt.hp;
  const after = Math.max(0, Math.round(before) - totalDmg);
@@ -1225,8 +1238,14 @@
 
  /* Backfill fields for characters saved before HP/conditions existed */
  function migrateChar(c) {
- if (c.hp == null) c.hp = 5;
- if (c.maxHp == null) c.maxHp = 5;
+ if (c.maxHp == null) c.maxHp = 10;
+ if (c.hp == null) c.hp = c.maxHp;
+ /* One-time move to the 10-point, 5-stage scale: legacy 5-HP characters are
+    rescaled so their fraction of health is preserved. */
+ if (!c._hp10) {
+  if (c.maxHp <= 5) { const ratio=(c.hp||0)/(c.maxHp||5); c.maxHp=10; c.hp=Math.max(0,Math.min(10,Math.round(ratio*10))); }
+  c._hp10 = true;
+ }
  if (!Array.isArray(c.conditions)) c.conditions = [];
  if (c.bleedStart === undefined) c.bleedStart = null;
  if (c.bleedAnchorHp === undefined) c.bleedAnchorHp = null;
@@ -1539,6 +1558,12 @@
  return total;
  }
  /* Effective max HP including condition bonuses */
+/* ── Health stages ─────────────────────────────────────────────────
+    10 HP, read as five two-point stages plus the defeated state at 0. */
+ const HP_STAGES = ['conceded','capitulating','compromised','shaken','checked','ready'];
+ function hpStage(hp){ return Math.max(0, Math.min(5, Math.ceil((hp||0)/2))); }
+ function hpStageLabel(hp){ return HP_STAGES[hpStage(hp)]; }
+
  function effMaxHp(c) {
  return c.maxHp + hpBonus(c) + traitMaxHpMod(c);
  }
@@ -1813,13 +1838,17 @@
  document.getElementById('hp-current').textContent = Math.round(eff * 10) / 10;
  document.getElementById('hp-max').textContent = cap;
  document.getElementById('hp-max-input').value = c.maxHp;
+ /* Stage badge: which of the five two-point stages the current health sits in. */
+ const stageEl = document.getElementById('hp-stage');
+ if (stageEl) { const stg = hpStage(eff); stageEl.textContent = hpStageLabel(eff); stageEl.className = 'hp-stage stage-' + stg; }
 
- /* HP pips (effective max includes any condition bonus) */
+ /* HP pips grouped in twos so the five health stages read at a glance */
  const bar = document.getElementById('hp-bar');
  bar.innerHTML = '';
  for (let i = 0; i < cap; i++) {
  const pip = document.createElement('div');
  pip.className = 'hp-pip';
+ if (i > 0 && i % 2 === 0) pip.classList.add('stage-start');
  const fillLevel = eff - i;
  const isBonusPip = i >= c.maxHp; /* pips beyond base max are bonus HP */
  if (fillLevel >= 1) pip.classList.add(c.bleedStart ? 'bleeding' : (isBonusPip ? 'bonus' : 'filled'));
@@ -2122,7 +2151,7 @@
  const name = input.value.trim();
  if (!name) return;
  if (!roster[name]) {
- roster[name] = { spellsToday: 0, lastReset: todayStr(), hp: 5, maxHp: 5, conditions: [], bleedStart: null, bleedAnchorHp: null, notes: '', log: [], equippedWeapon: null, equipped: [], known: [], traits: [], stats: { str: 0, agi: 0, spd: 0, dex: 0 } };
+ roster[name] = { spellsToday: 0, lastReset: todayStr(), hp: 10, maxHp: 10, conditions: [], bleedStart: null, bleedAnchorHp: null, notes: '', log: [], equippedWeapon: null, equipped: [], known: [], traits: [], stats: { str: 0, agi: 0, spd: 0, dex: 0 } };
  }
  input.value = '';
  activeChar = name;
@@ -2185,7 +2214,8 @@
  const condMod = conditionMiscastMod(c);
  const trMod = traitMiscastMod(c);
  /* condition and trait modifiers can push miscast risk even on otherwise free casts */
- const chance = Math.max(0, Math.min(99, baseChance + condMod + trMod));
+ /* Mirsite spells are outside the ensie/miscast system and never miscast. */
+ const chance = (school === 'Mirsite') ? 0 : Math.max(0, Math.min(99, baseChance + condMod + trMod));
  let modParts = [];
  if (condMod > 0) modParts.push(condMod + '% from injuries');
  if (trMod !== 0) modParts.push((trMod > 0 ? '+' : '') + trMod + '% from traits');
@@ -2197,7 +2227,7 @@
  let clean = false;
  if (chance === 0) {
  c.spellsToday = castNumber;
- resEl.innerHTML = activeChar + spellLabel + tgtLabel + ', cast #' + castNumber + ': clean (free cast, no roll)';
+ resEl.innerHTML = activeChar + spellLabel + tgtLabel + ', cast #' + castNumber + ': ' + (school === 'Mirsite' ? 'clean (Mirsite spells cannot miscast)' : 'clean (free cast, no roll)');
  resEl.className = 'miscast-result clean';
  logEvent(c, 'Cast #' + castNumber + (spell ? ' ' + spell.name : '') + (tgt ? ' at ' + targetName : '') + ': clean (free)');
  clean = true;
@@ -2247,9 +2277,14 @@
  const inflict = spell.inflict || '';
  let damage = 0, heal = 0, condition = null;
  const dmgM = inflict.match(/(\d+)\s*HP\s*(?:dmg|damage)/i);
- if (dmgM) damage = parseInt(dmgM[1]);
+ if (dmgM) damage = Math.round(parseInt(dmgM[1]) * SPELL_DAMAGE_SCALE);   /* spell damage at full */
  const healM = inflict.match(/(\d+)\s*HP\s*heal/i);
- if (healM) heal = parseInt(healM[1]);
+ if (healM) heal = parseInt(healM[1]);                              /* healing is not scaled */
+ /* Special outcomes that are not plain HP: an outright kill, or the removal of
+    an existing condition (e.g. Song for the Ants clears bleeding). */
+ const instakill = /instakill/i.test(inflict);
+ const rmM = inflict.match(/removes?\s+(?:the\s+)?["']?([A-Za-z][\w-]*)/i);
+ const removeCondition = rmM ? rmM[1] : null;
  /* strip the HP clauses, then tidy stray separators left behind */
  let cond = inflict
  .replace(/,?\s*\d+\s*HP\s*(?:dmg|damage|heal)/ig, '')
@@ -2258,7 +2293,9 @@
  .replace(/\s{2,}/g, ' ')
  .trim();
  if (cond && cond !== '-' && !/^no effect/i.test(cond)) condition = cond;
- return { damage, heal, condition, fire: spell.school === 'Flames' };
+ /* these special outcomes are handled directly, not as an inflicted status */
+ if (instakill || removeCondition) condition = null;
+ return { damage, heal, condition, instakill, removeCondition, fire: spell.school === 'Flames' };
  }
 
  /* Apply a clean-cast spell's damage / heal / condition to a target character */
@@ -2273,6 +2310,25 @@
 
  /* Spells that both damage and heal (e.g. Redpalm) resolve by target:
     on self they cauterize (heal, no fire damage); on others they burn (damage, no heal). */
+ /* Outright kill (e.g. Render unto Salt). The "servants of the Sun" exception is
+    left to GM adjudication - there is no such flag on characters. */
+ if (eff.instakill) {
+ tgt.bleedStart = null; tgt.bleedAnchorHp = null;
+ tgt.hp = 0;
+ notes.push(targetName + ' is turned to a pillar of salt (0/' + cap + ')');
+ logEvent(tgt, hitSrc + ' (' + spell.name + '): reduced to 0 HP', 'miscast');
+ return notes.length ? notes.join('. ') + '.' : null;
+ }
+ /* Remove an existing condition (e.g. Song for the Ants clears bleeding). */
+ if (eff.removeCondition) {
+ const rc = eff.removeCondition.toLowerCase();
+ const had = tgt.conditions.some(x => x.toLowerCase() === rc) || (rc === 'bleeding' && tgt.bleedStart);
+ tgt.conditions = tgt.conditions.filter(x => x.toLowerCase() !== rc);
+ if (rc === 'bleeding') { tgt.bleedStart = null; tgt.bleedAnchorHp = null; }
+ notes.push(had ? (targetName + ': ' + eff.removeCondition + ' removed') : (targetName + ' had no ' + eff.removeCondition));
+ logEvent(tgt, hitSrc + ' (' + spell.name + '): ' + eff.removeCondition + ' removed', 'heal');
+ }
+
  let doDamage = eff.damage > 0;
  let doHeal = eff.heal > 0;
  if (doDamage && doHeal) {
@@ -2632,7 +2688,17 @@
  {school:'Obeisance',name:"Waizuman's Abidement",tier:'II',dur:'10 minutes',effect:'Swallows an active substance (poison, charcoal, water) and becomes immune or adapted to it.',inflict:'Abidement',miscast:'No effect; ingests whatever was consumed.'},
  {school:'Obeisance',name:'Daijesuto',tier:'II',dur:'1 hour',effect:'Ingests a stored creature to restore health; the creature is lost forever.',inflict:'3 HP heal',miscast:'Donates health to the creature, weakening self and empowering it.'},
  {school:'Obeisance',name:'K\u016bki o kamu',tier:'III',dur:' - ',effect:'Uses devourment on entities with no physical form or that cannot be touched.',inflict:' - ',miscast:'Forced to regurgitate a stored entity, now disloyal.'},
- {school:'Obeisance',name:'Guratton-sh\u012bfu',tier:'III',dur:'1 day',effect:'Temporarily steals the ability of a swallowed entity; it cannot be summoned meanwhile.',inflict:' - ',miscast:'Gains a random mutation based on the consumed creature.'}
+ {school:'Obeisance',name:'Guratton-sh\u012bfu',tier:'III',dur:'1 day',effect:'Temporarily steals the ability of a swallowed entity; it cannot be summoned meanwhile.',inflict:' - ',miscast:'Gains a random mutation based on the consumed creature.'},
+ {school:'Flames',name:'Render unto Salt',tier:'III',dur:'Instant',effect:'The spellsinger points their finger at a being of perceived lesser worth to turn them into a pillar of salt. Does not work against servants of the Sun.',inflict:'Instakill',miscast:'Salt content in the spellsinger\'s bloodstream starts rapidly increasing, to the detriment of their health'},
+ {school:'Insects',name:'Song for the Ants',tier:'I',dur:'10 minutes',effect:'Spellsinger delights nearby ants with a song calling them to dance. The ants, if provided with some thread, can begin stitching up wounds with their mandibles.',inflict:'Removes bleeding',miscast:'Ants are upset, and start nipping at the spellsinger'},
+ {school:'Power',name:'Narrentausch',tier:'I',dur:'Instant',effect:'The user slides their hands together, pulling the target towards them; the target slides over whatever surface they are standing on, sometimes tripping.',inflict:'',miscast:'A miscast results in the user being pulled towards the target; miscasts become more common the heavier the target.'},
+ {school:'Mirsite',name:'Tenacity of Deicide',tier:'I',dur:'30 minutes',effect:'The mirsite\'s fatal wounds will be mended and they will be restored to life. They will have the energy to keep fighting for 30 minutes despite their non-mended wounds.',inflict:'',miscast:''},
+ {school:'Mirsite',name:'Magical Synthesia',tier:'II',dur:'Indefinite',effect:'(Mirsipan and Sanchais only) Mirsites that have learned magical synesthesia know how to recognize the unique sound of spellsong and can visualize the influence of magic as iridescent clouds moving through the world.',inflict:'',miscast:''},
+ {school:'Mirsite',name:'Favored Fortitude',tier:'II',dur:'1 attack',effect:'(Presteir and Moken only) Once damage has been taken, the mirsite can activate Favored Fortitude to completely negate the damage taken from the immediate next attack from any source. This cannot be used again until the mirsite has completely recovered their CS.',inflict:'',miscast:''},
+ {school:'Mirsite',name:'Chains of the Adversary',tier:'III',dur:'Up to 1 minute',effect:'(Mirspan only) A single target that the mirsite can see is paralyzed for a minute or until the mirsite stops concentrating on binding them. Only works on targets that can identify themselves with names.',inflict:'',miscast:''},
+ {school:'Mirsite',name:'Manual of Umbral Arms',tier:'III',dur:'15 minutes',effect:'(Presteir only) The mirsite\'s attacks become unseen, granting a great advantage to landing blows on the enemy. From an outside point of view the mirsite will appear to freeze in place at the point they decide to attack.',inflict:'',miscast:''},
+ {school:'Mirsite',name:'Insatiable Blade',tier:'III',dur:'Until the weapon is sheathed/stowed',effect:'(Moken only) The affected weapon begins to crave blood. The weapon or projectile will actively tear and consume portions of blood and flesh for as long as it is in contact with a body. If the mirsite sheathes or stows the weapon without feeding it, it will instead take a bite out of the mirsite.',inflict:'',miscast:''},
+ {school:'Mirsite',name:'Antiphon',tier:'III',dur:'Instant',effect:'(Sanchais only) A piercing whistle that disrupts an enemy\'s spellsong and causes the spell to fail. Highly skilled mirsites can force a miscast rather than merely stopping the spell. The mirsite must whistle in the precise direction of the spellsinger as they sing for the boon to take effect.',inflict:'',miscast:''}
  ];
 
  function renderSpells(list) {
