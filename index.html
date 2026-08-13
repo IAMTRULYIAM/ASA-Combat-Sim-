@@ -106,6 +106,9 @@
  .mode-btn:last-child { border-radius: 0 var(--border-radius-md) var(--border-radius-md) 0; }
  .mode-btn.active { background: #444; color: #fff; border-color: #222; font-weight: bold; }
  .spell-cast-note { font-size: 12px; color: var(--color-text-secondary); margin-top: 10px; line-height: 1.5; }
+ .effect-chip { display: inline-flex; flex-direction: column; gap: 2px; background: #e8f5e9; border: 1px solid #4caf50; border-radius: 4px; padding: 6px 10px; margin: 3px 3px 3px 0; font-size: 11px; }
+ .effect-chip .effect-name { font-weight: 600; color: #2e7d32; }
+ .effect-chip .effect-meta { font-size: 10px; color: #558b2f; }
  .combat-sub { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--color-text-tertiary); margin: 18px 0 8px; padding-top: 12px; border-top: 0.5px solid var(--color-border-tertiary); }
  #spell-cast-select { width: 100%; margin-bottom: 4px; }
  /* Miscast tracker */
@@ -303,7 +306,9 @@
  .dmg-result { font-size: 12px; margin-top: 8px; min-height: 16px; }
  .dmg-result.hit { color: var(--color-text-danger); font-weight: 600; }
  .dmg-result.negated { color: #0a5fb4; font-weight: bold; }
- .weapon-add-grid { display: grid; grid-template-columns: 1.4fr 0.9fr 0.9fr 0.9fr 0.6fr auto; gap: 6px; margin-bottom: 14px; align-items: center; }
+ .weapon-add-grid { display: grid; grid-template-columns: 1.4fr 0.9fr 0.9fr 0.9fr 0.6fr auto 1fr; gap: 6px; margin-bottom: 14px; align-items: center; }
+ .weapon-checkbox { display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.08em; cursor: pointer; user-select: none; color: var(--color-text-secondary); }
+ .weapon-checkbox input[type="checkbox"] { cursor: pointer; width: 14px; height: 14px; margin: 0; }
  .weapon-cat-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--color-text-tertiary); margin: 12px 0 6px; }
  .weapon-edit-list { display: flex; flex-direction: column; gap: 5px; }
  .weapon-edit-row { display: flex; align-items: center; gap: 8px; font-size: 13px; padding: 6px 10px; border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); background: var(--color-background-secondary); }
@@ -311,6 +316,10 @@
  .weapon-edit-row .we-dmg { color: var(--color-text-secondary); font-size: 12px; }
  .weapon-edit-row .we-type { color: var(--color-text-tertiary); font-size: 11px; text-transform: capitalize; }
  .weapon-edit-row .we-fire { color: var(--color-text-danger); font-size: 11px; font-weight: 600; text-transform: capitalize; }
+ .weapon-edit-row .we-gun { color: var(--color-text-info); font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; cursor: pointer; padding: 2px 6px; border: 0.5px solid var(--color-border-info); border-radius: 3px; background: rgba(0, 0, 0, 0.04); }
+ .weapon-edit-row .we-gun:hover { background: rgba(0, 0, 0, 0.12); }
+ .weapon-edit-row .we-nogun { color: var(--color-text-tertiary); font-size: 11px; cursor: pointer; padding: 2px 6px; opacity: 0.4; }
+ .weapon-edit-row .we-nogun:hover { opacity: 0.8; }
  .weapon-edit-row .we-del { margin-left: auto; cursor: pointer; color: var(--color-text-danger); font-weight: 700; opacity: 0.6; }
  .weapon-edit-row .we-del:hover { opacity: 1; }
  /* Spell reference */
@@ -532,6 +541,12 @@
      <div class="cond-list" id="cond-list"></div>
    </div>
 
+   <div class="trait-group-label" style="margin-top:16px;">Active Effects</div>
+   <div class="cond-block">
+     <div class="planet-note">Spell effects that persist across turns: DoT (damage), HoT (healing), buffs, and debuffs. These are applied automatically each round.</div>
+     <div class="cond-list" id="active-effects-list"></div>
+   </div>
+
  </div>
  </div>
 
@@ -624,6 +639,7 @@
      <option value="lightning">Lightning</option>
    </select>
    <input type="number" id="wpn-damage" min="0" max="99" value="2" title="HP damage" />
+   <label class="weapon-checkbox"><input type="checkbox" id="wpn-gun"> Requires reload</label>
    <button onclick="addWeapon()">Add weapon</button>
  </div>
  <div class="weapon-cat-label">Melee</div>
@@ -1179,6 +1195,7 @@
  '<span class="we-dmg">' + w.damage + ' HP</span>' +
  '<span class="we-type">' + (w.dtype || 'slashing') + '</span>' +
  (w.element && w.element !== 'none' ? '<span class="we-fire">' + (ELEMENTS[w.element] ? ELEMENTS[w.element].label : w.element) + '</span>' : '') +
+ (w.cooldown ? '<span class="we-gun" title="Requires 1-turn reload" onclick="toggleWeaponGun(\'' + w.name.replace(/'/g,"\\'") + '\')">⚙ gun</span>' : '<span class="we-nogun" title="Click to make a gun" onclick="toggleWeaponGun(\'' + w.name.replace(/'/g,"\\'") + '\')">-</span>') +
  '<span class="we-del" onclick="deleteWeapon(\'' + w.name.replace(/'/g,"\\'") + '\')">×</span></div>'
  ).join('') : '<div class="cond-pick-empty">None.</div>';
  });
@@ -1192,8 +1209,12 @@
  const element = document.getElementById('wpn-element').value;
  const dtype = document.getElementById('wpn-dtype').value;
  const damage = Math.max(0, Math.min(99, parseInt(document.getElementById('wpn-damage').value) || 0));
- weapons.push({ name, category, damage, element, dtype });
+ const isGun = document.getElementById('wpn-gun').checked;
+ const weapon = { name, category, damage, element, dtype };
+ if (isGun) weapon.cooldown = 1;  /* 1-turn reload for guns */
+ weapons.push(weapon);
  document.getElementById('wpn-name').value = '';
+ document.getElementById('wpn-gun').checked = false;
  renderWeaponEditor();
  renderEquippedWeapon();
  saveState();
@@ -1205,6 +1226,19 @@
  Object.values(roster).forEach(c => { if (c.equippedWeapon === name) c.equippedWeapon = null; });
  renderWeaponEditor();
  renderEquippedWeapon();
+ saveState();
+ }
+
+ /* Toggle gun status (requires 1-turn reload) on a weapon */
+ function toggleWeaponGun(name) {
+ const w = weapons.find(x => x.name === name);
+ if (!w) return;
+ if (w.cooldown) {
+ delete w.cooldown;  /* Remove gun status */
+ } else {
+ w.cooldown = 1;  /* Add gun status (1-turn reload) */
+ }
+ renderWeaponEditor();
  saveState();
  }
 
@@ -1255,6 +1289,7 @@
  if (!Array.isArray(c.equipped)) c.equipped = [];
  if (!Array.isArray(c.known)) c.known = [];
  if (!Array.isArray(c.traits)) c.traits = [];
+ if (!Array.isArray(c.activeEffects)) c.activeEffects = [];
  if (!c.stats || typeof c.stats !== 'object') c.stats = { str: 0, agi: 0, spd: 0, dex: 0 };
  ['str','agi','spd','dex'].forEach(k => { if (typeof c.stats[k] !== 'number') c.stats[k] = 0; });
  }
@@ -1899,6 +1934,23 @@
  }).join('');
  }
 
+ /* Active effects list (DoT, HoT, buffs) */
+ const effectsList = document.getElementById('active-effects-list');
+ if (effectsList) {
+ if (!c.activeEffects || !c.activeEffects.length) {
+ effectsList.innerHTML = '<span class="cond-empty">No active effects.</span>';
+ } else {
+ effectsList.innerHTML = c.activeEffects.map((eff, i) => {
+ const typeLabel = eff.type === 'dot' ? 'DoT' : (eff.type === 'hot' ? 'HoT' : eff.type.toUpperCase());
+ const amountLabel = eff.type === 'dot' ? eff.damage + ' dmg' : (eff.type === 'hot' ? '+' + eff.healing + ' HP' : '');
+ return '<span class="effect-chip">' +
+ '<span class="effect-name">' + eff.name.replace(/</g,'&lt;') + '</span>' +
+ '<span class="effect-meta">' + typeLabel + (amountLabel ? ': ' + amountLabel : '') + ' &middot; ' + eff.roundsLeft + ' rounds</span>' +
+ '</span>';
+ }).join('');
+ }
+ }
+
  /* GM notes */
  const notesEmpty = document.getElementById('notes-empty');
  const notesEl = document.getElementById('gm-notes');
@@ -2151,7 +2203,7 @@
  const name = input.value.trim();
  if (!name) return;
  if (!roster[name]) {
- roster[name] = { spellsToday: 0, lastReset: todayStr(), hp: 10, maxHp: 10, conditions: [], bleedStart: null, bleedAnchorHp: null, notes: '', log: [], equippedWeapon: null, equipped: [], known: [], traits: [], stats: { str: 0, agi: 0, spd: 0, dex: 0 } };
+ roster[name] = { spellsToday: 0, lastReset: todayStr(), hp: 10, maxHp: 10, conditions: [], bleedStart: null, bleedAnchorHp: null, notes: '', log: [], equippedWeapon: null, equipped: [], known: [], traits: [], activeEffects: [], stats: { str: 0, agi: 0, spd: 0, dex: 0 } };
  }
  input.value = '';
  activeChar = name;
@@ -2301,12 +2353,16 @@
  /* Apply a clean-cast spell's damage / heal / condition to a target character */
  function applySpellToTarget(caster, targetName, tgt, spell) {
  const eff = parseSpellEffect(spell);
+ const multiTurn = parseMultiTurnEffect(spell);
  const notes = [];
  const cap = effMaxHp(tgt);
  const isSelf = targetName === activeChar;
  const src = isSelf ? 'Self-cast' : ('by ' + activeChar);
  const hitSrc = isSelf ? 'Self-cast' : ('Hit by ' + activeChar);
  const nm = (spell.name || '').toLowerCase();
+
+ /* Initialize activeEffects array if missing */
+ if (!tgt.activeEffects) tgt.activeEffects = [];
 
  /* Spells that both damage and heal (e.g. Redpalm) resolve by target:
     on self they cauterize (heal, no fire damage); on others they burn (damage, no heal). */
@@ -2383,6 +2439,23 @@
  notes.push(targetName + ' gains: ' + cn);
  });
  }
+
+ /* Apply multi-turn effects (DoT, HoT) if detected in spell description */
+ if (multiTurn) {
+ const eff = createActiveEffect(
+ spell.name,
+ multiTurn.type,
+ multiTurn.type === 'dot' ? multiTurn.damage : multiTurn.healing,
+ multiTurn.duration,
+ spell.school,
+ activeChar
+ );
+ tgt.activeEffects.push(eff);
+ const label = multiTurn.type === 'dot' ? 'damage' : 'healing';
+ notes.push(spell.name + ': ' + multiTurn.duration + ' rounds of ' + (multiTurn.type === 'dot' ? multiTurn.damage : multiTurn.healing) + ' ' + label + ' per turn applied.');
+ logEvent(tgt, spell.name + ' applied: ' + multiTurn.duration + '-turn ' + label + ' effect');
+ }
+
  return notes.length ? notes.join('. ') + '.' : null;
  }
 
@@ -2622,6 +2695,92 @@
  }
 
  /* ── SPELL REFERENCE ──────────────────────────────────────────── */
+ /* ── ACTIVE EFFECTS SYSTEM ────────────────────────────────────────
+    Tracks spell effects that persist across turns: DoT, healing, buffs, debuffs.
+    Each effect in an activeEffects array has:
+    { name, type, damage, healing, condition, duration, roundsLeft, school, source }
+    Types: 'dot' (damage over time), 'hot' (healing over time), 'buff', 'debuff' */
+ function createActiveEffect(name, type, amount, duration, school, source, condition) {
+ return {
+ name,
+ type,        /* 'dot', 'hot', 'buff', 'debuff', 'channel' */
+ damage: type === 'dot' ? amount : 0,
+ healing: type === 'hot' ? amount : 0,
+ condition,   /* condition name to apply/track for buffs/debuffs */
+ duration,    /* total duration in rounds */
+ roundsLeft,  /* rounds remaining (counts down) */
+ school,      /* spell school for reference */
+ source       /* caster name */
+ };
+ }
+
+ /* Apply active effects tick at start of turn. Returns log message if anything happened. */
+ function applyActiveEffects(c, name) {
+ if (!c.activeEffects) c.activeEffects = [];
+ const notes = [];
+ const expiredIndices = [];
+
+ c.activeEffects.forEach((eff, idx) => {
+ if (eff.roundsLeft <= 0) { expiredIndices.push(idx); return; }
+
+ if (eff.type === 'dot' && eff.damage > 0) {
+ const before = effectiveHp(c);
+ const after = Math.max(0, Math.round(before) - eff.damage);
+ c.hp = after;
+ if (c.bleedStart) { c.bleedAnchorHp = after; c.bleedStart = Date.now(); }
+ notes.push(name + ' takes ' + eff.damage + ' ' + eff.name + ' damage (' + after + '/' + effMaxHp(c) + ')');
+ logEvent(c, eff.name + ' deals ' + eff.damage + ' damage (' + after + '/' + effMaxHp(c) + ')');
+ } else if (eff.type === 'hot' && eff.healing > 0) {
+ const before = effectiveHp(c);
+ const after = Math.min(effMaxHp(c), Math.round(before) + eff.healing);
+ c.hp = after;
+ if (c.bleedStart) c.bleedStart = null; c.bleedAnchorHp = null;
+ notes.push(name + ' heals ' + eff.healing + ' HP from ' + eff.name + ' (' + after + '/' + effMaxHp(c) + ')');
+ logEvent(c, eff.name + ' heals ' + eff.healing + ' HP (' + after + '/' + effMaxHp(c) + ')');
+ }
+
+ eff.roundsLeft--;
+ if (eff.roundsLeft <= 0) expiredIndices.push(idx);
+ });
+
+ /* Clean up expired effects */
+ expiredIndices.reverse().forEach(idx => {
+ const eff = c.activeEffects[idx];
+ if (eff && eff.condition && eff.type === 'buff') {
+ c.conditions = c.conditions.filter(x => x.toLowerCase() !== eff.condition.toLowerCase());
+ notes.push(eff.condition + ' expires.');
+ }
+ c.activeEffects.splice(idx, 1);
+ });
+
+ return notes.length ? notes.join(' ') : null;
+ }
+
+ /* Parse spell descriptions for multi-turn effects. Detects patterns like:
+    "1 HP dmg each turn for 3 turns" or "heals 2 HP per turn for 4 turns" */
+ function parseMultiTurnEffect(spell) {
+ const inflict = (spell.inflict || '') + ' ' + (spell.effect || '');
+ /* Match "X damage/dmg each turn for Y turns" */
+ const dotM = inflict.match(/(\d+)\s*(?:HP\s*)?(?:dmg|damage)\s+(?:each\s+)?turn\s+for\s+(\d+)\s*turns?/i);
+ if (dotM) {
+ return {
+ type: 'dot',
+ damage: Math.round(parseInt(dotM[1]) * SPELL_DAMAGE_SCALE),
+ duration: parseInt(dotM[2])
+ };
+ }
+ /* Match "X heal/heals X HP per turn for Y turns" */
+ const hotM = inflict.match(/heals?\s+(\d+)\s*(?:HP)?\s+(?:per|each)\s+turn\s+for\s+(\d+)\s*turns?/i);
+ if (hotM) {
+ return {
+ type: 'hot',
+ healing: parseInt(hotM[1]),
+ duration: parseInt(hotM[2])
+ };
+ }
+ return null;
+ }
+
  const SPELLS = [
  {school:'Flames',name:'Ignite',tier:'I',dur:'Instant',effect:'Flicks a small jet of fire from the finger. Negates the need for gunpowder for gunwielders.',inflict:'No effects.',miscast:'No spark is lit.'},
  {school:'Flames',name:'Redpalm',tier:'I',dur:'30 Seconds',effect:'Chosen palm reaches incredibly high heat, melting basic metal or cauterizing wounds. On self it seals wounds (heals, stops bleeding); on others it burns.',inflict:'Minor burn scars, 1 HP dmg, 1 HP heal',miscast:'Hand overloaded; arm goes numb for hours (Nerve-dead arm).'},
@@ -2654,7 +2813,7 @@
  {school:'Power',name:'Erdungsstift',tier:'III',dur:'5 minutes',effect:'Applies several atmospheres of force in a 10x10m circle. Very strong entities resist.',inflict:'Prone',miscast:'Caster is crushed too (Prone).'},
  {school:'Power',name:'Leviathan',tier:'III',dur:'Indefinite',effect:'Grows to ~30m, able to topple buildings. Longer use breeds aggression and megalomania.',inflict:'Imbued with Colossal Power',miscast:'Grown but bones cannot bear the weight - beached and helpless (Colossal weight).'},
 
- {school:'Insects',name:'Swarmarchia',tier:'I',dur:'1 day',effect:'Taps insect swarm intelligence. Large swarms gain speech and can be ordered into combat. Recast daily.',inflict:'Insect Stings, 2 HP dmg',miscast:'Collective intelligence lost; frenzied cloud attacks itself and nearby.'},
+ {school:'Insects',name:'Swarmarchia',tier:'I',dur:'1 day',effect:'Taps insect swarm intelligence. Large swarms gain speech and can be ordered into combat. Recast daily.',inflict:'Insect Stings, 2 HP dmg each turn for 3 turns',miscast:'Collective intelligence lost; frenzied cloud attacks itself and nearby.'},
  {school:'Insects',name:'Scleroderma',tier:'I',dur:'30 Minutes',effect:'Hardens skin with chitin. Slower movement and increased heat vulnerability.',inflict:'Chitin Skin',miscast:'Chitin burrows too deep; movement reduced, must be painfully removed (Rooted Chitin Skin).'},
  {school:'Insects',name:'Pseudopupila',tier:'I',dur:'10 Minutes',effect:'Eyes form a compound structure, seeing hidden details and granting alertness.',inflict:'Compound Vision',miscast:'Grows random extra insectoid eyes; disorienting unless covered (Disorientation).'},
  {school:'Insects',name:'Cockroach-song',tier:'II',dur:'Instant',effect:'Forces a subject to vomit up to a pound of insects, usually immobilising them.',inflict:'Nausea',miscast:'Insects heed the song and crawl into the caster\u2019s mouth (Nausea).'},
@@ -2707,7 +2866,7 @@
  {school:'Changes',name:'Softvault',tier:'III',dur:'Indefinite',effect:'Spellsinger creates an arcane box of a permeable, see-through glass-like substance. One item can be stored in the vault and cannot be accessed by anyone unless the spellsinger grants access. If the spellsinger is killed, the object is instantly melted.',inflict:'',miscast:'The object placed within melts immediately.'},
  {school:'Memories',name:'Forme liquide',tier:'II',dur:'1 Hour',effect:'Spellsinger turns themselves into a sentient liquid or mist. In this state they move with ease, cannot be harmed, and can maintain their summons. They cannot act, cast spells, or speak in this form.',inflict:'',miscast:'All of the spellsinger\'s bones break, healing on the next lunar cycle.'},
  {school:'Memories',name:'Commandement d\'Ashr',tier:'II',dur:'Instant',effect:'Spellsinger gains limited control over water and liquid through mental suggestion: stopping bleeding, walking on water, generating whirlpools, and blocking or causing floods. Only usable during a full moon.',inflict:'',miscast:'Spellsinger turns into a liquid until the next lunar cycle; still able to speak and think, but unable to control their movements.'},
- {school:'Power',name:'Blitz',tier:'II',dur:'Instant',effect:'Up to four people near the target are instantly electrocuted by a quickly spreading web of lightning. Deals 1 damage each turn for 3 turns.',inflict:'1 HP dmg',miscast:'The spellsinger electrocutes themselves as well.'},
+ {school:'Power',name:'Blitz',tier:'II',dur:'Instant',effect:'Up to four people near the target are instantly electrocuted by a quickly spreading web of lightning. Deals 1 damage each turn for 3 turns.',inflict:'1 HP dmg each turn for 3 turns',miscast:'The spellsinger electrocutes themselves as well.'},
  {school:'Revelations',name:'The Lovers',tier:'II',dur:'Instant',effect:'Spellsinger gains the ability to read a target\'s mind, including their unconscious desires.',inflict:'',miscast:'The spellsinger fails to read the target, and the target is fully aware of the attempt.'},
  {school:'Revelations',name:'The Chariot',tier:'II',dur:'Instant',effect:'In a brilliant ray of light, the spellsinger teleports to a location they can see.',inflict:'',miscast:'Spellsinger teleports to the location, but is reduced to 0 HP.'}
  ];
@@ -3260,7 +3419,28 @@
  if (!live.length) { if (!checkAutoConclude(id)) { renderBattles(); saveState(); } return; }
  b.turn = (b.turn + 1) % live.length;
  b.acted = false;   /* fresh turn, fresh action */
- if (b.turn === 0) { b.round++; bLog(b, 'Round ' + b.round + ' begins.'); }
+ if (b.turn === 0) {
+ b.round++;
+ bLog(b, 'Round ' + b.round + ' begins.');
+ /* Apply active effects (DoT, HoT) to all combatants at start of round */
+ live.forEach(name => {
+ const c = roster[name];
+ if (c) {
+ const effectsMsg = applyActiveEffects(c, name);
+ if (effectsMsg) bLog(b, effectsMsg);
+ }
+ });
+ } else {
+ /* Apply active effects to the current actor at start of their turn */
+ const actor = currentActor(b);
+ if (actor) {
+ const c = roster[actor];
+ if (c) {
+ const effectsMsg = applyActiveEffects(c, actor);
+ if (effectsMsg) bLog(b, effectsMsg);
+ }
+ }
+ }
  if (checkAutoConclude(id)) return;
  renderBattles();
  saveState();
@@ -3546,8 +3726,10 @@
  const cls = 'combatant' + (isTurn ? ' turn-now' : '') + (down ? ' down' : '') + (esc ? ' escaped' : '');
  const st = c.stats;
  const tag = esc ? ' (escaped)' : down ? ' (down)' : '';
+ const stageLabel = hpStageLabel(hp);
+ const stageColor = hp <= 0 ? '#cc0000' : hp <= cap / 2 ? '#b35900' : '#008000';
  return '<div class="' + cls + '"><span>' + name + tag +
- ' <span style="color:var(--color-text-tertiary,#888);">' + hp + '/' + cap + ' HP &middot; S' + st.str + ' A' + st.agi + ' Sp' + st.spd + ' D' + st.dex + '</span></span>' +
+ ' <span style="color:var(--color-text-tertiary,#888);">' + hp + '/' + cap + ' HP <span style="color:' + stageColor + '; font-weight: bold; text-transform: capitalize;">(' + stageLabel + ')</span> &middot; S' + st.str + ' A' + st.agi + ' Sp' + st.spd + ' D' + st.dex + '</span></span>' +
  (b.status !== 'done' ? '<button class="c-x" title="Remove from battle" onclick="removeFromBattle(' + b.id + ',\'' + name.replace(/'/g, "\\'") + '\')">&times;</button>' : '') +
  '</div>';
  }
@@ -3611,13 +3793,22 @@
  const el = document.getElementById('battle-log-list');
  if (!el) return;
  if (!battleLog.length) { el.innerHTML = '<span class="char-chip-empty">No concluded battles yet.</span>'; return; }
- el.innerHTML = battleLog.map(e =>
+ el.innerHTML = battleLog.map((e, idx) =>
  '<div class="blog-entry"><span class="blog-result">' + e.name + ':</span> ' + e.result +
  '<div style="color:var(--color-text-tertiary,#888);font-size:11px;margin-top:2px;">' + e.rounds + ' round' + (e.rounds === 1 ? '' : 's') +
  ' &middot; ' + ((e.sideNames && e.sideNames.A) || 'Side A') + ': ' + (e.sides.A.join(', ') || '-') +
  ' &middot; ' + ((e.sideNames && e.sideNames.B) || 'Side B') + ': ' + (e.sides.B.join(', ') || '-') +
  (e.escaped.length ? ' &middot; Escaped: ' + e.escaped.join(', ') : '') +
- ' &middot; ' + fmtBattleTime(e.when) + '</div></div>').join('');
+ ' &middot; ' + fmtBattleTime(e.when) + '</div>' +
+ '<button style="margin-top:6px; font-size:11px; color:#8f2020; background:#f6dede; border:1px solid #d08a8a; padding:3px 10px; cursor:pointer;" onclick="deleteBattleRecord(' + idx + ')">Delete</button></div>').join('');
+ }
+
+ /* Delete a battle from the archive record */
+ function deleteBattleRecord(idx) {
+ if (!confirm('Delete this battle record? This cannot be undone.')) return;
+ battleLog.splice(idx, 1);
+ renderBattleArchive();
+ saveState();
  }
 
  loadState().then(() => {
