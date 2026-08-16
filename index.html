@@ -2425,6 +2425,8 @@
  /* strip the HP clauses, then tidy stray separators left behind */
  let cond = inflict
  .replace(/,?\s*\d+\s*HP\s*(?:dmg|damage|heal)/ig, '')
+ /* a per-turn clause belongs to the lingering effect, not to the condition name */
+ .replace(/\s*(?:each|per)\s+turn\s+for\s+\d+\s*turns?/ig, '')
  .replace(/[\/,]\s*$/g, '')      /* trailing slash or comma */
  .replace(/^[-\s\/,]+/, '')      /* leading dashes/slashes/commas */
  .replace(/\s{2,}/g, ' ')
@@ -2533,7 +2535,7 @@
 
  /* Apply multi-turn effects (DoT, HoT) if detected in spell description */
  if (multiTurn) {
- const eff = createActiveEffect(
+ const lingering = createActiveEffect(
  spell.name,
  multiTurn.type,
  multiTurn.type === 'dot' ? multiTurn.damage : multiTurn.healing,
@@ -2541,9 +2543,9 @@
  spell.school,
  activeChar
  );
- tgt.activeEffects.push(eff);
+ tgt.activeEffects.push(lingering);
  const label = multiTurn.type === 'dot' ? 'damage' : 'healing';
- notes.push(spell.name + ': ' + multiTurn.duration + ' rounds of ' + (multiTurn.type === 'dot' ? multiTurn.damage : multiTurn.healing) + ' ' + label + ' per turn applied.');
+ notes.push(spell.name + ' lingers: ' + (multiTurn.type === 'dot' ? multiTurn.damage : multiTurn.healing) + ' ' + label + ' per turn for ' + multiTurn.duration + ' turns');
  logEvent(tgt, spell.name + ' applied: ' + multiTurn.duration + '-turn ' + label + ' effect');
  }
 
@@ -2794,14 +2796,14 @@
  function createActiveEffect(name, type, amount, duration, school, source, condition) {
  return {
  name,
- type,        /* 'dot', 'hot', 'buff', 'debuff', 'channel' */
+ type,               /* 'dot', 'hot', 'buff', 'debuff', 'channel' */
  damage: type === 'dot' ? amount : 0,
  healing: type === 'hot' ? amount : 0,
- condition,   /* condition name to apply/track for buffs/debuffs */
- duration,    /* total duration in rounds */
- roundsLeft,  /* rounds remaining (counts down) */
- school,      /* spell school for reference */
- source       /* caster name */
+ condition,          /* condition name to apply/track for buffs/debuffs */
+ duration,           /* total duration in rounds */
+ roundsLeft: duration, /* rounds remaining, counted down each round */
+ school,             /* spell school for reference */
+ source              /* caster name */
  };
  }
 
@@ -3724,6 +3726,44 @@
  return checkAutoConclude(id);
  }
 
+ /* ── SWARMS ───────────────────────────────────────────────────────
+    A conjured swarm clings to its victim and keeps stinging. Unlike most
+    lingering harm it can be driven off by hand: a fighter who gives up their
+    action to swat clears the stings and whatever is still ticking with them. */
+ const SWARM_CONDITION = 'Insect Stings';
+ const SWARM_SCHOOL = 'Insects';
+
+ function hasSwarm(c) {
+ if (!c || !Array.isArray(c.conditions)) return false;
+ return c.conditions.some(x => x.toLowerCase() === SWARM_CONDITION.toLowerCase());
+ }
+
+ /* Give up the turn to drive off a swarm. Clears the condition and any
+    lingering insect effect still counting down. */
+ function battleSwat(id) {
+ const b = battles[id]; if (!b || b.status !== 'active') return;
+ if (b.acted) return;
+ const name = currentActor(b); if (!name) return;
+ const c = roster[name]; if (!c) return;
+ migrateChar(c);
+ if (!hasSwarm(c)) { showBattleResult(id, 'Nothing to swat at.'); return; }
+
+ c.conditions = c.conditions.filter(x => x.toLowerCase() !== SWARM_CONDITION.toLowerCase());
+ const cleared = (c.activeEffects || []).filter(e => e.school === SWARM_SCHOOL);
+ c.activeEffects = (c.activeEffects || []).filter(e => e.school !== SWARM_SCHOOL);
+
+ const tail = cleared.length
+ ? ' The ' + cleared.map(e => e.name).join(' and ') + ' effect breaks up.'
+ : '';
+ bLog(b, name + ' swats the swarm away.' + tail);
+ logEvent(c, 'Swatted away the swarm' + (cleared.length ? ' (' + cleared.map(e => e.name).join(', ') + ' cleared)' : ''), 'heal');
+ showBattleResult(id, name + ' beats the insects off.' + tail);
+ renderStatus();
+ if (afterAction(id)) return;
+ renderBattles();
+ saveState();
+ }
+
  function endTurn(id) {
  const b = battles[id]; if (!b || b.status !== 'active') return;
  /* A landed blow must be answered before the fight moves on. */
@@ -3921,11 +3961,16 @@
  : '<div class="bap-row"><span class="loadout-empty">No weapons equipped - assign some on the Loadout tab.</span></div>')) + coolNote;
  const meleeRow = '<div class="bap-row' + rowCls + '"><span class="bap-melee-label">Unarmed melee (' + uw.damage + ' HP, ' + (uw.dtype || 'blunt') + ')</span>' +
  '<button class="act-btn" onclick="battleMelee(' + id + ')"' + dis + '>Melee</button></div>';
+ /* Only offered while something is actually stinging them. */
+ const swatRow = hasSwarm(c)
+ ? '<div class="bap-row' + rowCls + '"><span class="bap-melee-label">A swarm clings to ' + actor + '</span>' +
+ '<button class="act-btn" onclick="battleSwat(' + id + ')"' + dis + '>Swat</button></div>'
+ : '';
  const spentNote = spent ? '<div class="bap-row"><span class="bap-spent-note">Action used - end the turn to continue.</span></div>' : '';
  return '<div class="battle-action-panel">' +
  '<h4><span class="bap-actor">' + actor + '</span> chooses to:</h4>' +
  '<div class="bap-row"><label class="bap-target-label">Target</label><select id="bap-target-' + id + '">' + opts + '</select></div>' +
- castRow + strikeRow + meleeRow + spentNote +
+ castRow + strikeRow + meleeRow + swatRow + spentNote +
  '<div class="bap-row bap-turn-row">' +
  '<button class="btn-escape" onclick="attemptEscape(' + id + ')">Attempt escape</button>' +
  '<button class="btn-endturn' + (b.acted ? ' turn-spent' : '') + '" onclick="endTurn(' + id + ')">' +
