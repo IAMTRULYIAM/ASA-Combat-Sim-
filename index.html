@@ -322,6 +322,16 @@
  .weapon-edit-row .we-nogun:hover { opacity: 0.8; }
  .weapon-edit-row .we-del { margin-left: auto; cursor: pointer; color: var(--color-text-danger); font-weight: 700; opacity: 0.6; }
  .weapon-edit-row .we-del:hover { opacity: 1; }
+ /* Armour toggle and battle-row state tags */
+ .armour-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding: 8px 0; }
+ .armour-btn { font-size: 12px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.08em; padding: 6px 16px; border: 1.5px solid #444; background: #e2e2e2; color: #333; cursor: pointer; }
+ .armour-btn.armour-on { background: #444; color: #fff; border-color: #222; }
+ .block-count { font-size: 11px; color: #555; }
+ .block-tag { display: inline-block; font-size: 9px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.06em; padding: 1px 6px; margin-left: 6px; border: 1px solid #2a6d8f; background: #dbeaf2; color: #1a4a63; }
+ .block-tag-out { border-color: #999; background: #eee; color: #777; }
+ .bap-pending { border-color: #b0704f; background: rgba(176,112,79,0.08); }
+ .armour-tag, .empty-tag { display: inline-block; font-size: 9px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.06em; padding: 1px 6px; margin-left: 6px; border: 1px solid #888; background: #ececec; color: #444; }
+ .empty-tag { border-color: #a06a20; background: #f5e6cc; color: #7a4d10; }
  /* Spell reference */
  .spell-table { width: 100%; border-collapse: collapse; font-size: 12px; }
  .spell-table th { text-align: left; font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--color-text-tertiary); padding: 6px 8px; border-bottom: 0.5px solid var(--color-border-tertiary); position: sticky; top: 0; background: var(--color-background-primary); }
@@ -515,7 +525,7 @@
    </div>
    </div>
    <div class="trait-group-label">Attributes (20 points)</div>
-   <div class="planet-note">Distribute up to 20 points, 0 to 10 per attribute. Strength adds melee damage (+1 per 4 points). Agility makes you harder to hit (-4% per point). Speed drives escape attempts. Dexterity sets initiative order and sharpens your attacks (+3% to hit per point).</div>
+   <div class="planet-note">Distribute up to 20 points, 0 to 10 per attribute. Strength adds melee damage (+1 per 4 points). Agility makes you harder to hit (-4% per point). Speed drives escape attempts. Dexterity feeds the initiative roll, sharpens your attacks (+3% to hit per point), and governs dodging. Strength governs blocking.</div>
    <div class="stat-remaining" id="stat-remaining">20 points remaining</div>
    <div class="stat-grid">
      <div class="stat-cell"><label for="stat-str">Strength</label><input type="number" id="stat-str" min="0" max="10" value="0" onchange="setStat('str',this)" /><span class="stat-fx" id="fx-str"></span></div>
@@ -566,6 +576,41 @@
    <div class="loadout-grid" id="equip-grid-ranged"></div>
  </div>
 
+ <div class="loadout-school" style="margin-top:18px;">Armour</div>
+ <div class="armour-row" id="armour-toggle-box"><span class="loadout-empty">Select a character first.</span></div>
+
+ <div class="loadout-school" style="margin-top:14px;">Shield</div>
+ <div class="armour-row" id="shield-toggle-box"><span class="loadout-empty">Select a character first.</span></div>
+
+ <div class="section-title-static" style="margin-top:22px;">Weapon editor</div>
+ <div class="planet-note">Add or remove weapons available to the whole cast. HP damage is applied on a strike. Damage type: slashing can open a bleed, blunt can daze, piercing is clean and ignores armour. Elements are negated by matching immunity. A weapon that requires reload holds one shot and must be reloaded as a full action before it can fire again.</div>
+ <div class="weapon-add-grid">
+   <input type="text" id="wpn-name" placeholder="Weapon name" />
+   <select id="wpn-category">
+     <option value="melee">Melee</option>
+     <option value="ranged">Ranged</option>
+   </select>
+   <select id="wpn-dtype">
+     <option value="slashing">Slashing</option>
+     <option value="piercing">Piercing</option>
+     <option value="blunt">Blunt</option>
+   </select>
+   <select id="wpn-element">
+     <option value="none">Physical</option>
+     <option value="fire">Fire</option>
+     <option value="frost">Frost</option>
+     <option value="venom">Venom</option>
+     <option value="lightning">Lightning</option>
+   </select>
+   <input type="number" id="wpn-damage" min="0" max="99" value="2" title="HP damage" />
+   <label class="weapon-checkbox"><input type="checkbox" id="wpn-gun"> Requires reload</label>
+   <button onclick="addWeapon()">Add weapon</button>
+ </div>
+ <div class="weapon-cat-label">Melee</div>
+ <div class="weapon-edit-list" id="weapon-list-melee"></div>
+ <div class="weapon-cat-label">Ranged</div>
+ <div class="weapon-edit-list" id="weapon-list-ranged"></div>
+
  <div class="section-title-static" style="margin-top:22px;">Spells learned</div>
  <div id="spells-empty" class="loadout-empty">Select a character first.</div>
  <div id="spells-body" style="display:none;">
@@ -580,7 +625,7 @@
 <!-- BATTLE TRACKER -->
 <div class="section acc-danger collapsible tabpg-battle" id="battle-section">
  <div class="section-title" onclick="toggleSection(this)">Battle tracker</div>
- <div class="planet-note">Create a battle, add fighters to each side, then start it. Mark each side as attacking, defending, or surprised to reflect how the fight began; this shifts to-hit chances both ways. Initiative is ordered by Dexterity. The fighter whose turn it is shows their own choices on the card. Multiple battles can run at once.</div>
+ <div class="planet-note">Create a battle, add fighters to each side, then start it. Mark each side as attacking, defending, or surprised to reflect how the fight began; this shifts to-hit chances both ways. Initiative is rolled fresh at the top of every round: a d10 plus Dexterity. The fighter whose turn it is shows their own choices on the card. Multiple battles can run at once.</div>
  <div class="char-bar">
    <input type="text" id="battle-new-name" placeholder="New battle name (e.g. Ambush at the mill)" onkeydown="if(event.key==='Enter')createBattle()" />
    <button onclick="createBattle()">Create battle</button>
@@ -612,40 +657,12 @@
     <div class="dmg-result" id="dmg-result"></div>
   </div>
 </div>
-<!-- GM TOOLS (notes + weapon editor) -->
+<!-- GM TOOLS (notes) -->
 <div class="section acc-gm collapsible collapsed tabpg-char">
 <div class="section-title" onclick="toggleSection(this)">GM tools</div>
 <div class="combat-sub">GM notes</div>
  <div id="notes-empty" class="status-empty">Select a character to add notes.</div>
  <textarea id="gm-notes" class="gm-notes" placeholder="Private GM notes for this character..." style="display:none;" oninput="onNotesInput()"></textarea>
-<div class="combat-sub">Weapon editor</div>
- <div class="planet-note">Add or remove weapons. HP damage is applied on a strike. Damage type: slashing can open a bleed, blunt can daze, piercing is clean. Elements are negated by matching immunity.</div>
- <div class="weapon-add-grid">
-   <input type="text" id="wpn-name" placeholder="Weapon name" />
-   <select id="wpn-category">
-     <option value="melee">Melee</option>
-     <option value="ranged">Ranged</option>
-   </select>
-   <select id="wpn-dtype">
-     <option value="slashing">Slashing</option>
-     <option value="piercing">Piercing</option>
-     <option value="blunt">Blunt</option>
-   </select>
-   <select id="wpn-element">
-     <option value="none">Physical</option>
-     <option value="fire">Fire</option>
-     <option value="frost">Frost</option>
-     <option value="venom">Venom</option>
-     <option value="lightning">Lightning</option>
-   </select>
-   <input type="number" id="wpn-damage" min="0" max="99" value="2" title="HP damage" />
-   <label class="weapon-checkbox"><input type="checkbox" id="wpn-gun"> Requires reload</label>
-   <button onclick="addWeapon()">Add weapon</button>
- </div>
- <div class="weapon-cat-label">Melee</div>
- <div class="weapon-edit-list" id="weapon-list-melee"></div>
- <div class="weapon-cat-label">Ranged</div>
- <div class="weapon-edit-list" id="weapon-list-ranged"></div>
 </div>
 
 
@@ -1137,12 +1154,54 @@
  return;
  }
 
+ /* A landed blow the defender could still turn aside pauses here: the choice
+    to spend a block belongs to the defender, so the strike is held pending. */
+ if (btl && isBlockable(w) && blocksLeft(btl, tgtName) > 0) {
+ btl.pendingStrike = {
+ attName: activeChar, tgtName: tgtName, wName: w.name,
+ el: el, unarmed: isUnarmed(w)
+ };
+ const msg = activeChar + ' lands ' + w.name + ' on ' + tgtName + '. ' +
+ tgtName + ' may block (' + blocksLeft(btl, tgtName) + ' left).';
+ resEl.textContent = msg;
+ resEl.className = 'dmg-result';
+ bLog(btl, msg);
+ renderBattles();
+ saveState();
+ return;
+ }
+
+ resolveStrike(activeChar, tgtName, w, el, btl, false);
+ renderStatus();
+ saveState();
+ }
+
+ /* Work out and apply a connected blow. Shared by the immediate path and by
+    the deferred path where the defender was offered a block first. */
+ function resolveStrike(attName, tgtName, w, el, btl, wasBlocked) {
+ const attacker = roster[attName], tgt = roster[tgtName];
+ if (!attacker || !tgt) return '';
+ migrateChar(attacker); migrateChar(tgt);
+ const resEl = document.getElementById('dmg-result');
+
+ if (wasBlocked) {
+ const msg = tgtName + ' blocks ' + attName + '\'s ' + w.name + '. No damage.';
+ logEvent(attacker, 'Strike on ' + tgtName + ' was blocked');
+ logEvent(tgt, 'Blocked ' + attName + ' (' + w.name + ')', 'heal');
+ markStruck(attName);
+ battleRecord(attName, tgtName, msg);
+ if (resEl) { resEl.textContent = msg; resEl.className = 'dmg-result negated'; }
+ return msg;
+ }
+
  /* apply damage to target, accounting for any active bleed re-anchor */
  const tb = weaponTraitBonus(attacker, w);
  const strB = w.category === 'melee' ? strDamageBonus(attacker) : 0;
- const aloneB = traitAloneDmgMod(activeChar);
- const openB = assassinOpeningBonus(activeChar, w);
- const totalDmg = Math.max(0, Math.round(w.damage * WEAPON_DAMAGE_SCALE) + tb.dmg + strB + aloneB + openB);
+ const aloneB = traitAloneDmgMod(attName);
+ const openB = assassinOpeningBonus(attName, w);
+ const rawDmg = Math.max(0, Math.round(w.damage * WEAPON_DAMAGE_SCALE) + tb.dmg + strB + aloneB + openB);
+ const armour = applyArmour(tgt, w.dtype, rawDmg);
+ const totalDmg = armour.dmg;
  const cap = effMaxHp(tgt);
  const before = tgt.bleedStart ? effectiveHp(tgt) : tgt.hp;
  const after = Math.max(0, Math.round(before) - totalDmg);
@@ -1151,20 +1210,21 @@
  const elTag = el ? ' ' + (ELEMENTS[el] ? ELEMENTS[el].label : el) : '';
  const traitTag = tb.notes.length ? ' [' + tb.notes.join(', ') + (tb.dmg ? ' +' + tb.dmg : '') + ']' : '';
  let msg = tgtName + ' takes ' + totalDmg + elTag + ' damage (' + after + '/' + cap + ')' + traitTag + '.';
+ if (armour.note) msg += ' ' + tgtName + '\'s ' + armour.note + '.';
  logEvent(attacker, 'Struck ' + tgtName + ' with ' + w.name + ' for ' + totalDmg + elTag + ' HP' + (tb.notes.length ? ' (' + tb.notes.join(', ') + ')' : ''));
- logEvent(tgt, 'Hit by ' + activeChar + ' (' + w.name + ') for ' + totalDmg + elTag + ' HP (now ' + after + '/' + cap + ')');
+ logEvent(tgt, 'Hit by ' + attName + ' (' + w.name + ') for ' + totalDmg + elTag + ' HP (now ' + after + '/' + cap + ')');
 
  /* secondary effects from physical damage type (only if the blow connected and dealt damage) */
  const extras = [];
  if (after < Math.round(before)) {
  if (w.dtype === 'slashing' && !tgt.conditions.some(x => x.toLowerCase() === 'bleeding')) {
  if (Math.random() * 100 < (BLEED_CHANCE + tb.bleed)) {
- addCharConditionNamed(tgt, 'Bleeding', tgtName, w.name, tgtName === activeChar);
+ addCharConditionNamed(tgt, 'Bleeding', tgtName, w.name, tgtName === attName);
  extras.push('opens a bleed');
  }
  } else if (w.dtype === 'blunt' && !tgt.conditions.some(x => x.toLowerCase() === 'dazed')) {
  if (Math.random() * 100 < (DAZE_CHANCE + tb.daze)) {
- addCharConditionNamed(tgt, 'Dazed', tgtName, w.name, tgtName === activeChar);
+ addCharConditionNamed(tgt, 'Dazed', tgtName, w.name, tgtName === attName);
  extras.push('is dazed');
  }
  }
@@ -1176,11 +1236,29 @@
  if (openB) bonusBits.push('+' + openB + ' opening strike');
  if (bonusBits.length) msg += ' (includes ' + bonusBits.join(', ') + ')';
  /* the opening-strike bonus is spent once this strike lands */
- markStruck(activeChar);
- battleRecord(activeChar, tgtName, activeChar + ': ' + msg);
- resEl.textContent = msg;
- resEl.className = 'dmg-result hit';
+ markStruck(attName);
+ battleRecord(attName, tgtName, attName + ': ' + msg);
+ if (resEl) { resEl.textContent = msg; resEl.className = 'dmg-result hit'; }
+ return msg;
+ }
+
+ /* The defender answers a pending strike: spend a block, or take the blow. */
+ function answerPendingStrike(id, doBlock) {
+ const b = battles[id]; if (!b || !b.pendingStrike) return;
+ const p = b.pendingStrike;
+ const w = weaponByName(p.wName) || (p.unarmed ? unarmedWeapon() : null);
+ if (!w) { delete b.pendingStrike; renderBattles(); return; }
+ delete b.pendingStrike;
+ if (doBlock && blocksLeft(b, p.tgtName) > 0) {
+ spendBlock(b, p.tgtName);
+ const msg = resolveStrike(p.attName, p.tgtName, w, p.el, b, true);
+ bLog(b, msg + ' (' + blocksLeft(b, p.tgtName) + ' block' + (blocksLeft(b, p.tgtName) === 1 ? '' : 's') + ' left this round)');
+ } else {
+ const msg = resolveStrike(p.attName, p.tgtName, w, p.el, b, false);
+ bLog(b, p.tgtName + ' takes the hit. ' + msg);
+ }
  renderStatus();
+ renderBattles();
  saveState();
  }
 
@@ -1290,6 +1368,11 @@
  if (!Array.isArray(c.known)) c.known = [];
  if (!Array.isArray(c.traits)) c.traits = [];
  if (!Array.isArray(c.activeEffects)) c.activeEffects = [];
+ /* Armour moved from a boolean to a class; the old flag meant heavy plate. */
+ if (c.armoured === true && !c.armour) c.armour = 'heavy';
+ if (!ARMOUR_CLASSES[c.armour]) c.armour = 'none';
+ delete c.armoured;
+ if (typeof c.shield !== 'boolean') c.shield = false;
  if (!c.stats || typeof c.stats !== 'object') c.stats = { str: 0, agi: 0, spd: 0, dex: 0 };
  ['str','agi','spd','dex'].forEach(k => { if (typeof c.stats[k] !== 'number') c.stats[k] = 0; });
  }
@@ -2195,6 +2278,8 @@
  renderStatus();
  renderStats();
  if (typeof renderEquipLoadout === 'function') renderEquipLoadout();
+ if (typeof renderArmourToggle === 'function') renderArmourToggle();
+ if (typeof renderShieldToggle === 'function') renderShieldToggle();
  if (typeof renderLearnedSpells === 'function') renderLearnedSpells();
  }
 
@@ -2203,7 +2288,7 @@
  const name = input.value.trim();
  if (!name) return;
  if (!roster[name]) {
- roster[name] = { spellsToday: 0, lastReset: todayStr(), hp: 10, maxHp: 10, conditions: [], bleedStart: null, bleedAnchorHp: null, notes: '', log: [], equippedWeapon: null, equipped: [], known: [], traits: [], activeEffects: [], stats: { str: 0, agi: 0, spd: 0, dex: 0 } };
+ roster[name] = { spellsToday: 0, lastReset: todayStr(), hp: 10, maxHp: 10, conditions: [], bleedStart: null, bleedAnchorHp: null, notes: '', log: [], equippedWeapon: null, equipped: [], known: [], traits: [], activeEffects: [], armour: 'none', shield: false, stats: { str: 0, agi: 0, spd: 0, dex: 0 } };
  }
  input.value = '';
  activeChar = name;
@@ -2390,19 +2475,25 @@
  if (doDamage && doHeal) {
  if (isSelf) doDamage = false; else doHeal = false;
  }
+ /* A spell whose damage is written as a per-turn figure pays out through its
+    lingering effect only; applying the same number up front would double it. */
+ if (multiTurn && multiTurn.type === 'dot') doDamage = false;
+ if (multiTurn && multiTurn.type === 'hot') doHeal = false;
 
  if (doDamage) {
  if (eff.fire && isImmuneTo(tgt, 'fire')) {
  notes.push(targetName + ' is immune to fire: ' + eff.damage + ' fire damage negated');
  logEvent(tgt, hitSrc + ' (' + spell.name + '): fire damage negated by immunity', 'heal');
  } else {
+ const armour = applyArmourSpell(tgt, eff.damage);
+ const spellDmg = armour.dmg;
  const before = tgt.bleedStart ? effectiveHp(tgt) : tgt.hp;
- const after = Math.max(0, Math.round(before) - eff.damage);
+ const after = Math.max(0, Math.round(before) - spellDmg);
  tgt.hp = after;
  if (tgt.bleedStart) { tgt.bleedAnchorHp = after; tgt.bleedStart = Date.now(); }
  const fireTag = eff.fire ? ' fire' : '';
- notes.push(targetName + ' takes ' + eff.damage + fireTag + ' damage (' + after + '/' + cap + ')');
- logEvent(tgt, hitSrc + ' (' + spell.name + ') for ' + eff.damage + fireTag + ' HP (now ' + after + '/' + cap + ')');
+ notes.push(targetName + ' takes ' + spellDmg + fireTag + ' damage (' + after + '/' + cap + ')' + (armour.note ? ', ' + armour.note : ''));
+ logEvent(tgt, hitSrc + ' (' + spell.name + ') for ' + spellDmg + fireTag + ' HP (now ' + after + '/' + cap + ')');
  }
  }
  if (doHeal) {
@@ -2724,12 +2815,14 @@
  if (eff.roundsLeft <= 0) { expiredIndices.push(idx); return; }
 
  if (eff.type === 'dot' && eff.damage > 0) {
+ const armour = applyArmourSpell(c, eff.damage);
+ const tick = armour.dmg;
  const before = effectiveHp(c);
- const after = Math.max(0, Math.round(before) - eff.damage);
+ const after = Math.max(0, Math.round(before) - tick);
  c.hp = after;
  if (c.bleedStart) { c.bleedAnchorHp = after; c.bleedStart = Date.now(); }
- notes.push(name + ' takes ' + eff.damage + ' ' + eff.name + ' damage (' + after + '/' + effMaxHp(c) + ')');
- logEvent(c, eff.name + ' deals ' + eff.damage + ' damage (' + after + '/' + effMaxHp(c) + ')');
+ notes.push(name + ' takes ' + tick + ' ' + eff.name + ' damage (' + after + '/' + effMaxHp(c) + ')');
+ logEvent(c, eff.name + ' deals ' + tick + ' damage (' + after + '/' + effMaxHp(c) + ')');
  } else if (eff.type === 'hot' && eff.healing > 0) {
  const before = effectiveHp(c);
  const after = Math.min(effMaxHp(c), Math.round(before) + eff.healing);
@@ -3006,7 +3099,7 @@
  const btn = document.getElementById('tab-btn-' + t);
  if (btn) btn.classList.toggle('active', t === tab);
  });
- if (tab === 'loadout') { renderEquipLoadout(); renderLearnedSpells(); }
+ if (tab === 'loadout') { renderEquipLoadout(); renderArmourToggle(); renderShieldToggle(); renderLearnedSpells(); }
  }
 
  /* ══ EQUIPPED WEAPONS (loadout) ═════════════════════════════════ */
@@ -3107,73 +3200,154 @@
  const STAT_KEYS = ['str', 'agi', 'spd', 'dex'];
  const STAT_POOL = 20, STAT_MAX = 10;
 
- function statsOf(c) { migrateChar(c); return c.stats; }
- function statTotal(c) { const s = statsOf(c); return STAT_KEYS.reduce((t, k) => t + (s[k] || 0), 0); }
+ /* ── SHIELD AND BLOCKS ────────────────────────────────────────────
+    Every fighter can turn aside one telling blow per round without spending
+    their action. Strength grants further blocks, and a shield one more again,
+    though its bulk costs Dexterity. A block stops the whole blow, but only
+    where there is something to stop: piercing slips past a raised guard and
+    magic ignores it entirely. */
+ const BLOCK_BASE = 1;               /* blocks everyone has */
+ const BLOCK_PER_STR = 3;            /* Strength points per extra block */
+ const SHIELD_BLOCKS = 1;            /* extra blocks a shield grants */
+ const SHIELD_DEX_MULT = 0.8;        /* Dexterity retained while carrying a shield */
+ const UNBLOCKABLE_TYPES = ['piercing'];
 
- /* Strength: +1 melee damage per full 4 points */
- function strDamageBonus(c) { return Math.floor(statsOf(c).str / 4); }
- /* Battle hit chance: attacker Dexterity vs defender Agility */
- /* ── BATTLE CONTEXT ───────────────────────────────────────────────
-    Each side can be marked to reflect how the fight started.
-      hit    modifies that side's own attacks
-      guard  how much harder that side is to hit
-    A surprised side both swings worse and is easier to cut down. */
- const CONTEXT_OPTS = ['none', 'attacking', 'defending', 'surprised'];
- const CONTEXT_FX = {
- 'none':      { hit: 0,   guard: 0,   label: 'No stance' },
- 'attacking': { hit: 10,  guard: -5,  label: 'Attacking' },
- 'defending': { hit: -5,  guard: 10,  label: 'Defending' },
- 'surprised': { hit: -15, guard: -15, label: 'Surprised' }
- };
- function sideContext(b, side) {
- if (!b || !b.context || !side) return 'none';
- const v = b.context[side];
- return CONTEXT_OPTS.indexOf(v) !== -1 ? v : 'none';
- }
- /* Leadership: a Warlord lifts everyone fighting alongside them. */
- function allyHitBonus(b, side, selfName) {
- if (!b || !side) return 0;
- let best = 0;
- (b.sides[side] || []).forEach(n => {
- const c = roster[n];
- if (!c) return;
- best = Math.max(best, traitFx(c, 'allyHit'));
- });
- return best;
- }
+ function hasShield(c) { return !!(c && c.shield); }
 
- /* Battle hit chance: attacker Dexterity vs defender Agility, then stance and traits.
-    Passing the battle is optional; without it only the raw attribute contest applies. */
- function battleHitChance(att, def, b, attName, defName, w) {
- let pct = 65 + 3 * statsOf(att).dex - 4 * statsOf(def).agi;
- if (b) {
- const aSide = sideOf(b, attName), dSide = sideOf(b, defName);
- const aCtx = sideContext(b, aSide), dCtx = sideContext(b, dSide);
- pct += CONTEXT_FX[aCtx].hit;
- pct -= CONTEXT_FX[dCtx].guard;
- if (aCtx === 'attacking') pct += traitFx(att, 'hitAttack');
- pct += allyHitBonus(b, aSide, attName);
+ /* Total blocks available to this fighter in a round. */
+ function blockCapacity(c) {
+ if (!c) return 0;
+ migrateChar(c);
+ return BLOCK_BASE + Math.floor((c.stats.str || 0) / BLOCK_PER_STR) + (hasShield(c) ? SHIELD_BLOCKS : 0);
  }
- if (w) {
- if (w.category === 'ranged') pct += traitFx(att, 'hitRanged');
- else pct += traitFx(att, 'hitMelee');
+ function blocksUsed(b, name) {
+ if (!b || !b.blocksUsed) return 0;
+ return b.blocksUsed[name] || 0;
  }
- return Math.max(5, Math.min(95, Math.round(pct)));
+ function blocksLeft(b, name) {
+ const c = roster[name];
+ if (!c) return 0;
+ return Math.max(0, blockCapacity(c) - blocksUsed(b, name));
+ }
+ function spendBlock(b, name) {
+ if (!b) return;
+ if (!b.blocksUsed) b.blocksUsed = {};
+ b.blocksUsed[name] = (b.blocksUsed[name] || 0) + 1;
  }
 
- function setStat(key, inputEl) {
+ /* Whether a given blow is the sort a raised guard can stop at all. */
+ function isBlockable(w) {
+ if (!w) return false;
+ return !UNBLOCKABLE_TYPES.includes(w.dtype);
+ }
+
+ function toggleShield() {
  if (!activeChar || !roster[activeChar]) return;
  const c = roster[activeChar];
  migrateChar(c);
- let v = Math.max(0, Math.min(STAT_MAX, parseInt(inputEl.value) || 0));
- const others = statTotal(c) - c.stats[key];
- if (others + v > STAT_POOL) v = STAT_POOL - others; /* clamp to the pool */
- c.stats[key] = v;
- inputEl.value = v;
+ c.shield = !c.shield;
+ logEvent(c, c.shield ? 'Took up a shield' : 'Set down their shield');
+ renderShieldToggle();
  renderStats();
- logEvent(c, 'Attributes set: STR ' + c.stats.str + ', AGI ' + c.stats.agi + ', SPD ' + c.stats.spd + ', DEX ' + c.stats.dex);
+ renderStatus();
+ renderBattles();
  saveState();
  }
+
+ function renderShieldToggle() {
+ const box = document.getElementById('shield-toggle-box');
+ if (!box) return;
+ const c = activeChar ? roster[activeChar] : null;
+ if (!c) { box.innerHTML = '<span class="loadout-empty">Select a character first.</span>'; return; }
+ migrateChar(c);
+ const on = !!c.shield;
+ box.innerHTML = '<button class="armour-btn' + (on ? ' armour-on' : '') + '" onclick="toggleShield()">' +
+ (on ? 'Shield' : 'No shield') + '</button>' +
+ '<span class="block-count">' + blockCapacity(c) + ' block' + (blockCapacity(c) === 1 ? '' : 's') + ' per round</span>';
+ }
+
+ /* ── ARMOUR ───────────────────────────────────────────────────────
+    Two classes. Light armour is a compromise: modest protection for modest
+    weight. Heavy armour turns aside half of what reaches it but costs half
+    the wearer's Agility. Piercing slips through the gaps of either, and
+    magic is barely troubled by plate at all. */
+ const ARMOUR_CLASSES = {
+ none:  { label: 'Unarmoured', dr: 0,    spellDr: 0,   agiMult: 1    },
+ light: { label: 'Light',      dr: 0.25, spellDr: 0.1, agiMult: 0.75 },
+ heavy: { label: 'Heavy',      dr: 0.5,  spellDr: 0.2, agiMult: 0.5  }
+ };
+ const ARMOUR_ORDER = ['none', 'light', 'heavy'];
+ const ARMOUR_TYPES = ['slashing', 'blunt'];
+
+ function armourClass(c) {
+ if (!c) return 'none';
+ return ARMOUR_CLASSES[c.armour] ? c.armour : 'none';
+ }
+ function armourSpec(c) { return ARMOUR_CLASSES[armourClass(c)]; }
+ function isArmoured(c) { return armourClass(c) !== 'none'; }
+
+ /* Raw stats as allocated; use statsOf for anything that should feel the weight. */
+ function rawStats(c) { migrateChar(c); return c.stats; }
+ function statsOf(c) {
+ migrateChar(c);
+ const spec = armourSpec(c);
+ if (spec.agiMult === 1 && !c.shield) return c.stats;
+ const s = c.stats;
+ return {
+ str: s.str,
+ spd: s.spd,
+ agi: Math.floor(s.agi * spec.agiMult),
+ dex: c.shield ? Math.floor(s.dex * SHIELD_DEX_MULT) : s.dex
+ };
+ }
+ function statTotal(c) { const s = rawStats(c); return STAT_KEYS.reduce((t, k) => t + (s[k] || 0), 0); }
+
+ /* Reduce an incoming hit for armour. Returns { dmg, note }. */
+ function applyArmour(tgt, dtype, dmg) {
+ const spec = armourSpec(tgt);
+ if (!spec.dr || !ARMOUR_TYPES.includes(dtype) || dmg <= 0) return { dmg: dmg, note: null };
+ const reduced = Math.max(0, Math.round(dmg * (1 - spec.dr)));
+ if (reduced === dmg) return { dmg: dmg, note: null };
+ return { dmg: reduced, note: spec.label.toLowerCase() + ' armour turns aside ' + (dmg - reduced) + ' of ' + dmg + ' ' + dtype };
+ }
+
+ /* Armour bites less against magic than against steel. */
+ function applyArmourSpell(tgt, dmg) {
+ const spec = armourSpec(tgt);
+ if (!spec.spellDr || dmg <= 0) return { dmg: dmg, note: null };
+ const reduced = Math.max(0, Math.round(dmg * (1 - spec.spellDr)));
+ if (reduced === dmg) return { dmg: dmg, note: null };
+ return { dmg: reduced, note: spec.label.toLowerCase() + ' armour absorbs ' + (dmg - reduced) + ' of ' + dmg };
+ }
+
+ function setArmour(cls) {
+ if (!activeChar || !roster[activeChar]) return;
+ if (!ARMOUR_CLASSES[cls]) return;
+ const c = roster[activeChar];
+ migrateChar(c);
+ c.armour = cls;
+ logEvent(c, cls === 'none' ? 'Removed armour' : 'Donned ' + ARMOUR_CLASSES[cls].label.toLowerCase() + ' armour');
+ renderArmourToggle();
+ renderShieldToggle();
+ renderStats();
+ renderStatus();
+ renderBattles();
+ saveState();
+ }
+
+ function renderArmourToggle() {
+ const box = document.getElementById('armour-toggle-box');
+ if (!box) return;
+ const c = activeChar ? roster[activeChar] : null;
+ if (!c) { box.innerHTML = '<span class="loadout-empty">Select a character first.</span>'; return; }
+ migrateChar(c);
+ const cur = armourClass(c);
+ box.innerHTML = ARMOUR_ORDER.map(k =>
+ '<button class="armour-btn' + (k === cur ? ' armour-on' : '') + '" onclick="setArmour(\'' + k + '\')">' +
+ ARMOUR_CLASSES[k].label + '</button>'
+ ).join('');
+ }
+
 
  function renderStats() {
  const c = activeChar && roster[activeChar];
@@ -3186,11 +3360,18 @@
  remEl.textContent = rem + ' point' + (rem === 1 ? '' : 's') + ' remaining';
  remEl.classList.toggle('over', rem < 0);
  }
+ /* Armour drags Agility down, so the readout quotes the figure combat actually uses. */
+ const effS = statsOf(c);
+ const agiNote = isArmoured(c) && effS.agi !== c.stats.agi
+ ? '-' + (4 * effS.agi) + '% to be hit (' + armourSpec(c).label.toLowerCase() + ' armour: ' + c.stats.agi + ' to ' + effS.agi + ')'
+ : '-' + (4 * effS.agi) + '% to be hit';
  const fx = {
- str: '+' + strDamageBonus(c) + ' melee damage',
- agi: '-' + (4 * c.stats.agi) + '% to be hit',
+ str: '+' + strDamageBonus(c) + ' melee damage, ' + blockCapacity(c) + ' block' + (blockCapacity(c) === 1 ? '' : 's') + '/round',
+ agi: agiNote,
  spd: 'escape rolls',
- dex: 'initiative, +' + (3 * c.stats.dex) + '% to hit'
+ dex: hasShield(c) && effS.dex !== c.stats.dex
+ ? 'initiative roll, +' + (3 * effS.dex) + '% to hit (shield: ' + c.stats.dex + ' to ' + effS.dex + ')'
+ : 'initiative roll, +' + (3 * effS.dex) + '% to hit'
  };
  STAT_KEYS.forEach(k => { const el = document.getElementById('fx-' + k); if (el) el.textContent = fx[k]; });
  }
@@ -3212,6 +3393,10 @@
  if (!b.sideNames.A) b.sideNames.A = 'Side A';
  if (!b.sideNames.B) b.sideNames.B = 'Side B';
  if (!b.cooldowns || typeof b.cooldowns !== 'object') b.cooldowns = {};
+ if (!b.spentWeapons || typeof b.spentWeapons !== 'object') b.spentWeapons = {};
+ if (!b.blocksUsed || typeof b.blocksUsed !== 'object') b.blocksUsed = {};
+ if (b.pendingStrike === undefined) b.pendingStrike = null;
+ if (!b.initRolls || typeof b.initRolls !== 'object') b.initRolls = {};
  if (!b.struck || typeof b.struck !== 'object') b.struck = {};
  if (typeof b.acted !== 'boolean') b.acted = false;
  });
@@ -3269,15 +3454,50 @@
  saveState();
  }
 
- /* Initiative: Dexterity desc, ties broken by Speed, then randomly */
+ /* Initiative: a d10 roll added to Dexterity, re-rolled at the top of every round.
+    Ties break on the raw Dexterity score, then on Speed, then randomly. */
+ function rollInitiative(b) {
+ const all = b.sides.A.concat(b.sides.B).filter(n => roster[n]);
+ if (!b.initRolls) b.initRolls = {};
+ const rolls = {};
+ all.forEach(n => {
+ const c = roster[n];
+ migrateChar(c);
+ const die = Math.floor(Math.random() * 10) + 1;
+ rolls[n] = { die: die, total: die + initiativeScore(c) };
+ });
+ b.initRolls = rolls;
+ b.order = all.slice().sort((x, y) => {
+ const cx = roster[x], cy = roster[y];
+ if (rolls[y].total !== rolls[x].total) return rolls[y].total - rolls[x].total;
+ if (initiativeScore(cy) !== initiativeScore(cx)) return initiativeScore(cy) - initiativeScore(cx);
+ if (cy.stats.spd !== cx.stats.spd) return cy.stats.spd - cx.stats.spd;
+ return Math.random() - 0.5;
+ });
+ b.turn = 0;
+ return b.order.map(n => n + ' (' + rolls[n].total + ')').join(', ');
+ }
+
+ /* Used when the roster changes mid-battle: keep the standing rolls, slot newcomers in. */
  function rebuildInitiative(b, keepTurn) {
  const current = b.order[b.turn];
  const all = b.sides.A.concat(b.sides.B).filter(n => roster[n]);
+ if (!b.initRolls) b.initRolls = {};
+ all.forEach(n => {
+ if (!b.initRolls[n]) {
+ const c = roster[n];
+ migrateChar(c);
+ const die = Math.floor(Math.random() * 10) + 1;
+ b.initRolls[n] = { die: die, total: die + initiativeScore(c) };
+ }
+ });
+ const rolls = b.initRolls;
  b.order = all.slice().sort((x, y) => {
  const cx = roster[x], cy = roster[y];
  migrateChar(cx); migrateChar(cy);
- const ix = initiativeScore(cx), iy = initiativeScore(cy);
- if (iy !== ix) return iy - ix;
+ const tx = rolls[x] ? rolls[x].total : initiativeScore(cx);
+ const ty = rolls[y] ? rolls[y].total : initiativeScore(cy);
+ if (ty !== tx) return ty - tx;
  if (cy.stats.spd !== cx.stats.spd) return cy.stats.spd - cx.stats.spd;
  return Math.random() - 0.5;
  });
@@ -3289,11 +3509,10 @@
  if (!b.sides.A.length || !b.sides.B.length) { bLog(b, 'Both sides need at least one fighter.'); renderBattles(); return; }
  b.status = 'active';
  b.round = 1;
- rebuildInitiative(b, false);
- bLog(b, 'Battle begins. Initiative: ' + b.order.map(n => {
- const bonus = traitInitiativeMod(roster[n]);
- return n + ' (' + initiativeScore(roster[n]) + (bonus ? ', incl. +' + bonus + ' Strategist' : '') + ')';
- }).join(', ') + '.');
+ b.blocksUsed = {};
+ b.pendingStrike = null;
+ const initLine = rollInitiative(b);
+ bLog(b, 'Battle begins. Initiative rolled: ' + initLine + '.');
  renderBattles();
  saveState();
  }
@@ -3310,24 +3529,49 @@
  }
  function sideOf(b, name) { return b.sides.A.includes(name) ? 'A' : b.sides.B.includes(name) ? 'B' : null; }
 
- /* ── WEAPON COOLDOWNS ─────────────────────────────────────────────
-    A weapon with a cooldown must be reloaded: after firing on round N it
-    cannot be used again until round N + cooldown. */
- function weaponReadyRound(b, name, wname) {
- if (!b || !b.cooldowns || !b.cooldowns[name]) return 0;
- return b.cooldowns[name][wname] || 0;
+ /* ── WEAPON RELOADING ─────────────────────────────────────────────
+    A weapon marked as needing a reload holds one shot. Once fired it stays
+    empty until its wielder spends a turn's action reloading it: the chamber
+    does not refill on its own. */
+ function isWeaponSpent(b, name, wname) {
+ return !!(b && b.spentWeapons && b.spentWeapons[name] && b.spentWeapons[name][wname]);
  }
  function isWeaponReady(b, name, w) {
  if (!w || !w.cooldown) return true;
  if (!b) return true;
- const ready = weaponReadyRound(b, name, w.name);
- return b.round >= ready;
+ return !isWeaponSpent(b, name, w.name);
  }
  function markWeaponUsed(b, name, w) {
  if (!b || !w || !w.cooldown) return;
- if (!b.cooldowns) b.cooldowns = {};
- if (!b.cooldowns[name]) b.cooldowns[name] = {};
- b.cooldowns[name][w.name] = b.round + w.cooldown;
+ if (!b.spentWeapons) b.spentWeapons = {};
+ if (!b.spentWeapons[name]) b.spentWeapons[name] = {};
+ b.spentWeapons[name][w.name] = true;
+ }
+ /* Every empty weapon this fighter is carrying. */
+ function spentWeaponsFor(b, name) {
+ if (!b || !b.spentWeapons || !b.spentWeapons[name]) return [];
+ return Object.keys(b.spentWeapons[name]).filter(k => b.spentWeapons[name][k]);
+ }
+
+ /* Reload one empty weapon. This is the turn's action. */
+ function battleReload(id) {
+ const b = battles[id]; if (!b || b.status !== 'active') return;
+ if (b.acted) return;
+ const name = currentActor(b); if (!name) return;
+ const c = roster[name]; if (!c) return;
+ const sel = document.getElementById('bap-reload-' + id);
+ const wname = sel ? sel.value : (spentWeaponsFor(b, name)[0] || '');
+ if (!wname || !isWeaponSpent(b, name, wname)) {
+ showBattleResult(id, 'Nothing to reload.');
+ return;
+ }
+ delete b.spentWeapons[name][wname];
+ bLog(b, name + ' reloads ' + wname + '.');
+ logEvent(c, 'Reloaded ' + wname + ' during ' + b.name);
+ showBattleResult(id, name + ' reloads ' + wname + '. It is ready to fire again next turn.');
+ if (afterAction(id)) return;
+ renderBattles();
+ saveState();
  }
 
  /* ── AUTO-CONCLUDE ────────────────────────────────────────────────
@@ -3414,6 +3658,8 @@
 
  function endTurn(id) {
  const b = battles[id]; if (!b || b.status !== 'active') return;
+ /* A landed blow must be answered before the fight moves on. */
+ if (b.pendingStrike) return;
  const live = livingOrder(b);
  /* with nobody able to act the fight is over, so resolve it rather than stalling */
  if (!live.length) { if (!checkAutoConclude(id)) { renderBattles(); saveState(); } return; }
@@ -3421,7 +3667,6 @@
  b.acted = false;   /* fresh turn, fresh action */
  if (b.turn === 0) {
  b.round++;
- bLog(b, 'Round ' + b.round + ' begins.');
  /* Apply active effects (DoT, HoT) to all combatants at start of round */
  live.forEach(name => {
  const c = roster[name];
@@ -3430,6 +3675,10 @@
  if (effectsMsg) bLog(b, effectsMsg);
  }
  });
+ /* Blocks refresh and the order is rolled fresh for the new round */
+ b.blocksUsed = {};
+ const initLine = rollInitiative(b);
+ bLog(b, 'Round ' + b.round + ' begins. Initiative rolled: ' + initLine + '.');
  } else {
  /* Apply active effects to the current actor at start of their turn */
  const actor = currentActor(b);
@@ -3536,6 +3785,27 @@
  if (!c) return '';
  migrateChar(c);
  const id = b.id;
+
+ /* A landed blow awaiting the defender's answer takes over the panel: the
+    fight cannot continue until they decide whether to spend a block. */
+ if (b.pendingStrike) {
+ const p = b.pendingStrike;
+ const dc = roster[p.tgtName];
+ const left = blocksLeft(b, p.tgtName);
+ const w = weaponByName(p.wName) || (p.unarmed ? unarmedWeapon() : null);
+ const wLabel = w ? w.name + ' (' + (w.dtype || 'slashing') + ')' : p.wName;
+ return '<div class="battle-action-panel bap-pending">' +
+ '<h4><span class="bap-actor">' + p.attName + '</span> lands ' + wLabel + ' on <span class="bap-actor">' + p.tgtName + '</span></h4>' +
+ '<div class="bap-row"><span class="bap-melee-label">' + p.tgtName + ' has ' + left + ' block' + (left === 1 ? '' : 's') +
+ ' left of ' + blockCapacity(dc) + ' this round.</span></div>' +
+ '<div class="bap-row">' +
+ '<button class="act-btn" onclick="answerPendingStrike(' + id + ',true)">Block</button>' +
+ '<button class="act-btn" onclick="answerPendingStrike(' + id + ',false)">Take the hit</button>' +
+ '</div>' +
+ '<div class="bap-result" id="bap-result-' + id + '"></div>' +
+ '</div>';
+ }
+
  const side = sideOf(b, actor);
  const foes = b.sides[side === 'A' ? 'B' : 'A'].filter(n => canAct(b, n));
  const allTargets = b.order.filter(n => n !== actor && canAct(b, n));
@@ -3566,12 +3836,13 @@
  learned.map(x => '<option value="' + x.i + '">' + x.sp.name + ' (' + x.sp.school + ')</option>').join('') +
  '</select><button class="act-btn" onclick="battleCast(' + id + ')"' + dis + '>Cast</button></div>'
  : '<div class="bap-row"><span class="loadout-empty">No learned spells - assign some on the Loadout tab.</span></div>';
- /* A weapon that is reloading cannot be chosen until its cooldown passes. */
+ /* An empty weapon cannot be chosen until someone spends an action reloading it. */
  const readyW = equippedW.filter(w => isWeaponReady(b, actor, w));
- const coolingW = equippedW.filter(w => !isWeaponReady(b, actor, w));
- const coolNote = coolingW.length
- ? '<div class="bap-row"><span class="cooldown-note">Reloading: ' +
- coolingW.map(w => w.name + ' (ready round ' + weaponReadyRound(b, actor, w.name) + ')').join(', ') + '</span></div>'
+ const emptyW = equippedW.filter(w => !isWeaponReady(b, actor, w));
+ const coolNote = emptyW.length
+ ? '<div class="bap-row' + rowCls + '"><select id="bap-reload-' + id + '"' + dis + '>' +
+ emptyW.map(w => '<option value="' + w.name + '">' + w.name + ' (empty)</option>').join('') +
+ '</select><button class="act-btn" onclick="battleReload(' + id + ')"' + dis + '>Reload</button></div>'
  : '';
  const strikeRow = (readyW.length
  ? '<div class="bap-row' + rowCls + '"><select id="bap-weapon-' + id + '"' + dis + '>' +
@@ -3583,7 +3854,6 @@
  const meleeRow = '<div class="bap-row' + rowCls + '"><span class="bap-melee-label">Unarmed melee (' + uw.damage + ' HP, ' + (uw.dtype || 'blunt') + ')</span>' +
  '<button class="act-btn" onclick="battleMelee(' + id + ')"' + dis + '>Melee</button></div>';
  const spentNote = spent ? '<div class="bap-row"><span class="bap-spent-note">Action used - end the turn to continue.</span></div>' : '';
-
  return '<div class="battle-action-panel">' +
  '<h4><span class="bap-actor">' + actor + '</span> chooses to:</h4>' +
  '<div class="bap-row"><label class="bap-target-label">Target</label><select id="bap-target-' + id + '">' + opts + '</select></div>' +
@@ -3724,12 +3994,18 @@
  const esc = b.escaped.includes(name);
  const down = hp <= 0;
  const cls = 'combatant' + (isTurn ? ' turn-now' : '') + (down ? ' down' : '') + (esc ? ' escaped' : '');
- const st = c.stats;
  const tag = esc ? ' (escaped)' : down ? ' (down)' : '';
  const stageLabel = hpStageLabel(hp);
  const stageColor = hp <= 0 ? '#cc0000' : hp <= cap / 2 ? '#b35900' : '#008000';
- return '<div class="' + cls + '"><span>' + name + tag +
- ' <span style="color:var(--color-text-tertiary,#888);">' + hp + '/' + cap + ' HP <span style="color:' + stageColor + '; font-weight: bold; text-transform: capitalize;">(' + stageLabel + ')</span> &middot; S' + st.str + ' A' + st.agi + ' Sp' + st.spd + ' D' + st.dex + '</span></span>' +
+ const armourTag = isArmoured(c) ? '<span class="armour-tag">' + armourSpec(c).label.toLowerCase() + ' armour</span>' : '';
+ const shieldTag = hasShield(c) ? '<span class="armour-tag">shield</span>' : '';
+ const bl = b.status === 'active' ? blocksLeft(b, name) : blockCapacity(c);
+ const blockTag = (b.status === 'active' && !down && !esc)
+ ? '<span class="block-tag' + (bl ? '' : ' block-tag-out') + '">' + bl + '/' + blockCapacity(c) + ' blocks</span>' : '';
+ const empties = b.status === 'active' ? spentWeaponsFor(b, name) : [];
+ const emptyTag = empties.length ? '<span class="empty-tag">' + empties.join(', ') + ' empty</span>' : '';
+ return '<div class="' + cls + '"><span>' + name + tag + armourTag + shieldTag + blockTag + emptyTag +
+ ' <span style="color:var(--color-text-tertiary,#888);">' + hp + '/' + cap + ' HP <span style="color:' + stageColor + '; font-weight: bold; text-transform: capitalize;">(' + stageLabel + ')</span></span></span>' +
  (b.status !== 'done' ? '<button class="c-x" title="Remove from battle" onclick="removeFromBattle(' + b.id + ',\'' + name.replace(/'/g, "\\'") + '\')">&times;</button>' : '') +
  '</div>';
  }
