@@ -1252,7 +1252,7 @@
  if (doBlock && blocksLeft(b, p.tgtName) > 0) {
  spendBlock(b, p.tgtName);
  const msg = resolveStrike(p.attName, p.tgtName, w, p.el, b, true);
- bLog(b, msg + ' (' + blocksLeft(b, p.tgtName) + ' block' + (blocksLeft(b, p.tgtName) === 1 ? '' : 's') + ' left this round)');
+ bLog(b, msg + ' (' + blocksLeft(b, p.tgtName) + ' block' + (blocksLeft(b, p.tgtName) === 1 ? '' : 's') + ' left)');
  } else {
  const msg = resolveStrike(p.attName, p.tgtName, w, p.el, b, false);
  bLog(b, p.tgtName + ' takes the hit. ' + msg);
@@ -3201,12 +3201,13 @@
  const STAT_POOL = 20, STAT_MAX = 10;
 
  /* ── SHIELD AND BLOCKS ────────────────────────────────────────────
-    Every fighter can turn aside one telling blow per round without spending
+    Every fighter can turn aside one telling blow per battle without spending
     their action. Strength grants further blocks, and a shield one more again,
-    though its bulk costs Dexterity. A block stops the whole blow, but only
-    where there is something to stop: piercing slips past a raised guard and
-    magic ignores it entirely. */
- const BLOCK_BASE = 1;               /* blocks everyone has */
+    though its bulk costs Dexterity. The pool is a finite reserve: it is spent
+    down over the course of the fight and does not refresh between rounds.
+    A block stops the whole blow, but only where there is something to stop:
+    piercing slips past a raised guard and magic ignores it entirely. */
+ const BLOCK_BASE = 1;               /* blocks everyone has per battle */
  const BLOCK_PER_STR = 3;            /* Strength points per extra block */
  const SHIELD_BLOCKS = 1;            /* extra blocks a shield grants */
  const SHIELD_DEX_MULT = 0.8;        /* Dexterity retained while carrying a shield */
@@ -3263,7 +3264,7 @@
  const on = !!c.shield;
  box.innerHTML = '<button class="armour-btn' + (on ? ' armour-on' : '') + '" onclick="toggleShield()">' +
  (on ? 'Shield' : 'No shield') + '</button>' +
- '<span class="block-count">' + blockCapacity(c) + ' block' + (blockCapacity(c) === 1 ? '' : 's') + ' per round</span>';
+ '<span class="block-count">' + blockCapacity(c) + ' block' + (blockCapacity(c) === 1 ? '' : 's') + ' per battle</span>';
  }
 
  /* ── ARMOUR ───────────────────────────────────────────────────────
@@ -3349,6 +3350,73 @@
  }
 
 
+ /* Strength: +1 melee damage per full 4 points */
+ function strDamageBonus(c) { return Math.floor(statsOf(c).str / 4); }
+
+ /* ── BATTLE CONTEXT ───────────────────────────────────────────────
+    Each side can be marked to reflect how the fight started.
+      hit    modifies that side's own attacks
+      guard  how much harder that side is to hit
+    A surprised side both swings worse and is easier to cut down. */
+ const CONTEXT_OPTS = ['none', 'attacking', 'defending', 'surprised'];
+ const CONTEXT_FX = {
+ 'none':      { hit: 0,   guard: 0,   label: 'No stance' },
+ 'attacking': { hit: 10,  guard: -5,  label: 'Attacking' },
+ 'defending': { hit: -5,  guard: 10,  label: 'Defending' },
+ 'surprised': { hit: -15, guard: -15, label: 'Surprised' }
+ };
+ function sideContext(b, side) {
+ if (!b || !b.context || !side) return 'none';
+ const v = b.context[side];
+ return CONTEXT_OPTS.indexOf(v) !== -1 ? v : 'none';
+ }
+
+ /* Leadership: a Warlord lifts everyone fighting alongside them. */
+ function allyHitBonus(b, side, selfName) {
+ if (!b || !side) return 0;
+ let best = 0;
+ (b.sides[side] || []).forEach(n => {
+ const c = roster[n];
+ if (!c) return;
+ best = Math.max(best, traitFx(c, 'allyHit'));
+ });
+ return best;
+ }
+
+ /* Battle hit chance: attacker Dexterity vs defender Agility, then stance and traits.
+    Passing the battle is optional; without it only the raw attribute contest applies.
+    Armour and shields feed in through statsOf, which carries their penalties. */
+ function battleHitChance(att, def, b, attName, defName, w) {
+ let pct = 65 + 3 * statsOf(att).dex - 4 * statsOf(def).agi;
+ if (b) {
+ const aSide = sideOf(b, attName), dSide = sideOf(b, defName);
+ const aCtx = sideContext(b, aSide), dCtx = sideContext(b, dSide);
+ pct += CONTEXT_FX[aCtx].hit;
+ pct -= CONTEXT_FX[dCtx].guard;
+ if (aCtx === 'attacking') pct += traitFx(att, 'hitAttack');
+ pct += allyHitBonus(b, aSide, attName);
+ }
+ if (w) {
+ if (w.category === 'ranged') pct += traitFx(att, 'hitRanged');
+ else pct += traitFx(att, 'hitMelee');
+ }
+ return Math.max(5, Math.min(95, Math.round(pct)));
+ }
+
+ function setStat(key, inputEl) {
+ if (!activeChar || !roster[activeChar]) return;
+ const c = roster[activeChar];
+ migrateChar(c);
+ let v = Math.max(0, Math.min(STAT_MAX, parseInt(inputEl.value) || 0));
+ const others = statTotal(c) - c.stats[key];
+ if (others + v > STAT_POOL) v = STAT_POOL - others; /* clamp to the pool */
+ c.stats[key] = v;
+ inputEl.value = v;
+ renderStats();
+ logEvent(c, 'Attributes set: STR ' + c.stats.str + ', AGI ' + c.stats.agi + ', SPD ' + c.stats.spd + ', DEX ' + c.stats.dex);
+ saveState();
+ }
+
  function renderStats() {
  const c = activeChar && roster[activeChar];
  if (!c) return;
@@ -3366,7 +3434,7 @@
  ? '-' + (4 * effS.agi) + '% to be hit (' + armourSpec(c).label.toLowerCase() + ' armour: ' + c.stats.agi + ' to ' + effS.agi + ')'
  : '-' + (4 * effS.agi) + '% to be hit';
  const fx = {
- str: '+' + strDamageBonus(c) + ' melee damage, ' + blockCapacity(c) + ' block' + (blockCapacity(c) === 1 ? '' : 's') + '/round',
+ str: '+' + strDamageBonus(c) + ' melee damage, ' + blockCapacity(c) + ' block' + (blockCapacity(c) === 1 ? '' : 's') + '/battle',
  agi: agiNote,
  spd: 'escape rolls',
  dex: hasShield(c) && effS.dex !== c.stats.dex
@@ -3418,7 +3486,7 @@
  function createBattle() {
  const input = document.getElementById('battle-new-name');
  const name = (input.value || '').trim() || ('Battle ' + nextBattleId);
- battles[nextBattleId] = { id: nextBattleId, name, status: 'setup', sides: { A: [], B: [] }, sideNames: { A: 'Side A', B: 'Side B' }, context: { A: 'none', B: 'none' }, cooldowns: {}, struck: {}, acted: false, order: [], turn: 0, round: 1, escaped: [], log: [] };
+ battles[nextBattleId] = { id: nextBattleId, name, status: 'setup', sides: { A: [], B: [] }, sideNames: { A: 'Side A', B: 'Side B' }, context: { A: 'none', B: 'none' }, cooldowns: {}, spentWeapons: {}, blocksUsed: {}, pendingStrike: null, initRolls: {}, struck: {}, acted: false, order: [], turn: 0, round: 1, escaped: [], log: [] };
  nextBattleId++;
  input.value = '';
  renderBattles();
@@ -3675,8 +3743,8 @@
  if (effectsMsg) bLog(b, effectsMsg);
  }
  });
- /* Blocks refresh and the order is rolled fresh for the new round */
- b.blocksUsed = {};
+ /* The order is rolled fresh for the new round. Blocks do not refresh:
+    they are a finite reserve spent across the whole battle. */
  const initLine = rollInitiative(b);
  bLog(b, 'Round ' + b.round + ' begins. Initiative rolled: ' + initLine + '.');
  } else {
@@ -3797,7 +3865,7 @@
  return '<div class="battle-action-panel bap-pending">' +
  '<h4><span class="bap-actor">' + p.attName + '</span> lands ' + wLabel + ' on <span class="bap-actor">' + p.tgtName + '</span></h4>' +
  '<div class="bap-row"><span class="bap-melee-label">' + p.tgtName + ' has ' + left + ' block' + (left === 1 ? '' : 's') +
- ' left of ' + blockCapacity(dc) + ' this round.</span></div>' +
+ ' left of ' + blockCapacity(dc) + ' for this battle.</span></div>' +
  '<div class="bap-row">' +
  '<button class="act-btn" onclick="answerPendingStrike(' + id + ',true)">Block</button>' +
  '<button class="act-btn" onclick="answerPendingStrike(' + id + ',false)">Take the hit</button>' +
