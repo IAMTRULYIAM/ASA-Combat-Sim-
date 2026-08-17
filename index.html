@@ -327,6 +327,18 @@
  .armour-btn { font-size: 12px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.08em; padding: 6px 16px; border: 1.5px solid #444; background: #e2e2e2; color: #333; cursor: pointer; }
  .armour-btn.armour-on { background: #444; color: #fff; border-color: #222; }
  .block-count { font-size: 11px; color: #555; }
+ .cast-counter { margin: 6px 0 12px; }
+ .cast-counter .cc-row { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+ .cast-counter .cc-label { font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.08em; color: #555; margin-right: 4px; }
+ .cast-counter .cc-btn { width: 24px; height: 24px; line-height: 1; font-size: 14px; font-weight: bold; border: 1px solid #999; background: #f0f0f0; cursor: pointer; padding: 0; }
+ .cast-counter .cc-btn:hover { background: #e0e0e0; }
+ .cast-counter .cc-val { min-width: 28px; text-align: center; font-size: 15px; font-weight: bold; }
+ .cast-counter .cc-reset { font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; border: 1px solid #999; background: #fff; cursor: pointer; padding: 3px 8px; margin-left: 4px; }
+ .cast-counter .cc-reset:hover { background: #f0f0f0; }
+ .cast-counter .cc-note { font-size: 11px; color: #666; margin-top: 5px; line-height: 1.4; }
+ .cast-counter .cc-risk.safe { color: #1a7a1a; }
+ .cast-counter .cc-risk.warn { color: #a86000; }
+ .cast-counter .cc-risk.danger { color: #a81a1a; }
  .block-tag { display: inline-block; font-size: 9px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.06em; padding: 1px 6px; margin-left: 6px; border: 1px solid #2a6d8f; background: #dbeaf2; color: #1a4a63; }
  .block-tag-out { border-color: #999; background: #eee; color: #777; }
  .bap-pending { border-color: #b0704f; background: rgba(176,112,79,0.08); }
@@ -615,6 +627,7 @@
  <div id="spells-empty" class="loadout-empty">Select a character first.</div>
  <div id="spells-body" style="display:none;">
    <div class="loadout-count" id="spells-count"></div>
+   <div class="cast-counter" id="cast-counter"></div>
    <div class="char-bar" style="margin-bottom:8px;">
      <input type="text" id="spell-learn-search" placeholder="Filter spells..." oninput="renderLearnedSpells()" autocomplete="off" />
    </div>
@@ -2312,6 +2325,7 @@
  roster[activeChar].spellsToday = Math.max(0, roster[activeChar].spellsToday + delta);
  roster[activeChar].lastReset = todayStr();
  updateMiscastDisplay();
+ renderCastCounter();
  saveState();
  }
 
@@ -2404,6 +2418,7 @@
  c.lastReset = todayStr();
  battleRecord(activeChar, tgt ? targetName : null, resEl.textContent);
  updateMiscastDisplay();
+ renderCastCounter();
  renderStatus();
  renderLog();
  saveState();
@@ -3167,6 +3182,53 @@
  saveState();
  }
 
+ /* ── CAST COUNTER ─────────────────────────────────────────────────
+    Ensie is finite: the more a singer has drawn on it today, the likelier the
+    next song frays. Only shown once a character actually knows a spell, since
+    the tally means nothing to someone who cannot cast. */
+ function renderCastCounter() {
+ const box = document.getElementById('cast-counter');
+ if (!box) return;
+ const c = activeChar ? roster[activeChar] : null;
+ if (!c) { box.innerHTML = ''; return; }
+ migrateChar(c);
+ if (!c.known.length) { box.innerHTML = ''; return; }   /* nothing to count */
+
+ const used = c.spellsToday || 0;
+ const free = FREE_CASTS + traitFreeCastMod(c);
+ const nextRisk = Math.max(0, Math.min(99,
+ miscastChanceFor(used + 1, free) + conditionMiscastMod(c) + traitMiscastMod(c)));
+ const freeLeft = Math.max(0, free - used);
+ const riskCls = nextRisk === 0 ? 'safe' : nextRisk < 40 ? 'warn' : 'danger';
+
+ box.innerHTML =
+ '<div class="cc-row">' +
+ '<span class="cc-label">Casts today</span>' +
+ '<button class="cc-btn" onclick="adjustSpells(-1)" title="Undo a cast">&minus;</button>' +
+ '<span class="cc-val">' + used + '</span>' +
+ '<button class="cc-btn" onclick="adjustSpells(1)" title="Count a cast made away from the table">+</button>' +
+ '<button class="cc-reset" onclick="resetSpellCount()">Reset</button>' +
+ '</div>' +
+ '<div class="cc-note">' +
+ (freeLeft > 0
+ ? freeLeft + ' free cast' + (freeLeft === 1 ? '' : 's') + ' left before the risk starts. '
+ : 'Past the free casts. ') +
+ 'Next cast miscasts at <b class="cc-risk ' + riskCls + '">' + nextRisk + '%</b>.' +
+ '</div>';
+ }
+
+ /* Clear the day's tally back to zero. */
+ function resetSpellCount() {
+ if (!activeChar || !roster[activeChar]) { flashNoChar(); return; }
+ const c = roster[activeChar];
+ c.spellsToday = 0;
+ c.lastReset = todayStr();
+ logEvent(c, 'Cast count reset');
+ renderCastCounter();
+ updateMiscastDisplay();
+ saveState();
+ }
+
  function renderLearnedSpells() {
  const empty = document.getElementById('spells-empty');
  const body = document.getElementById('spells-body');
@@ -3177,6 +3239,7 @@
  migrateChar(c);
  const cnt = document.getElementById('spells-count');
  if (cnt) cnt.textContent = activeChar + ' knows ' + c.known.length + ' spell' + (c.known.length === 1 ? '' : 's') + '.';
+ renderCastCounter();
  const q = (document.getElementById('spell-learn-search')?.value || '').trim().toLowerCase();
  const bySchool = {};
  SPELLS.forEach(sp => {
