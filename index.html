@@ -327,6 +327,11 @@
  .armour-btn { font-size: 12px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.08em; padding: 6px 16px; border: 1.5px solid #444; background: #e2e2e2; color: #333; cursor: pointer; }
  .armour-btn.armour-on { background: #444; color: #fff; border-color: #222; }
  .block-count { font-size: 11px; color: #555; }
+ .bap-multi { align-items: flex-start; }
+ .multi-picks { display: flex; flex-wrap: wrap; gap: 4px 12px; }
+ .multi-pick { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; cursor: pointer; user-select: none; }
+ .multi-pick input { cursor: pointer; margin: 0; }
+ .grapple-tag { display: inline-block; font-size: 9px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.06em; padding: 1px 6px; margin-left: 6px; border: 1px solid #8a5a2a; background: #f2e3d0; color: #6b3f12; }
  .cast-counter { margin: 6px 0 12px; }
  .cast-counter .cc-row { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
  .cast-counter .cc-label { font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.08em; color: #555; margin-right: 4px; }
@@ -1167,6 +1172,18 @@
  return;
  }
 
+ /* A mirsite's borrowed fortitude swallows the blow outright, before any
+    question of blocking arises. */
+ if (consumeFortitude(tgt, tgtName, activeChar + "'s " + w.name, btl)) {
+ const fmsg = tgtName + ' negates ' + activeChar + "'s " + w.name + ' (Favored Fortitude). No damage.';
+ resEl.textContent = fmsg;
+ resEl.className = 'dmg-result negated';
+ markStruck(activeChar);
+ battleRecord(activeChar, tgtName, fmsg);
+ renderStatus(); renderBattles(); saveState();
+ return;
+ }
+
  /* A landed blow the defender could still turn aside pauses here: the choice
     to spend a block belongs to the defender, so the strike is held pending. */
  if (btl && isBlockable(w) && blocksLeft(btl, tgtName) > 0) {
@@ -1209,10 +1226,16 @@
 
  /* apply damage to target, accounting for any active bleed re-anchor */
  const tb = weaponTraitBonus(attacker, w);
+ /* A hungry weapon tears rather than cuts. */
+ if (hasCondition(attacker, MIRSITE_BLADE)) {
+ tb.bleed = Math.max(tb.bleed, BLADE_BLEED);
+ if (!tb.notes.includes('Insatiable Blade')) tb.notes.push('Insatiable Blade');
+ }
  const strB = w.category === 'melee' ? strDamageBonus(attacker) : 0;
  const aloneB = traitAloneDmgMod(attName);
  const openB = assassinOpeningBonus(attName, w);
- const rawDmg = Math.max(0, Math.round(w.damage * WEAPON_DAMAGE_SCALE) + tb.dmg + strB + aloneB + openB);
+ const bladeB = hasCondition(attacker, MIRSITE_BLADE) ? BLADE_DAMAGE : 0;
+ const rawDmg = Math.max(0, Math.round(w.damage * WEAPON_DAMAGE_SCALE) + tb.dmg + strB + aloneB + openB + bladeB);
  const armour = applyArmour(tgt, w.dtype, rawDmg);
  const totalDmg = armour.dmg;
  const cap = effMaxHp(tgt);
@@ -2376,6 +2399,22 @@
  const tgtLabel = tgt ? ' at ' + targetName : '';
 
  let clean = false;
+
+ /* An Antiphon whistle still hangs in the air: this song falls apart before
+    it can take shape. Mirsite workings are not sung, so they are untouched. */
+ if (school !== 'Mirsite' && hasCondition(c, MIRSITE_DISRUPT)) {
+ dropCondition(c, MIRSITE_DISRUPT);
+ c.spellsToday = castNumber;
+ resEl.innerHTML = activeChar + spellLabel + tgtLabel +
+ ': the song collapses. A lingering Antiphon disrupts the spellsong before it forms.';
+ resEl.className = 'miscast-result failed';
+ logEvent(c, 'Cast #' + castNumber + (spell ? ' ' + spell.name : '') + ': disrupted by Antiphon', 'miscast');
+ c.lastReset = todayStr();
+ battleRecord(activeChar, tgt ? targetName : null, resEl.textContent);
+ markCastAsAction();
+ updateMiscastDisplay(); renderCastCounter(); renderStatus(); renderLog(); saveState();
+ return;
+ }
  if (chance === 0) {
  c.spellsToday = castNumber;
  resEl.innerHTML = activeChar + spellLabel + tgtLabel + ', cast #' + castNumber + ': ' + (school === 'Mirsite' ? 'clean (Mirsite spells cannot miscast)' : 'clean (free cast, no roll)');
@@ -2406,8 +2445,15 @@
  }
  }
 
- /* On a clean cast that targets another character, apply the spell's effects */
- if (clean && tgt && spell) {
+ /* On a clean cast that targets another character, apply the spell's effects.
+    Favored Fortitude answers harm from any source, magic included. */
+ if (clean && tgt && spell && targetName !== activeChar
+ && parseSpellEffect(spell).damage > 0
+ && hasCondition(tgt, MIRSITE_FORTITUDE)) {
+ consumeFortitude(tgt, targetName, activeChar + "'s " + spell.name, battleWith(activeChar, targetName));
+ const r = document.getElementById('miscast-result');
+ r.innerHTML += '<div class="miscast-applied">' + targetName + ' negates the spell entirely (Favored Fortitude).</div>';
+ } else if (clean && tgt && spell) {
  const applied = applySpellToTarget(c, targetName, tgt, spell);
  if (applied) {
  const r = document.getElementById('miscast-result');
@@ -2417,11 +2463,25 @@
 
  c.lastReset = todayStr();
  battleRecord(activeChar, tgt ? targetName : null, resEl.textContent);
+ markCastAsAction();
  updateMiscastDisplay();
  renderCastCounter();
  renderStatus();
  renderLog();
  saveState();
+ }
+
+ /* Singing is the turn's action. The battle panel's Cast button already spends
+    it, but a cast made from the main panel while that character holds the turn
+    must spend it too, or the singer gets a free swing afterwards. */
+ function markCastAsAction() {
+ if (!activeChar) return;
+ Object.values(battles).forEach(b => {
+ if (b.status === 'active' && !b.acted && currentActor(b) === activeChar) {
+ b.acted = true;
+ renderBattles();
+ }
+ });
  }
 
  /* Parse a spell's HP damage, HP heal, inflicted condition, and fire flag */
@@ -2465,6 +2525,12 @@
 
  /* Initialize activeEffects array if missing */
  if (!tgt.activeEffects) tgt.activeEffects = [];
+
+ /* Tenacity of Deicide mends fatal wounds: it only has anything to mend if the
+    target has actually fallen. Sung over someone still standing, it does nothing. */
+ if (spell.name === 'Tenacity of Deicide' && effectiveHp(tgt) > 0) {
+ return targetName + ' is still standing. Tenacity of Deicide only answers a fallen mirsite.';
+ }
 
  /* Spells that both damage and heal (e.g. Redpalm) resolve by target:
     on self they cauterize (heal, no fire damage); on others they burn (damage, no heal). */
@@ -2927,7 +2993,7 @@
  {school:'Insects',name:'Scleroderma',tier:'I',dur:'30 Minutes',effect:'Hardens skin with chitin. Slower movement and increased heat vulnerability.',inflict:'Chitin Skin',miscast:'Chitin burrows too deep; movement reduced, must be painfully removed (Rooted Chitin Skin).'},
  {school:'Insects',name:'Pseudopupila',tier:'I',dur:'10 Minutes',effect:'Eyes form a compound structure, seeing hidden details and granting alertness.',inflict:'Compound Vision',miscast:'Grows random extra insectoid eyes; disorienting unless covered (Disorientation).'},
  {school:'Insects',name:'Cockroach-song',tier:'II',dur:'Instant',effect:'Forces a subject to vomit up to a pound of insects, usually immobilising them.',inflict:'Nausea',miscast:'Insects heed the song and crawl into the caster\u2019s mouth (Nausea).'},
- {school:'Insects',name:'Moth-Song',tier:'II',dur:'1 day',effect:'Two or four elytra sprout for flight. Must resist attraction to bright light.',inflict:'Flight',miscast:'Elytra flap uncontrollably, launching the caster randomly (Undirected flight).'},
+ {school:'Insects',name:'Moth-Song',tier:'II',dur:'1 day',effect:'Two or four elytra sprout for flight. Must resist attraction to bright light.',inflict:'Flight, Fleet-Footed',miscast:'Elytra flap uncontrollably, launching the caster randomly (Undirected flight).'},
  {school:'Insects',name:'Spider-song',tier:'II',dur:'1 day',effect:'Setae bristles allow wall-climbing and immunity to bloodpooling, with light sensitivity.',inflict:'Adhesion',miscast:'Cannot release from a surface without painful intervention (Grounded).'},
  {school:'Insects',name:'Pupastasis',tier:'III',dur:'Indefinite',effect:'Curls into a durable membrane, healing all wounds within 3 days. Cannot be interrupted.',inflict:'5 HP heal',miscast:'On release, undergoes three random insectoid mutations.'},
  {school:'Insects',name:'Kiss of Love',tier:'III',dur:'Instant',effect:'Secretes venomous saliva; caster defines its purpose (lethal, incapacitating, persuasive).',inflict:'Excessive Salivation',miscast:'No immunity to own venom; feels the effects immediately.'},
@@ -2960,15 +3026,15 @@
  {school:'Obeisance',name:'Guratton-sh\u012bfu',tier:'III',dur:'1 day',effect:'Temporarily steals the ability of a swallowed entity; it cannot be summoned meanwhile.',inflict:' - ',miscast:'Gains a random mutation based on the consumed creature.'},
  {school:'Flames',name:'Render unto Salt',tier:'III',dur:'Instant',effect:'The spellsinger points their finger at a being of perceived lesser worth to turn them into a pillar of salt. Does not work against servants of the Sun.',inflict:'Instakill',miscast:'Salt content in the spellsinger\'s bloodstream starts rapidly increasing, to the detriment of their health'},
  {school:'Insects',name:'Song for the Ants',tier:'I',dur:'10 minutes',effect:'Spellsinger delights nearby ants with a song calling them to dance. The ants, if provided with some thread, can begin stitching up wounds with their mandibles.',inflict:'Removes bleeding',miscast:'Ants are upset, and start nipping at the spellsinger'},
- {school:'Power',name:'Narrentausch',tier:'II',dur:'Instant',effect:'Spellsinger pulls a target toward them. Blocks escape. On subjects larger than the spellcaster, individual limbs can be targeted to restrain or impede.',inflict:'',miscast:'Spellsinger is pulled toward the target, and is stunned.'},
- {school:'Mirsite',name:'Tenacity of Deicide',tier:'I',dur:'30 minutes',effect:'The mirsite\'s fatal wounds will be mended and they will be restored to life. They will have the energy to keep fighting for 30 minutes despite their non-mended wounds.',inflict:'',miscast:''},
- {school:'Mirsite',name:'Magical Synthesia',tier:'II',dur:'Indefinite',effect:'(Mirsipan and Sanchais only) Mirsites that have learned magical synesthesia know how to recognize the unique sound of spellsong and can visualize the influence of magic as iridescent clouds moving through the world.',inflict:'',miscast:''},
- {school:'Mirsite',name:'Favored Fortitude',tier:'II',dur:'1 attack',effect:'(Presteir and Moken only) Once damage has been taken, the mirsite can activate Favored Fortitude to completely negate the damage taken from the immediate next attack from any source. This cannot be used again until the mirsite has completely recovered their CS.',inflict:'',miscast:''},
- {school:'Mirsite',name:'Chains of the Adversary',tier:'III',dur:'Up to 1 minute',effect:'(Mirspan only) A single target that the mirsite can see is paralyzed for a minute or until the mirsite stops concentrating on binding them. Only works on targets that can identify themselves with names.',inflict:'',miscast:''},
- {school:'Mirsite',name:'Manual of Umbral Arms',tier:'III',dur:'15 minutes',effect:'(Presteir only) The mirsite\'s attacks become unseen, granting a great advantage to landing blows on the enemy. From an outside point of view the mirsite will appear to freeze in place at the point they decide to attack.',inflict:'',miscast:''},
- {school:'Mirsite',name:'Insatiable Blade',tier:'III',dur:'Until the weapon is sheathed/stowed',effect:'(Moken only) The affected weapon begins to crave blood. The weapon or projectile will actively tear and consume portions of blood and flesh for as long as it is in contact with a body. If the mirsite sheathes or stows the weapon without feeding it, it will instead take a bite out of the mirsite.',inflict:'',miscast:''},
- {school:'Mirsite',name:'Antiphon',tier:'III',dur:'Instant',effect:'(Sanchais only) A piercing whistle that disrupts an enemy\'s spellsong and causes the spell to fail. Highly skilled mirsites can force a miscast rather than merely stopping the spell. The mirsite must whistle in the precise direction of the spellsinger as they sing for the boon to take effect.',inflict:'',miscast:''},
- {school:'Flames',name:'Udra\'s Boots',tier:'II',dur:'30 Seconds',effect:'Spellsinger activates the spell to generate fiery thrust from the soles of their feet, allowing them to run at very high speeds as well as leap to vast heights. Can be cancelled at any time, and will end naturally after a few seconds.',inflict:'',miscast:'Spellsinger\'s feet and calves explode (Obliterated Legs).'},
+ {school:'Power',name:'Narrentausch',tier:'II',dur:'Instant',effect:'Spellsinger pulls a target toward them. Blocks escape. On subjects larger than the spellcaster, individual limbs can be targeted to restrain or impede.',inflict:'Grappled',miscast:'Spellsinger is pulled toward the target, and is stunned.'},
+ {school:'Mirsite',name:'Tenacity of Deicide',tier:'I',dur:'30 minutes',effect:'The mirsite\'s fatal wounds will be mended and they will be restored to life. They will have the energy to keep fighting for 30 minutes despite their non-mended wounds.',inflict:'3 HP heal, Borrowed Time',miscast:''},
+ {school:'Mirsite',name:'Magical Synthesia',tier:'II',dur:'Indefinite',effect:'(Mirsipan and Sanchais only) Mirsites that have learned magical synesthesia know how to recognize the unique sound of spellsong and can visualize the influence of magic as iridescent clouds moving through the world.',inflict:'Magical Synesthesia',miscast:''},
+ {school:'Mirsite',name:'Favored Fortitude',tier:'II',dur:'1 attack',effect:'(Presteir and Moken only) Once damage has been taken, the mirsite can activate Favored Fortitude to completely negate the damage taken from the immediate next attack from any source. This cannot be used again until the mirsite has completely recovered their CS.',inflict:'Favored Fortitude',miscast:''},
+ {school:'Mirsite',name:'Chains of the Adversary',tier:'III',dur:'Up to 1 minute',effect:'(Mirspan only) A single target that the mirsite can see is paralyzed for a minute or until the mirsite stops concentrating on binding them. Only works on targets that can identify themselves with names.',inflict:'Paralyzed',miscast:''},
+ {school:'Mirsite',name:'Manual of Umbral Arms',tier:'III',dur:'15 minutes',effect:'(Presteir only) The mirsite\'s attacks become unseen, granting a great advantage to landing blows on the enemy. From an outside point of view the mirsite will appear to freeze in place at the point they decide to attack.',inflict:'Unseen Arms',miscast:''},
+ {school:'Mirsite',name:'Insatiable Blade',tier:'III',dur:'Until the weapon is sheathed/stowed',effect:'(Moken only) The affected weapon begins to crave blood. The weapon or projectile will actively tear and consume portions of blood and flesh for as long as it is in contact with a body. If the mirsite sheathes or stows the weapon without feeding it, it will instead take a bite out of the mirsite.',inflict:'Insatiable Blade',miscast:''},
+ {school:'Mirsite',name:'Antiphon',tier:'III',dur:'Instant',effect:'(Sanchais only) A piercing whistle that disrupts an enemy\'s spellsong and causes the spell to fail. Highly skilled mirsites can force a miscast rather than merely stopping the spell. The mirsite must whistle in the precise direction of the spellsinger as they sing for the boon to take effect.',inflict:'Song Disrupted',miscast:''},
+ {school:'Flames',name:'Udra\'s Boots',tier:'II',dur:'30 Seconds',effect:'Spellsinger activates the spell to generate fiery thrust from the soles of their feet, allowing them to run at very high speeds as well as leap to vast heights. Can be cancelled at any time, and will end naturally after a few seconds.',inflict:'Fleet-Footed',miscast:'Spellsinger\'s feet and calves explode (Obliterated Legs).'},
  {school:'Flames',name:'Fulmination',tier:'III',dur:'Instant',effect:'Spellsinger begins to detonate themselves and the surrounding environment, up to a region of 15x15m. Takes 2 turns to activate. If the spellsinger is brought to 0 HP the spell cancels. The spellsinger is unharmed by the explosion but faints instantly afterwards.',inflict:'10 HP dmg',miscast:'Spellsinger is obliterated by the explosion.'},
  {school:'Insects',name:'Hematophagy',tier:'II',dur:'Instant',effect:'Spellsinger orders their swarm to drain blood from a target, depositing it into their own mouth. Heals the spellsinger 3 HP and deals 3 damage.',inflict:'3 HP dmg, 3 HP heal',miscast:'Order is reversed: the insects suck the spellsinger\'s blood and force it into the target\'s mouth, healing them. Requires blood-sucking insects (mosquito, horsefly).'},
  {school:'Insects',name:'Spinarchia',tier:'II',dur:'Instant',effect:'If the spellsinger possesses silk-producing animals in their swarm, they can use this spell to enhance their abilities dramatically. Spiders group together and launch a large net of unnaturally adhesive silk, ensnaring targets or limbs.',inflict:'',miscast:'Spiders misunderstand the order and fire upon the spellsinger instead.'},
@@ -3354,6 +3420,120 @@
 
  /* Raw stats as allocated; use statsOf for anything that should feel the weight. */
  function rawStats(c) { migrateChar(c); return c.stats; }
+ /* ── MIRSITE BOONS ────────────────────────────────────────────────
+    Mirsite workings sit outside the ensie, so they never miscast. Their
+    lasting effects are carried as conditions rather than ticking effects,
+    since each is spent by a specific event rather than by the clock.
+      Favored Fortitude   negates the next damage from any source, then ends
+      Paralyzed           the target cannot take an action
+      Unseen Arms         the wielder's blows are far harder to see coming
+      Insatiable Blade    the weapon tears deeper and opens wounds
+      Song Disrupted      the next spellsong this character attempts fails
+      Borrowed Time       fighting on past wounds that should have felled them
+      Magical Synesthesia perceives magic; no combat effect */
+ const MIRSITE_FORTITUDE = 'Favored Fortitude';
+ const MIRSITE_PARALYSIS = 'Paralyzed';
+ const MIRSITE_UNSEEN = 'Unseen Arms';
+ const MIRSITE_BLADE = 'Insatiable Blade';
+ const MIRSITE_DISRUPT = 'Song Disrupted';
+ const UNSEEN_HIT_BONUS = 25;   /* percentage points added to hit chance */
+ /* Fiery boots and moth wings both do the same job: they make a fighter very
+    hard to keep hold of. Granted by Udra's Boots and Moth-Song. */
+ const FLEET_CONDITION = 'Fleet-Footed';
+ const FLEET_ESCAPE_BONUS = 50;   /* percentage points added to an escape roll */
+ function fleetEscapeMod(c) { return hasCondition(c, FLEET_CONDITION) ? FLEET_ESCAPE_BONUS : 0; }
+ const BLADE_DAMAGE = 1;        /* extra damage the hungry weapon takes */
+ const BLADE_BLEED = 35;        /* percentage chance the wound keeps bleeding */
+
+ function hasCondition(c, name) {
+ if (!c || !Array.isArray(c.conditions)) return false;
+ return c.conditions.some(x => x.toLowerCase() === name.toLowerCase());
+ }
+ function dropCondition(c, name) {
+ if (!c || !Array.isArray(c.conditions)) return;
+ c.conditions = c.conditions.filter(x => x.toLowerCase() !== name.toLowerCase());
+ }
+
+ /* Favored Fortitude eats one blow from any source, then is spent. Returns
+    true when the damage was swallowed. */
+ function consumeFortitude(c, name, sourceLabel, b) {
+ if (!hasCondition(c, MIRSITE_FORTITUDE)) return false;
+ dropCondition(c, MIRSITE_FORTITUDE);
+ const msg = name + ' turns aside ' + sourceLabel + ' entirely (Favored Fortitude).';
+ if (b) bLog(b, msg);
+ logEvent(c, 'Favored Fortitude negated ' + sourceLabel, 'heal');
+ return true;
+ }
+
+ function isParalyzed(c) { return hasCondition(c, MIRSITE_PARALYSIS); }
+
+ /* ── MULTI-TARGET SPELLS ──────────────────────────────────────────
+    Some songs catch more than one body. The cap is read from the spell's own
+    text where it states one, and falls back to a table for the spells that
+    describe a blast without counting heads. */
+ const SPELL_TARGET_CAP = {
+ 'blitz': 4,              /* up to four people near the target */
+ 'throws of power': 4,    /* devastates all nearby */
+ 'erdungsstift': 4,       /* a 10x10m circle */
+ 'swarmarchia': 3         /* a swarm spreads across a knot of fighters */
+ };
+ const WORD_NUM = { one: 1, two: 2, three: 3, four: 4, five: 5, six: 6 };
+
+ function spellMaxTargets(sp) {
+ if (!sp) return 1;
+ const named = SPELL_TARGET_CAP[(sp.name || '').toLowerCase()];
+ if (named) return named;
+ /* "Up to four people", "up to 3 targets" */
+ const m = (sp.effect || '').match(/up to (\d+|one|two|three|four|five|six)\s+(?:people|targets|creatures|bodies)/i);
+ if (m) {
+ const raw = m[1].toLowerCase();
+ return WORD_NUM[raw] || parseInt(raw) || 1;
+ }
+ return 1;
+ }
+ function isMultiTarget(sp) { return spellMaxTargets(sp) > 1; }
+
+ /* ── GRAPPLING ────────────────────────────────────────────────────
+    A grappled fighter is held fast. They cannot strike, cast, or flee the
+    field: their whole turn goes to tearing loose. Strength decides it. */
+ const GRAPPLE_CONDITION = 'Grappled';
+ const GRAPPLE_BASE = 35;        /* base chance to break free */
+ const GRAPPLE_PER_STR = 6;      /* added per point of Strength */
+
+ function isGrappled(c) { return hasCondition(c, GRAPPLE_CONDITION); }
+
+ function breakFreeChance(c) {
+ if (!c) return 0;
+ return Math.max(5, Math.min(95, GRAPPLE_BASE + GRAPPLE_PER_STR * statsOf(c).str));
+ }
+
+ /* Spend the turn wrenching out of a hold. */
+ function battleBreakFree(id) {
+ const b = battles[id]; if (!b || b.status !== 'active') return;
+ if (b.acted) return;
+ const name = currentActor(b); if (!name) return;
+ const c = roster[name]; if (!c) return;
+ migrateChar(c);
+ if (!isGrappled(c)) { showBattleResult(id, 'Nothing holding ' + name + '.'); return; }
+
+ const chance = breakFreeChance(c);
+ const roll = Math.floor(Math.random() * 100) + 1;
+ if (roll <= chance) {
+ dropCondition(c, GRAPPLE_CONDITION);
+ bLog(b, name + ' tears free of the hold. (rolled ' + roll + ' vs ' + chance + '%)');
+ logEvent(c, 'Broke free of a grapple (' + roll + ' vs ' + chance + '%)', 'heal');
+ showBattleResult(id, name + ' wrenches loose and is free to act next turn.');
+ } else {
+ bLog(b, name + ' strains against the hold and cannot break it. (rolled ' + roll + ' vs ' + chance + '%)');
+ logEvent(c, 'Failed to break a grapple (' + roll + ' vs ' + chance + '%)');
+ showBattleResult(id, name + ' cannot break loose.');
+ }
+ renderStatus();
+ if (afterAction(id)) return;
+ renderBattles();
+ saveState();
+ }
+
  function statsOf(c) {
  migrateChar(c);
  const spec = armourSpec(c);
@@ -3465,6 +3645,8 @@
  if (w.category === 'ranged') pct += traitFx(att, 'hitRanged');
  else pct += traitFx(att, 'hitMelee');
  }
+ /* Blows nobody sees coming are very hard to answer. */
+ if (hasCondition(att, MIRSITE_UNSEEN)) pct += UNSEEN_HIT_BONUS;
  return Math.max(5, Math.min(95, Math.round(pct)));
  }
 
@@ -3872,13 +4054,17 @@
  const b = battles[id]; if (!b || b.status !== 'active') return;
  const name = currentActor(b); if (!name) return;
  const c = roster[name];
+ if (isGrappled(c)) {
+ showBattleResult(id, name + ' cannot flee while grappled. Break the hold first.');
+ return;
+ }
  const side = sideOf(b, name);
  const foes = b.sides[side === 'A' ? 'B' : 'A'].filter(n => canAct(b, n));
  let chance;
- if (!foes.length) { chance = 95; }
+ if (!foes.length) { chance = 95; }   /* nobody left to give chase */
  else {
  const maxFoeSpd = Math.max.apply(null, foes.map(n => statsOf(roster[n]).spd));
- chance = Math.max(5, Math.min(95, 40 + 6 * (statsOf(c).spd - maxFoeSpd) + traitEscapeMod(c)));
+ chance = Math.max(5, Math.min(95, 40 + 6 * (statsOf(c).spd - maxFoeSpd) + traitEscapeMod(c) + fleetEscapeMod(c)));
  }
  const roll = Math.floor(Math.random() * 100) + 1;
  if (roll <= chance) {
@@ -3977,6 +4163,37 @@
  '</div>';
  }
 
+ /* Held fast: the whole turn goes to tearing loose, and there is no fleeing
+    the field while someone has hold of you. */
+ if (isGrappled(c)) {
+ const spentG = !!b.acted;
+ return '<div class="battle-action-panel bap-pending">' +
+ '<h4><span class="bap-actor">' + actor + '</span> is grappled</h4>' +
+ '<div class="bap-row"><span class="bap-melee-label">Held fast. ' + actor +
+ ' cannot strike, cast, or flee until the hold is broken.</span></div>' +
+ '<div class="bap-row' + (spentG ? ' bap-spent' : '') + '">' +
+ '<button class="act-btn" onclick="battleBreakFree(' + id + ')"' + (spentG ? ' disabled' : '') + '>' +
+ 'Break free (' + breakFreeChance(c) + '%)</button>' +
+ '</div>' +
+ (spentG ? '<div class="bap-row"><span class="bap-spent-note">Action used - end the turn to continue.</span></div>' : '') +
+ '<div class="bap-row bap-turn-row">' +
+ '<button class="btn-endturn' + (b.acted ? ' turn-spent' : '') + '" onclick="endTurn(' + id + ')">' +
+ (b.acted ? 'End turn &rarr;' : 'End turn') + '</button>' +
+ '</div>' +
+ '<div class="bap-result" id="bap-result-' + id + '"></div>' +
+ '</div>';
+ }
+
+ /* Chains of the Adversary hold the body fast: nothing but waiting it out. */
+ if (isParalyzed(c)) {
+ return '<div class="battle-action-panel bap-pending">' +
+ '<h4><span class="bap-actor">' + actor + '</span> is paralyzed</h4>' +
+ '<div class="bap-row"><span class="bap-melee-label">Bound by Chains of the Adversary. ' +
+ actor + ' cannot act until the binding is broken. Remove the Paralyzed condition to free them.</span></div>' +
+ '<div class="bap-row"><button class="btn-endturn" onclick="endTurn(' + id + ')">End turn</button></div>' +
+ '</div>';
+ }
+
  const side = sideOf(b, actor);
  const foes = b.sides[side === 'A' ? 'B' : 'A'].filter(n => canAct(b, n));
  const allTargets = b.order.filter(n => n !== actor && canAct(b, n));
@@ -4002,11 +4219,28 @@
  const dis = spent ? ' disabled' : '';
  const rowCls = spent ? ' bap-spent' : '';
 
+ /* Remember which spell is highlighted so the panel can offer extra targets
+    for songs that catch a crowd. */
+ const selIdx = (b.castSel != null && learned.some(x => x.i === b.castSel)) ? b.castSel : (learned.length ? learned[0].i : null);
+ const selSpell = selIdx != null ? SPELLS[selIdx] : null;
+ const cap = spellMaxTargets(selSpell);
  const castRow = learned.length
- ? '<div class="bap-row' + rowCls + '"><select id="bap-spell-' + id + '"' + dis + '>' +
- learned.map(x => '<option value="' + x.i + '">' + x.sp.name + ' (' + x.sp.school + ')</option>').join('') +
+ ? '<div class="bap-row' + rowCls + '"><select id="bap-spell-' + id + '" onchange="onCastSpellChange(' + id + ')"' + dis + '>' +
+ learned.map(x => '<option value="' + x.i + '"' + (x.i === selIdx ? ' selected' : '') + '>' + x.sp.name + ' (' + x.sp.school + ')' + (isMultiTarget(x.sp) ? ' [up to ' + spellMaxTargets(x.sp) + ']' : '') + '</option>').join('') +
  '</select><button class="act-btn" onclick="battleCast(' + id + ')"' + dis + '>Cast</button></div>'
  : '<div class="bap-row"><span class="loadout-empty">No learned spells - assign some on the Loadout tab.</span></div>';
+
+ /* Extra bodies caught by the same song. The primary target comes from the
+    Target row above; these are the ones swept up alongside it. */
+ const extraTargets = targetList.filter(n => n !== defaultTarget);
+ const multiRow = (cap > 1 && extraTargets.length)
+ ? '<div class="bap-row bap-multi' + rowCls + '">' +
+ '<span class="bap-melee-label">' + selSpell.name + ' catches up to ' + cap + '. Also hit:</span>' +
+ '<span class="multi-picks">' + extraTargets.map(n =>
+ '<label class="multi-pick"><input type="checkbox" class="bap-extra-' + id + '" value="' + n.replace(/"/g,'&quot;') + '"' + dis + '> ' +
+ n + (sideOf(b, n) === side ? ' (ally)' : '') + '</label>').join('') + '</span>' +
+ '</div>'
+ : '';
  /* An empty weapon cannot be chosen until someone spends an action reloading it. */
  const readyW = equippedW.filter(w => isWeaponReady(b, actor, w));
  const emptyW = equippedW.filter(w => !isWeaponReady(b, actor, w));
@@ -4033,7 +4267,7 @@
  return '<div class="battle-action-panel">' +
  '<h4><span class="bap-actor">' + actor + '</span> chooses to:</h4>' +
  '<div class="bap-row"><label class="bap-target-label">Target</label><select id="bap-target-' + id + '">' + opts + '</select></div>' +
- castRow + strikeRow + meleeRow + swatRow + spentNote +
+ castRow + multiRow + strikeRow + meleeRow + swatRow + spentNote +
  '<div class="bap-row bap-turn-row">' +
  '<button class="btn-escape" onclick="attemptEscape(' + id + ')">Attempt escape</button>' +
  '<button class="btn-endturn' + (b.acted ? ' turn-spent' : '') + '" onclick="endTurn(' + id + ')">' +
@@ -4069,6 +4303,16 @@
  if (isHtml) r.innerHTML = text; else r.textContent = text;
  }
 
+ /* Keep the highlighted spell on the battle so the panel can redraw with the
+    right target picker when the selection changes. */
+ function onCastSpellChange(id) {
+ const b = battles[id]; if (!b) return;
+ const sel = document.getElementById('bap-spell-' + id);
+ if (!sel) return;
+ b.castSel = parseInt(sel.value);
+ renderBattles();
+ }
+
  function battleCast(id) {
  const b = battles[id]; if (!b || b.status !== 'active') return;
  if (b.acted) return;   /* one action per turn */
@@ -4077,11 +4321,52 @@
  const tsel = document.getElementById('bap-target-' + id);
  if (!spellSel || !tsel) return;
  const tgt = tsel.value;
+ const spell = SPELLS[parseInt(spellSel.value)];
  const combatSpell = document.getElementById('spell-cast-select');
  if (combatSpell) combatSpell.value = spellSel.value;
+
+ /* Gather any extra bodies the song sweeps up, respecting the spell's cap. */
+ const cap = spellMaxTargets(spell);
+ let extras = [];
+ if (cap > 1) {
+ const boxes = document.querySelectorAll('.bap-extra-' + id);
+ extras = Array.prototype.slice.call(boxes || [])
+ .filter(x => x.checked)
+ .map(x => x.value)
+ .filter(n => n && n !== tgt && roster[n]);
+ if (extras.length > cap - 1) extras = extras.slice(0, cap - 1);
+ }
+
  setActionTarget(tgt);
  castSpell(tgt);
- const out = (document.getElementById('miscast-result') || {}).innerHTML || '';
+ let out = (document.getElementById('miscast-result') || {}).innerHTML || '';
+
+ /* The song is sung once. Everyone else caught in it takes the same effects
+    without a second roll against the ensie. */
+ if (extras.length) {
+ const caster = roster[activeChar];
+ const spread = [];
+ extras.forEach(n => {
+ const other = roster[n];
+ if (!other) return;
+ migrateChar(other);
+ if (spell && parseSpellEffect(spell).damage > 0 && hasCondition(other, MIRSITE_FORTITUDE)) {
+ consumeFortitude(other, n, activeChar + "'s " + spell.name, b);
+ spread.push(n + ' negates it entirely (Favored Fortitude)');
+ return;
+ }
+ const applied = applySpellToTarget(caster, n, other, spell);
+ if (applied) spread.push(applied);
+ });
+ if (spread.length) {
+ const extraNote = '<div class="miscast-applied">Also caught: ' + spread.join(' ') + '</div>';
+ const r = document.getElementById('miscast-result');
+ if (r) r.innerHTML += extraNote;
+ out += extraNote;
+ bLog(b, activeChar + "'s " + spell.name + ' also catches ' + extras.join(', ') + '.');
+ }
+ }
+
  if (afterAction(id)) return;   /* battle may have resolved itself */
  renderBattles();
  showBattleResult(id, out, true);
@@ -4175,12 +4460,14 @@
  const stageColor = hp <= 0 ? '#cc0000' : hp <= cap / 2 ? '#b35900' : '#008000';
  const armourTag = isArmoured(c) ? '<span class="armour-tag">' + armourSpec(c).label.toLowerCase() + ' armour</span>' : '';
  const shieldTag = hasShield(c) ? '<span class="armour-tag">shield</span>' : '';
+ const holdTag = (b.status === 'active' && isGrappled(c)) ? '<span class="grapple-tag">grappled</span>'
+ : (b.status === 'active' && isParalyzed(c)) ? '<span class="grapple-tag">paralyzed</span>' : '';
  const bl = b.status === 'active' ? blocksLeft(b, name) : blockCapacity(c);
  const blockTag = (b.status === 'active' && !down && !esc)
  ? '<span class="block-tag' + (bl ? '' : ' block-tag-out') + '">' + bl + '/' + blockCapacity(c) + ' blocks</span>' : '';
  const empties = b.status === 'active' ? spentWeaponsFor(b, name) : [];
  const emptyTag = empties.length ? '<span class="empty-tag">' + empties.join(', ') + ' empty</span>' : '';
- return '<div class="' + cls + '"><span>' + name + tag + armourTag + shieldTag + blockTag + emptyTag +
+ return '<div class="' + cls + '"><span>' + name + tag + holdTag + armourTag + shieldTag + blockTag + emptyTag +
  ' <span style="color:var(--color-text-tertiary,#888);">' + hp + '/' + cap + ' HP <span style="color:' + stageColor + '; font-weight: bold; text-transform: capitalize;">(' + stageLabel + ')</span></span></span>' +
  (b.status !== 'done' ? '<button class="c-x" title="Remove from battle" onclick="removeFromBattle(' + b.id + ',\'' + name.replace(/'/g, "\\'") + '\')">&times;</button>' : '') +
  '</div>';
